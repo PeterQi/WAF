@@ -1,5 +1,8 @@
 import requests
 from optparse import OptionParser
+import os
+main_path=os.path.abspath('.')
+
 def parse_cmd_args():
     usage = "usage: %prog [options] arg"
     parser = OptionParser(usage)
@@ -31,5 +34,9 @@ def first_request(options):
 def main():
     opt = parse_cmd_args()
     first_request(opt)
+    from sys import path
+    path.append(main_path+'/sqlmap')
+    from sqlmap import sqlmain
+    print sqlmain(['sqlmap.py', '-u', opt.url, '--identify-waf'])
 if __name__=="__main__":
     main()
