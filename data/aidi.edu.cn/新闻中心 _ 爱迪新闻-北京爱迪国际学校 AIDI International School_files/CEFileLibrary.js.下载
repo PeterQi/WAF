@@ -1,0 +1,92 @@
+/* WysiwygFileLibrary object to handle file management with SchoolSuite File Library instead of CuteEditor image and file manager. */
+
+if (WysiwygFileLibrary && WysiwygFileLibrary.Init === null) {
+    WysiwygFileLibrary.provider = "CuteEditor";
+
+    WysiwygFileLibrary.Init = function (editor) {
+        if (editor && WysiwygFileLibrary.editor === null) {
+            if (editor.IsReady && editor.id.indexOf("RichContentEditor") !== -1) {
+                WysiwygFileLibrary.editor = editor;
+                WysiwygFileLibrary.iframe = $("#" + editor.id + "_Frame");
+
+                var containId = editor.id.substr(3, editor.id.indexOf("_Rich") - 3);
+
+                if ($("#primary-content #" + containId).length > 0) {
+                    WysiwygFileLibrary.container = $("#primary-content");
+                }
+                else if ($("#secondary-content #" + containId).length > 0) {
+                    WysiwygFileLibrary.container = $("#secondary-content");
+                }
+                else if ($("#tertiary-content #" + containId).length > 0) {
+                    WysiwygFileLibrary.container = $("#tertiary-content");
+                }
+                else {
+                    WysiwygFileLibrary.container = $("#primary-content");
+                }
+
+                WysiwygFileLibrary.iframe.contents().find("[id^=CEInsert]").each(function () {
+                    this.id = this.id.replace("CEInsert-", "CEInsert");
+                    var id = this.id.replace("CEInsert", "");
+                    WysiwygFileLibrary.files[id] = { "isInserted": true };
+
+                    $(this).find("img").after(WysiwygFileLibrary.imageControls);
+                    WysiwygFileLibrary.BindImageControls();
+                });
+
+                $("#TB_ajaxContent a.ContentEditorCancelButton").click(function () {
+                    if (WysiwygFileLibrary.fileLibrary !== null && !WysiwygFileLibrary.fileLibrary.closed && WysiwygFileLibrary.fileLibrary.location) {
+                        WysiwygFileLibrary.fileLibrary.close();
+                    }
+                });
+
+                $.ajax({
+                    url: '/schoolsuite/ajax/filelibrary.aspx?pageaction=ImageSizes',
+                    type: "GET",
+                    success: function (html) {
+                        try {
+                            eval(html);
+
+                            if (CEImageThumbBlockPairings) {
+                                WysiwygFileLibrary.imageSizes = CEImageThumbBlockPairings.slice(0);
+                                WysiwygFileLibrary.blockSizes = [];
+
+                                for (var i = 0; i < WysiwygFileLibrary.imageSizes.length; i++) {
+                                    WysiwygFileLibrary.blockSizes.push("block" + (i + 1));
+                                }
+                            }
+                        }
+                        catch (err) {
+                            requestSuccessful = false;
+                        }
+                    },
+                    async: false
+                });
+
+
+                /* for Safari and Opera; the functions will get overwritten when CuteEditor loads and to handle post back */
+                CuteEditor_OnInitialized = WysiwygFileLibrary.Init;
+                window.CuteEditor_OnCommand = WysiwygFileLibrary.CommandHandler;
+
+            } else {
+                /* for Safari and Opera; the function will get overwritten when CuteEditor loads */
+                setTimeout(function () {
+                    WysiwygFileLibrary.Init(editor);
+                }, 1000);
+            }
+        }
+    }
+
+    /* for Safari and Opera; the functions will get overwritten when CuteEditor loads */
+    function CuteEditor_OnInitialized(editor){
+	    WysiwygFileLibrary.Init(editor);
+    }
+    function CuteEditor_OnCommand(editor,command,ui,value){
+	    WysiwygFileLibrary.CommandHandler(editor,command,ui,value);
+    }
+}
+
+
+/* Required by the Microsoft Ajax Framework:*/
+if ((typeof Sys !== "undefined") && (typeof Sys.Application !== "undefined")) {
+    Sys.Application.notifyScriptLoaded();
+}

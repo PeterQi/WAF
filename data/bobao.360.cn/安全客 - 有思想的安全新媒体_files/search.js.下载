@@ -1,0 +1,47 @@
+$(function() {
+	var formSel = {
+		types:["漏洞","资讯","知识","漏洞，资讯或知识"],
+		inputEl: $("#search #type"),
+		el: $(".sear-wr .sel-type"),
+		selecteeWr: $(".sel-type .typelist"),
+		selectee: [],
+		showText: $(".sel-type .seled"),
+		handleOver: function(e) {
+			if( !formSel.selecteeWr.is(":animated") ) {
+				formSel.selecteeWr.slideDown();
+			}
+		},
+		handleLeave: function(e) {
+			formSel.selecteeWr.slideUp();
+		},
+		handleClick: function(e) {
+			var $this = $(this);
+			formSel.inputEl.val( $this.data("index") );
+			formSel.showText.text( $this.text() );
+			formSel.selecteeWr.find(".hide").removeClass("hide");
+			$this.addClass("hide");
+			formSel.selecteeWr.slideUp();
+			if ($this.data("index") != undefined){
+				$(".keys").attr("placeholder", "搜索"+formSel.types[$this.data("index")]);
+			}
+		},
+		bind: function() {
+			this.el.on("mouseover", this.handleOver);
+			this.el.on("mouseleave", this.handleLeave);
+			this.selecteeWr.on("click", "li", this.handleClick);
+		},
+		init: function() {
+			this.bind();
+			var val = this.inputEl.val();
+			this.selectee = formSel.selecteeWr.find("li");
+			this.selectee.eq(val).addClass("hide").slideUp();
+		}
+	}
+	formSel.init();
+    //2015.8.24 报错注释
+	slide.init(slide);
+	QHPass.init("pcw_adlab");
+	QHPass.setConfig('signIn.types', ['normal']);
+	QHPass.getUserInfo(true, RLO.login, RLO.listenLog);
+});
+

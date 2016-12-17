@@ -1,0 +1,238 @@
+	//加载时 调用
+    $(function(){
+        $("#search-select-list>li>a").click(function(){
+        	var sText = $("#selectText").text();
+            $("#selectText").text($(this).text());
+            $(this).text(sText);
+        });
+        
+        //点击市级部门
+        $('#hDepartmenta').click(function(){
+        	var hId = $(this).parent().attr("id");
+        	var nextId = $(this).next().attr("id");
+        	$('.goToBox li a').removeClass('cur');
+        	if(nextId == 'hGoToBoxUl'){
+        		$("#hGoToBoxUl").remove();
+        	}else{
+        		$("#hDepartmenta").addClass('cur');
+        		getDepartmentList(hId,linkType);
+        	}
+        });
+        //点击区县
+        $('#hZonea').click(function(){
+        	var hId = $(this).parent().attr("id");
+        	var nextId = $(this).next().attr("id");
+        	$('.goToBox li a').removeClass('cur');
+        	if(nextId == 'hGoToBoxUl'){
+        		$("#hGoToBoxUl").remove();
+        	}else{
+        		$("#hZonea").addClass('cur');
+        		getHallManagerList(hId,linkType);
+        	}
+        });
+        //点击管委会
+        $('#hStreeta').click(function(){
+        	var hId = $(this).parent().attr("id");
+        	var nextId = $(this).next().attr("id");
+        	$('.goToBox li a').removeClass('cur');
+        	if(nextId == 'hGoToBoxUl'){
+        		$("#hGoToBoxUl").remove();
+        	}else{
+        		$("#hStreeta").addClass('cur');
+        		getStreetList(hId,linkType);
+        	}
+        });
+        //根据是否登录调整检索框宽度
+        adjustSearchWidth(isLogin);
+    });
+	
+	
+	//根据是否登录调整检索框宽度
+	function adjustSearchWidth(loginFlag){
+		if ('N'==loginFlag){
+			$('#searchDiv').css('width','460px');
+			$('#serachText').css('width','383px');
+		}else if('Y'==loginFlag){
+			$('#searchDiv').css('width','380px');
+			$('#serachText').css('width','304px');
+		}else if('A'==loginFlag){
+			$('#search').css('width','1000px');
+		}else if('B'==loginFlag){
+			$('#search').css('width','1090px');
+			
+		}
+	}
+	
+	//ajax 异步加载区县分厅下拉列表
+	function getHallManagerList(hId,linkType){
+		$.ajax({
+			type : "POST",
+			url : webRoot + '/zwdt/hallManager/showHallMgrList.do',
+			dataType : 'json',
+			success : function(res) {
+				_renders(hId,res,linkType);
+			}
+		});
+	}
+	
+	//ajax 异步加载区县分厅下拉列表
+	function getDepartmentList(hId,linkType){
+		$.ajax({
+			type : "POST",
+			url : webRoot + '/zwdt/hallManager/showDepertmentList.do',
+			dataType : 'json',
+			success : function(res) {
+				_rendersDep(hId,res,linkType);
+			}
+		});
+	}
+	//ajax 异步加载管委会下拉列表
+	function getStreetList(hId,linkType){
+		$.ajax({
+			type : "POST",
+			url : webRoot + '/zwdt/hallManager/showStreetList.do',
+			dataType : 'json',
+			success : function(res) {
+				_rendersStr(hId,res,linkType);
+			}
+		});
+	}
+	
+	function _renders(hId,res,linkType) {
+		$("#hGoToBoxUl").remove();
+		var lihtml = "";
+		if(boolIframe=='true'){
+			lihtml += '<ul id=\"hGoToBoxUl\" style =\"display:block;width:410px\">';
+		}else{
+			lihtml += '<ul id=\"hGoToBoxUl\" style =\"display:block;width:440px;height:45px;overflow:auto;padding:0px 0px 10px 0px\">';
+		}
+		
+		$.each(res.LinkedHashMap, function(key, value) {
+			
+			if (key!="上海市"){
+				if (value.stLinkYorn=="否"){
+				//不能跳转
+				lihtml += '<li style="width:100px"><a href=\"javascript:void(0)\">'+key+'</a></li>';
+			}else{
+				/*if(linkType == "tmzf"){
+					lihtml += '<li style=\"width:87.5px;height:29px\"><a href=\"javascript:void(0)\" onClick=\"disChange(\''+value.stOther3+'\')\">'+key+'</a></li>';
+				}else if(linkType == "bsfw"){
+					lihtml += '<li style=\"width:87.5px;height:29px\"><a href=\"javascript:void(0)\" onClick=\"disChange(\''+value.stOther9+'\')\">'+key+'</a></li>';
+				}else if(linkType == "yyxb"){
+					lihtml += '<li style=\"width:87.5px;height:29px\"><a href=\"javascript:void(0)\" onClick=\"disChange(\''+value.stOther5+'\')\">'+key+'</a></li>';
+				}else if(linkType == "cxfk"){
+					lihtml += '<li style=\"width:87.5px;height:29px\"><a href=\"javascript:void(0)\" onClick=\"disChange(\''+value.stOther8+'\')\">'+key+'</a></li>';
+				}else if(linkType == "pjfx"){
+					lihtml += '<li style=\"width:87.5px;height:29px\"><a href=\"javascript:void(0)\" onClick=\"disChange(\''+value.stOther6+'\')\">'+key+'</a></li>';
+				}else if(linkType == "hdwd"){
+					lihtml += '<li style=\"width:87.5px;height:29px\"><a href=\"javascript:void(0)\" onClick=\"disChange(\''+value.stOther7+'\')\">'+key+'</a></li>';
+				}else{
+					
+				}*/
+				lihtml += '<li style="width:100px"><a href=\"javascript:void(0)\" ';
+				if(value.stIndexUrl == 'javaScript:void(0);'){
+					lihtml += 'title=\"该网站正在紧急维护中...\" ';
+				}
+				lihtml += 'onClick=\"disChange(\''+value.stIndexUrl+'\')\">'+key+'</a></li>';
+			}
+			}
+			
+		});
+		lihtml += '</ul>';
+		$("#"+hId).append(lihtml);
+	}
+	
+	
+	//渲染select
+	function _rendersDep(hId,res,linkType) {
+		$("#hGoToBoxUl").remove();
+		var lihtml = "";
+		if(boolIframe=='true'){
+			lihtml += '<ul id=\"hGoToBoxUl\" class=\"w800\" style =\"display:block\">';
+		}else{
+			lihtml += '<ul id=\"hGoToBoxUl\" class=\"w1000 h50\" style =\"display:block;padding:0px 0px 10px 0px;height:45px\">';
+		}
+		$.each(res, function(key, value) {
+			lihtml += '<li><a href=\"'+value+'\" ';
+			if(value == 'javaScript:void(0);'){
+				lihtml += 'title=\"该网站正在紧急维护中...\" ';
+			}
+			lihtml += 'target=\"_blank\">'+key+'</a></li>';
+		});
+		lihtml += '</ul>';
+		$("#"+hId).append(lihtml);
+	}
+	
+	//渲染select
+	function _rendersStr(hId,res,linkType) {
+		$("#hGoToBoxUl").remove();
+		var lihtml = "";
+		if(boolIframe=='true'){
+			lihtml += '<ul id=\"hGoToBoxUl\" style =\"display:block\;width:430px">';
+		}else{
+			lihtml += '<ul id=\"hGoToBoxUl\" class=\"w430 h50\" style =\"display:block;padding:0px 0px 10px 0px;height:45px\">';
+		}
+		$.each(res, function(key, value) {
+				if (key=='中国(上海)自由贸易试验区')
+					key+='管委会';
+				lihtml += '<li style=\"width:50%\"><a href=\"'+value+'\" target=\"_blank\">'+key+'</a></li>';
+		});
+		lihtml += '</ul>';
+		$("#"+hId).append(lihtml);
+	}
+	
+	function cancel(area){
+		$.ajax({
+			url:webRoot+'/uc/cancel.do',
+			type:'post',
+			dataType:'json',
+			success:function(res){
+				var htmlText='<a href=\"javaScript:void(0);\" class=\"loginBtn\" style=\"float:left;border:0px;margin-left:10px\" onClick=\"topNav(\''+ucUrl+'/login/login.jsp?self=self&jump='+jump+'&redirect_uri='+linkUrl+'\')\">登录</a>';
+				if('cancelForShi'==area){
+					$('#cancelForShi').remove();
+					$('.search').append(htmlText);
+					adjustSearchWidth('N');
+				}else{
+					$('.loginBtn').remove();
+					$('#cancelForZone').append(htmlText);
+					adjustSearchWidth('A');
+				}
+				if (isGxhptUrl=='Y')
+					window.location.href=sjzwdtUrl;
+			}
+		});
+	}
+
+	
+	function submitSearch(flag){
+		if(flag){
+			$('#pageNumber').val('1');
+		}
+		var searchText=$.trim($('#serachText').val());
+		searchText=searchText.replace(/\s/g,"");
+		$('#serachText').val(searchText);
+		if (searchText==""||searchText=="请输入关键字或“统一审批编码”查询（001045513000000）"){
+			alert("请输入您要检索的内容");
+		}else{
+	 		var reg=/^[1-9]\d{5}[1-9]\d{3}((0[1-9])|(1[0-2]))((0[1-9])|([1-2][0-9])|(3[0-1]))\d{3}(\d|x|X)$/;
+	 		if(reg.test(searchText)){
+	 			$("#searchForm").attr("action",webRoot + "/zwdtSW/userIdNo/userIdNo.jsp");
+	 		}else{
+	 			$("#searchForm").attr("action",webRoot + "/search/pre.do");
+	 		}
+			$("#searchForm").submit();
+		}		
+	}
+	
+	var disChange=function(disUrl){
+		$('#districtForm').attr("action",disUrl);
+		$('#districtForm').attr("target","_blank");
+		$('#districtForm').submit();
+	};
+	
+	var topNav=function(_href){
+		window.top.location=_href;
+	}
+	function goBsfw(url){
+		window.top.location.href=url;
+	}

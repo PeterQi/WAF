@@ -1,0 +1,9 @@
+HTTP/1.1 302 Moved Temporarily
+Server: Apache-Coyote/1.1
+X-Powered-By: Servlet 2.4; JBoss-4.2.3.GA (build: SVNTag=JBoss_4_2_3_GA date=200807181439)/JBossWeb-2.0
+Location: http://www.shanghai.gov.cn
+Content-Length: 0
+Date: Sat, 17 Dec 2016 05:08:03 GMT
+Connection: close
+Via: 1.1 ID-0000627501465410 uproxy-2
+

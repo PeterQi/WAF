@@ -1,0 +1,327 @@
+/* WysiwygFileLibrary object to handle file management with SchoolSuite File Library instead of CuteEditor image and file manager. */
+var WysiwygFileLibrary = {
+    editor: null,
+    provider: null,
+    iframe: null,
+    container: null,
+    files: [],
+    imageSizes: ["tn-", "sm-", "", "lg-", "xlg-"],
+    blockSizes: ["block1", "block2", "block3", "block4", "block5"],
+    imageControls: '<div class="CEImageControls"><input type="image" src="/_infrastructure/Images/Icons/16x16/arrow_left.png" alt="Left" /><input type="image" src="/_infrastructure/Images/Icons/16x16/arrow_right.png" alt="Right" /><input type="image" src="/_infrastructure/Images/Icons/16x16/zoom_out.png" alt="Decrease" /><input type="image" src="/_infrastructure/Images/Icons/16x16/zoom_in.png" alt="Increase" /><input type="image" src="/_infrastructure/Images/Icons/16x16/layout_delete.png" alt="ImageOnly" /></div>',
+    isDirty: false,
+    fileLibrary: null,
+
+    GetImageSize: function (src) {
+        if (src && src.length > 0) {
+            var lastSlash = src.lastIndexOf("/") + 1;
+            var file = src.substring(lastSlash, src.length);
+            var filePos = lastSlash;
+            var currentSize = -1;
+            var blankPrefix = -1;
+
+            for (var i = 0; i < this.imageSizes.length; i++) {
+                var prefixLength = this.imageSizes[i].length;
+
+                if (prefixLength !== 0 && this.imageSizes[i] === file.substring(0, prefixLength)) {
+                    currentSize = i;
+                    filePos = lastSlash + prefixLength;
+                } else if (prefixLength === 0) {
+                    blankPrefix = i;
+                }
+            }
+
+            if (currentSize === -1 && file.substring(0, 3) === "tn-") {
+                currentSize = 0;
+                filePos = lastSlash + 3;
+            }
+            else if (currentSize === -1 && blankPrefix !== -1) {
+                currentSize = blankPrefix;
+            }
+
+            return {
+                "size": currentSize,
+                "slash": lastSlash,
+                "file": filePos
+            };
+        }
+    }, /* GetImageSize */
+
+    ImageControlDoAction: function (cmd) {
+        var $this = $(cmd);
+        var $container = $this.closest(".image");
+        var $image = $this.parent().siblings("img");
+        var imageSrc = $image.attr("src");
+        var thumb;
+        var action = $this.attr("alt");
+
+        switch (action.toLowerCase()) {
+            case "left":
+                if ($container.hasClass("right")) {
+                    $container.removeClass("right");
+                }
+                else if ($container.hasClass("left")) {
+                }
+                else {
+                    $container.addClass("left");
+                }
+                break;
+            case "right":
+                if ($container.hasClass("left")) {
+                    $container.removeClass("left");
+                }
+                else if ($container.hasClass("right")) {
+                }
+                else {
+                    $container.addClass("right");
+                }
+                break;
+            case "increase":
+                thumb = this.GetImageSize(imageSrc);
+                if (thumb && thumb.size + 1 < this.imageSizes.length) {
+                    imageSrc = imageSrc.substring(0, thumb.slash) + this.imageSizes[thumb.size + 1] + imageSrc.substring(thumb.file, imageSrc.length);
+                    $image.attr("src", imageSrc);
+                    if (this.provider === "CKEditor") {
+                        $image.attr("data-cke-saved-src", imageSrc);
+                    }
+                    else if (this.provider === "CuteEditor") {
+                        $image.attr("src_cetemp", imageSrc);
+                    }
+                    $container.attr("class", $container.attr("class").replace(/block\d{1,}/, "")).addClass(this.blockSizes[thumb.size + 1]);
+                }
+                break;
+            case "decrease":
+                thumb = this.GetImageSize(imageSrc);
+                if (thumb && thumb.size - 1 >= 0) {
+                    imageSrc = imageSrc.substring(0, thumb.slash) + this.imageSizes[thumb.size - 1] + imageSrc.substring(thumb.file, imageSrc.length);
+                    $image.attr("src", imageSrc);
+                    if (this.provider === "CKEditor") {
+                        $image.attr("data-cke-saved-src", imageSrc);
+                    }
+                    else if (this.provider === "CuteEditor") {
+                        $image.attr("src_cetemp", imageSrc);
+                    }
+                    $container.attr("class", $container.attr("class").replace(/block\d{1,}/, "")).addClass(this.blockSizes[thumb.size - 1]);
+                }
+                break;
+            case "imageonly":
+                $container.after($image);
+                $image.attr("id", $container.attr("id"));
+
+                if ($container.hasClass("right")) {
+                    $image.addClass("right");
+                }
+                else if ($container.hasClass("left")) {
+                    $image.addClass("left");
+                }
+
+                $container.remove();
+                WysiwygFileLibrary.isDirty = true;
+                break;
+        }
+
+        return false;
+    }, /* ImageControlDoAction */
+
+    GetFileIdsString: function () {
+        if (this.files && this.files.length > 0) {
+            var fileId;
+            var fileIds = [];
+
+            for (fileId in this.files) {
+                if (this.files[fileId].isInserted) {
+                    fileIds.push(fileId);
+                }
+            }
+
+            if (fileIds.length > 0) {
+                return fileIds.join(",");
+            }
+        }
+        return "";
+    }, /* GetFileIdsString */
+
+    /* for IE; deep copies the file objects so they exist after popup window is closed. */
+    UpdateFiles: function () {
+        var files = [];
+        var id;
+
+        for (id in this.files) {
+            files[id] = $.extend(true, {}, this.files[id]); //deep copying
+        }
+
+        this.files = files;
+    }, /* UpdateFiles */
+
+    BindImageControls: function () {
+        if (this.iframe) {
+            // find all image controls
+            this.iframe.contents().find("div.CEImageControls").each(function () {
+                if (WysiwygFileLibrary.isDirty) WysiwygFileLibrary.CleanjQueryAttributes(this);
+
+                // bind click event for buttons
+                $(this).removeClass("hide").find("input").unbind().each(function () {
+                    if (WysiwygFileLibrary.isDirty) WysiwygFileLibrary.CleanjQueryAttributes(this);
+                }).click(function () {
+                    return WysiwygFileLibrary.ImageControlDoAction(this);
+                }).mouseover(function () {
+                    $(this).focus();
+                });
+            }).parent().each(function () { // handle hover
+                if (WysiwygFileLibrary.isDirty) WysiwygFileLibrary.CleanjQueryAttributes(this);
+            }).mouseover(function () {
+                $(this).find("div.CEImageControls").show();
+            })
+            .mouseout(function () {
+                $(this).find("div.CEImageControls").hide();
+            });
+
+            WysiwygFileLibrary.isDirty = false;
+        }
+    }, /* BindImageControls */
+
+    CleanjQueryAttributes: function (dom) {
+        for (prop in dom) {
+            if (prop && prop.match(/^jquery/i)) {
+                $(dom).removeAttr(prop);
+            }
+        }
+    }, /* CleanjQueryAttributes */
+
+    SetImageSize: function (size, $container) {
+        var $image = $container.find("img:first");
+        var imageSrc = $image.attr("src");
+        var thumb;
+        var newThumbSize = 0;
+
+        for (var i = 0; i < this.imageSizes.length; i++) {
+            if (this.imageSizes[i] == size) {
+                newThumbSize = i;
+            }
+        }
+
+        thumb = this.GetImageSize(imageSrc);
+        if (thumb) {
+            thumb.size = (thumb.size === -1) ? 0 : thumb.size;
+
+            imageSrc = imageSrc.substring(0, thumb.slash) + this.imageSizes[newThumbSize] + imageSrc.substring(thumb.file, imageSrc.length);
+            $image.attr("src", imageSrc);
+
+            if (this.provider === "CKEditor") {
+                $image.attr("data-cke-saved-src", imageSrc);
+            }
+            else if (this.provider === "CuteEditor") {
+                $image.attr("src_cetemp", imageSrc);
+            }
+
+            $container.attr("class", $container.attr("class").replace(/block\d{1,}/, "")).addClass(this.blockSizes[newThumbSize]);
+        }
+
+        return true;
+    }, /* SetImageSize */
+
+    FileLibrary: function (elem, center, w, h, opt) {
+        var src = elem.href;
+        var wnm = (elem.target == '') ? 'FL_SchoolSuite' : ((elem.target.indexOf('_') == 0) ? 'FL' + elem.target : elem.target);
+        var opt = (opt == '') ? ',scrollbars=yes,resizable=yes' : ((opt.indexOf(',') != 0) ? ',' + opt : opt);
+        var ctr = (center) ? ',left=' + ((screen.availWidth - w) / 2) + ',top=' + ((screen.availHeight - h) / 2) : '';
+        // A window has already been opened
+        if (WysiwygFileLibrary.fileLibrary !== null &&
+            !WysiwygFileLibrary.fileLibrary.closed &&
+            WysiwygFileLibrary.fileLibrary.name == wnm &&
+            WysiwygFileLibrary.fileLibrary.location) {
+            WysiwygFileLibrary.fileLibrary.location = src;
+        }
+        else {
+            WysiwygFileLibrary.fileLibrary = window.open(src, wnm, 'width=' + w + ',height=' + h + ctr + opt);
+            if (!WysiwygFileLibrary.fileLibrary.opener) WysiwygFileLibrary.fileLibrary.opener = self;
+        }
+
+        if (window.focus) WysiwygFileLibrary.fileLibrary.focus();
+        return false;
+    }, /* FileLibrary */
+
+    CommandHandler: function (editor, command, ui, value) {
+        //handle the command by yourself
+        if (command == "SchoolSuiteFileLibrary" || command == "BroadcastManagedPageSchoolSuiteFileLibrary") {
+            if (WysiwygFileLibrary.editor === null) {
+                WysiwygFileLibrary.Init(editor);
+            }
+
+            var fromBroadcastManagedPage = "";
+            
+            if (command == "BroadcastManagedPageSchoolSuiteFileLibrary") {
+                fromBroadcastManagedPage = "&fromBroadcastManagedPage=true";
+            }
+
+            var link = { href: "/schoolsuite/FileLibrary.aspx?source=contentEditor" + fromBroadcastManagedPage, target: "WysiwygFileLibrary" };
+            var fileIds = WysiwygFileLibrary.GetFileIdsString();
+            if (fileIds.length > 0) {
+                link.href += "&FileID=" + fileIds;
+            }
+
+            if (WysiwygFileLibrary.fileLibrary != null &&
+                   !WysiwygFileLibrary.fileLibrary.closed &&
+                   WysiwygFileLibrary.fileLibrary.name == link.target &&
+                   WysiwygFileLibrary.fileLibrary.location) {
+                WysiwygFileLibrary.fileLibrary.focus();
+            }
+            else {
+                WysiwygFileLibrary.FileLibrary(link, true, 600, 580, 'resizable=yes,scrollbars=yes,status=yes');
+            }
+
+            return true;
+        }
+        else if (command == "PostBack") {
+            if (WysiwygFileLibrary.iframe) {
+                WysiwygFileLibrary.iframe.contents().find("div.CEImageControls").remove();
+                WysiwygFileLibrary.iframe.contents().find("dl").each(function () {
+                    var className = $(this).attr("class");
+
+                    if (className) {
+                        className = className.replace(/ {2,}/g, ' ');
+                        $(this).attr("class", className);
+                    }
+
+                    $(this).find("dt").each(function () {
+                        WysiwygFileLibrary.CleanjQueryAttributes(this);
+
+                        $(this).find("div.CEImageControls").remove();
+                    });
+                });
+            }
+            if (WysiwygFileLibrary.fileLibrary && WysiwygFileLibrary.fileLibrary.close) {
+                WysiwygFileLibrary.fileLibrary.close();
+            }
+
+            WysiwygFileLibrary.editor = null;
+            WysiwygFileLibrary.iframe = null;
+            WysiwygFileLibrary.container = null;
+            WysiwygFileLibrary.files = [];
+        }
+        else if (command == "TabCode") {
+            WysiwygFileLibrary.iframe.contents().find("div.CEImageControls").remove();
+        }
+        else if (command == "TabEdit" || command == "Redo" || command == "Undo") {
+            setTimeout(function () {
+                if (WysiwygFileLibrary.iframe.get(0)) {
+                    if (command == "TabEdit") {
+                        WysiwygFileLibrary.iframe.contents().find("[id^=CEInsert] img").after(WysiwygFileLibrary.imageControls);
+                    }
+                    WysiwygFileLibrary.BindImageControls();
+                }
+            }, 1000);
+        }
+        else if (command == "TabView") {
+            WysiwygFileLibrary.iframe.contents().find("div.CEImageControls").remove();
+        }
+    }, /* CommandHandler */
+
+    Init: null
+    /* Init */
+
+};
+
+/* Required by the Microsoft Ajax Framework:*/
+if ((typeof Sys !== "undefined") && (typeof Sys.Application !== "undefined")) {
+    Sys.Application.notifyScriptLoaded();
+}

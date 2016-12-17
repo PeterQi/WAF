@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<!-- saved from url=(0069)http://so.nen.com.cn/m_fullsearch/searchurl/mfullsearch!descResult.do -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>Apache Tomcat/8.0.32 - Error report</title><style type="text/css">H1 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:22px;} H2 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:16px;} H3 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:14px;} BODY {font-family:Tahoma,Arial,sans-serif;color:black;background-color:white;} B {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;} P {font-family:Tahoma,Arial,sans-serif;background:white;color:black;font-size:12px;}A {color : black;}A.name {color : black;}.line {height: 1px; background-color: #525D76; border: none;}</style> </head><body><h1>HTTP Status 500 - java.lang.Exception: 参数中含有非法字符</h1><div class="line"></div><p><b>type</b> Exception report</p><p><b>message</b> <u>java.lang.Exception: 参数中含有非法字符</u></p><p><b>description</b> <u>The server encountered an internal error that prevented it from fulfilling this request.</u></p><p><b>exception</b></p><pre>java.io.IOException: java.lang.Exception: 参数中含有非法字符
+	cn.com.enorth.url_defend_filter.filter.RequestFilter.doFilter(RequestFilter.java:49)
+	cn.com.enorth.utility.filter.SetCharacterEncodingFilter.doFilter(SetCharacterEncodingFilter.java:99)
+</pre><p><b>root cause</b></p><pre>java.lang.Exception: 参数中含有非法字符
+	cn.com.enorth.url_defend_filter.filter.DefendUtil.checkValues(DefendUtil.java:113)
+	cn.com.enorth.url_defend_filter.filter.DefendUtil.checkOneParam(DefendUtil.java:83)
+	cn.com.enorth.url_defend_filter.filter.DefendUtil.defendUrl(DefendUtil.java:62)
+	cn.com.enorth.url_defend_filter.filter.RequestFilter.doFilter(RequestFilter.java:47)
+	cn.com.enorth.utility.filter.SetCharacterEncodingFilter.doFilter(SetCharacterEncodingFilter.java:99)
+</pre><p><b>note</b> <u>The full stack trace of the root cause is available in the Apache Tomcat/8.0.32 logs.</u></p><hr class="line"><h3>Apache Tomcat/8.0.32</h3></body></html>

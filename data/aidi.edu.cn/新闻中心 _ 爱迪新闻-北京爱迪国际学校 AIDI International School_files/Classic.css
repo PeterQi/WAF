@@ -1,0 +1,1405 @@
+﻿/* Web Parts
+----------------------------------------------------------------------------- */
+
+.WebPartZoneHeader
+{
+	color: #7f7f7f;
+	font-size: 11px;
+}
+
+.WebPartZoneAdd
+{
+	background: url(/_infrastructure/images/icons/16x16/partzonegrad.gif) #ffe6a0 repeat-x;
+	margin: 0px;
+	cursor: pointer;
+	height: 20px;
+	text-align: center;
+	vertical-align: top;
+	padding: 3px 0px 1px 0px;
+	border: solid 1px #feba52;
+}
+
+.WebPartZoneAdd:hover
+{
+	background: url(/_infrastructure/images/icons/16x16/partzonegradhover.gif) #ffffff repeat-x;
+}
+
+.WebPartZoneAdd a
+{
+	height: 20px;
+	background: url(/_infrastructure/images/icons/16x16/add.png) left top no-repeat;
+	overflow: visible;
+	padding-left: 20px;
+	padding-bottom: 4px;
+	color: #cd5c01;
+	text-decoration: none;
+	font-family: Verdana, Tahoma, Arial, Sans-Serif;
+	font-size: 11px;
+	padding-top: 1px;
+}
+
+.WebPartZoneAdd a:hover
+{
+	color: #333333;
+}
+
+.PartChrome
+{
+}
+
+.SelectedPartChrome
+{
+	border: dashed 2px #da8b32 !important;
+}
+
+.Part
+{
+}
+
+.PartTitleBar
+{
+	height: 19px;
+	background-color: #fff2ca;
+	background: url(/_infrastructure/images/icons/16x16/partgrad.gif) left center repeat;
+	border: solid 1px #c4c4c4;
+	padding: 1px 4px 0px 4px;
+}
+
+.PartTitleBar img
+{
+	padding: 0px 1px 0px 1px;
+	vertical-align: bottom;
+}
+
+.PartTitleBarVerb
+{
+	font-weight: bold;
+	font-size: 1em;
+}
+
+.PartMenuPopup
+{
+	background-color: #f5f5f5;
+	border: solid 1px #333333;
+}
+
+.PartMenuLabel
+{
+	background: url(/_infrastructure/images/icons/16x16/icon_edit.gif) left center no-repeat;
+	width: 16px;
+	height: 16px;
+	color: #fff2ca;
+	text-align: right;
+}
+
+.PartMenuLabel span
+{
+	display: none;
+}
+
+.PartMenuVerb
+{
+	background-color: Gray;
+	font-family: Verdana, Tahoma, Arial, Sans-Serif;
+	color: Navy;
+}
+
+.PartMenuVerbHover
+{
+}
+
+.ItemActionsPanel
+{
+	margin-top: .5em !important;
+	height: 1.7em;
+	border-bottom: 1px solid #cccccc;
+	text-align: right;
+	position: relative;
+	clear: both;
+}
+
+.ItemActionsPanel a
+{
+	padding-right: 20px !important;
+	text-decoration: none !important;
+	font-family: Arial, Sans-Serif !important;
+	font-size: 11px !important;
+	display: block;
+	right: 0; 
+	height: 20px !important;
+	padding-top: 1px !important;
+	color: Navy !important;	
+}
+	
+.EditItemButton
+{
+    background: url(/_infrastructure/images/icons/16x16/page_white_edit.png) right top no-repeat;
+}
+
+.PartActionsPanel
+{
+    clear: both;
+	text-align: right !important;
+	font-size: 11px !important; 
+	margin-top: .5em !important;
+	background-color: #f5f5f5 !important;
+	border: 1px solid #cccccc !important; 
+	margin: 0px !important;
+	padding: 5px !important;
+}
+
+.PartActionsPanel span.title{ 
+	background-image: none !important; 
+	font-weight: bold !important;
+	font-size: 12px !important;
+}
+
+.PartActionsPanel ul
+{ 
+	list-style: none !important;
+	list-style-type: none !important;
+	list-style-image: none !important;
+	margin: 0px !important;
+	padding: 0px !important;
+}
+
+.PartActionsPanel ul li
+{
+    background-image: none !important;
+    display: list-item !important;
+    float: none !important;
+    margin: 0px !important;
+    padding: 0px !important;
+}
+
+.PartActionsPanel ul li:after
+{
+    /* TODO: might need to override these for Gallery List web part
+	display: block;
+	height: 0px;
+	visibility: hidden;
+	clear: both;
+	content: ".";
+    */
+}
+
+.PartActionsPanel ul li a
+{ 
+	background: url(/_infrastructure/images/icons/16x16/application_go.png) right top no-repeat !important;
+	padding-right: 20px !important;
+	color: Navy !important;
+	text-decoration: none !important;
+	padding-right: 20px !important;
+	display: block !important;
+}
+
+.PublishPageChangesButton
+{
+	background: url(/_infrastructure/images/icons/16x16/page_save.png) left top no-repeat;
+}
+
+#ToolZoneUpdatePanel
+{
+    position: fixed;
+    top: 0;
+    z-index: 999;
+    height: 100%;
+}
+
+#ToolZoneUpdatePanel > div
+{
+    z-index: 999;
+    height: 100%;
+}
+
+#ToolZonePanel
+{
+	z-index: 999;
+	border: solid 1px #999999;
+	width: 280px;
+	height: 93%;
+	overflow: scroll;
+	padding: 10px 25px 10px 10px;
+	background-color: #ffffff;
+	border: solid 1px #ccc;
+	top: 2px;
+	left: 2px;
+	text-align: left;
+    position: relative;
+}
+
+#ToolZonePanel *
+{
+	font-size: 11px;
+}
+
+#ToolZonePanel select
+{
+	width: 125px;
+}
+
+#ToolZonePanel table
+{
+	width: 100%;	
+}
+
+#ToolZonePanel span[disabled]
+{
+	display: none;
+}
+
+#ToolZonePanel input
+{
+	padding: 0 0 0 0;
+	font-size: 11px;		
+}
+
+#EditorZone1 input[type='button']
+{
+	margin-bottom: 15px;
+}
+
+.propeditor td
+{
+	padding: 4px;
+	vertical-align: top;
+}
+
+.propgroup
+{
+	border-top: solid 1px #cccccc;
+	border-bottom: solid 1px #cccccc; 
+	font-weight:bold;
+	line-height: 20px;
+}
+
+.propname
+{
+	background-color: #f5f5f5;
+}
+
+.propvalue input[type='button']
+{
+	margin: 0px !important;
+}
+
+.hideshowtrigger
+{
+	background: url(/_infrastructure/images/icons/16x16/partzonegrad.gif) #ffe6a0 repeat-x;	
+	width: 100%;
+	border: solid 1px #feba52;
+	cursor: pointer;
+	text-align: center;
+	margin-bottom: 5px;
+}
+
+.hideshowtrigger:hover
+{
+	background: url(/_infrastructure/images/icons/16x16/partzonegradhover.gif) #ffffff repeat-x;
+}
+
+#ElementSelectorTop, #ElementSelectorBottom
+{
+	width: 100%;
+}
+
+#ElementSelectorAllContentItems, #ElementSelectorContentItemsToDisplay
+{
+	height: 114px;
+	width: 120px;
+	float: left;
+}
+
+#ElementSelectorAllContentItemsLabel, #ElementSelectorContentItemsToDisplayLabel
+{
+	height: 18px;
+	width: 95px;
+	text-align: left;
+}
+
+#ElementSelectorAllContentItemsListBox, #ElementSelectorContentItemsToDisplayListBox
+{
+	width: 100%;
+}
+
+#ElementSelectorAllContentItemsListBox select, #ElementSelectorContentItemsToDisplayListBox select
+{
+	width: 120px;
+	height: 100px;
+}
+
+#ElementSelectorUpDownButtons
+{
+	height: 114px;
+	vertical-align: middle;
+}
+
+#ElementSelectorUpButton
+{
+	margin-top: 45px;
+}
+
+#ElementSelectorMoveToRightButton, #ElementSelectorMoveToLeftButton
+{
+	float: left;
+}
+
+#ElementSelectorMoveToRightButton
+{
+	width: 95px;
+	text-align: right;
+}
+
+.ModalDialog
+{
+	padding: 0px 0px 0px 0px;
+	margin: 0px 0px 0px 0px;
+	background-color: #f5f5f5;
+}
+
+#WebPartsAdministration
+{
+	text-align: center;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+#WebPartsAdministration #Content
+{
+	text-align: left;
+	width: 600px;
+}
+
+.ModalBackground
+{
+	background-color: Gray;
+	filter: alpha(opacity=70);
+	opacity: 0.7;
+}
+
+#PageUpdateProgressMessage
+{
+	background: #EEE url(/_infrastructure/images/icons/32x32/loader.gif) center center no-repeat;
+	cursor: wait; 
+	z-index: 2147483647;
+	width: 50px;
+	margin-left: -25px; /* this should be 1/2 of the width */
+	height: 50px;
+	margin-top: -25px; /* this should be 1/2 of the height */
+	border: solid 1px #CCC;
+	text-align: center;
+	font-size: 12px;
+	position: fixed;
+	padding-top: 0px;
+	top: 40%;
+	left: 50%; 
+	font-weight: bold;
+	opacity: 0.90;
+	-moz-opacity: 90%;
+	filter: alpha(opacity=90);
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	text-indent: -9999em;
+}
+
+.AllContentItemsListBox, .ContentItemsToDisplayListBox
+{
+    width: 128px !important;
+    height: 120px !important;
+}
+
+.ContentElementsEditorTable
+{
+    width: 100%;
+}
+
+.ContentElementsEditorArrow
+{
+    vertical-align: middle;
+}
+
+/* Content Editor Web Part
+----------------------------------------------------------------------------- */
+
+.ContentEditorWebPartModalPopup
+{
+	width: 725px;	
+	background-color: #f4f4f3;
+	border-width: 1px;
+	border-style: solid;
+	border-color: Gray;
+	padding: 2px;
+}
+
+.ContentEditorHeaderPanel
+{
+	font-family: Verdana, Tahoma, Arial, Sans-Serif;
+	height: 16px;
+	text-align: right;
+	text-decoration: none;
+	padding: 0px 4px 4px 0px;
+	border-left: solid 1px #dddddd;
+	border-top: solid 1px #dddddd;
+	border-right: solid 1px #dddddd;
+}
+
+.CuteEditorFrameContainer iframe
+{
+    height: 100% !important;
+}
+
+.ContentEditorHeaderPanel a
+{
+	/*background: url(/images/icons/16x16/cancel.png) right center no-repeat;*/
+	font-size: 10px;
+	color: Navy;
+	text-decoration: none;
+	/*padding-right: 18px;*/
+}
+
+.RichContentEditorTable
+{
+    margin: 0px !important;
+    height: 450px !important;
+}
+
+/* Web Part Catalog Dialog
+----------------------------------------------------------------------------- */
+
+#WebPartCatalogDialog
+{
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+#WebPartCatalogDialog div#Header
+{
+	font-size: 1.2em;
+	color: navy;
+	vertical-align: top;
+	padding: 20px 20px 20px 20px;
+	border-bottom: solid 1px #dcdcdc;
+}
+
+#WebPartCatalogDialog div#WebPartList
+{
+	height: 465px;
+	padding: 5px 5px 5px 5px;
+	overflow-x: hidden;
+	overflow-y: scroll;
+	background-color: #ffffff;
+}
+
+#WebPartCatalogDialog div#WebPartList a
+{
+	color: #cd5c01;
+	text-decoration: none;
+	margin-bottom: 5px;
+}
+
+#WebPartCatalogDialog div#WebPartList a:hover
+{
+	color: #333333;
+}
+
+#WebPartCatalogDialog div#WebPartList .ToggleExpand
+{
+	cursor: pointer;
+	background-image: url(/_infrastructure/images/icons/16x16/expand.gif);
+	background-repeat: no-repeat;
+	padding-left: 10px;
+}
+
+#WebPartCatalogDialog div#WebPartList .ToggleCollapse
+{
+	cursor: pointer;
+	background-image: url(/_infrastructure/images/icons/16x16/collapse.gif);
+	background-repeat: no-repeat;
+	padding-left: 10px;
+}
+
+#WebPartCatalogDialog .Catalog
+{
+	margin-bottom: 5px;
+	width: 570px;
+}
+
+#WebPartCatalogDialog div#WebPartList div.CatalogTitle
+{
+	background: url(/_infrastructure/images/icons/16x16/partzonegrad.gif) #ffe6a0 repeat-x;
+	border-style: solid;
+	border-color: #f3ba52;
+	border-width: 1px 1px 1px 1px;
+	
+	padding: 5px 5px 5px 5px;
+	font-weight: bold;
+	font-size: 11pt;	
+}
+
+#WebPartCatalogDialog div#WebPartList div.CatalogBody
+{
+	border-style: solid;
+	border-color: #f3ba52;
+	border-width: 1px 1px 1px 1px;
+	
+	border-top-style: solid;
+	border-top-color: #dcdcdc;
+	border-top-width: 1px;
+	
+	background-color: white;
+	padding: 0px 5px 5px 5px;
+}
+
+#WebPartCatalogDialog div#WebPartList div.CatalogBody-Hidden
+{
+	display: none;
+}
+
+#WebPartCatalogDialog div#WebPartList div.CatalogBody-Visible
+{
+	display: block;
+}
+
+#WebPartCatalogDialog .SubCatalog
+{
+	margin-top: 5px;
+	width: 100%;
+}
+
+#WebPartCatalogDialog div#WebPartList div.SubCatalogTitle
+{
+	background: url(/_infrastructure/images/icons/16x16/partzonegrad.gif) #ffe6a0 repeat-x;
+	border-style: solid;
+	border-color: #f3ba52;
+	border-width: 1px 1px 1px 1px;	
+	
+	padding: 5px 5px 5px 5px;
+	font-weight: bold;
+	font-size: 11pt;	
+}
+
+#WebPartCatalogDialog div#WebPartList div.SubCatalogBody
+{
+	border-style: solid;
+	border-color: #f3ba52;
+	border-width: 1px 1px 1px 1px;
+	
+	border-top-style: solid;
+	border-top-color: #dcdcdc;
+	border-top-width: 1px;
+
+	background-color: white;
+	padding: 0px 5px 5px 5px;
+}
+
+#WebPartCatalogDialog div#WebPartList table.Template
+{
+	margin: 5px 0px 0px 0px;
+	padding-bottom: 2px;
+	border-bottom: solid 1px #f5f5f5;
+	
+	width: 100%;
+}
+
+#WebPartCatalogDialog div#WebPartList td.TemplateIcon
+{
+	vertical-align: top;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	width: 20px;
+}
+
+#WebPartCatalogDialog div#WebPartList td.TemplateBody
+{
+	padding-top: 2px;
+	padding-bottom: 2px;
+	font-size: 0.8em;
+}
+
+#WebPartCatalogDialog div#Footer
+{
+	text-align: right;
+	padding: 10px 20px 10px 20px;
+}
+
+#WebPartCatalogDialog div#Footer input
+{
+	font-size: 11px;
+	width: 100px;
+	vertical-align:middle;
+}
+
+#WebPartCatalogDialog div#AdvancedOptions
+{
+	border-top: solid 1px #dcdcdc;
+	text-align: right;
+	padding: 5px 20px 5px 5px;
+	margin: 0px 0px 0px 0px;
+	background-color: #f5f5f5;
+}
+
+#WebPartCatalogDialog div#AdvancedOptions a
+{
+	font-weight: bold;
+	color: Navy;
+	overflow: visible;
+	padding-left: 20px;
+	padding-bottom: 4px;
+	text-decoration: none;
+	font-family: Helvetica, Verdana, Tahoma, Arial, Sans-Serif;
+	font-size: 11px;
+	padding-top: 1px;	
+	height: 22px;
+}
+
+/* Other
+----------------------------------------------------------------------------- */
+
+.PageCatalogButton
+{
+	background: url(/_infrastructure/images/icons/16x16/icon_wprecycle.gif) left top no-repeat;	
+}
+
+/* Override base.css rules in content zones */
+#SecondaryZonePanel
+{
+	padding: 0 0 0 0 !important;
+	margin: 0 0 0 0 !important;	
+}
+
+#PrimaryZonePanel
+{
+	padding: 0 0 0 0 !important;
+	margin: 0 0 0 0 !important;
+}
+
+#LeftColumnZonePanel
+{
+	padding: 0 0 0 0 !important;
+	margin: 0 0 0 0 !important;
+}
+
+/* FAQ Web Part
+----------------------------------------------------------------------------- */
+
+#FAQEdit
+{
+	width:100%;
+	border-collapse:collapse;
+	font-size:11px;
+}
+
+#FAQEdit th, #FAQEdit td
+{
+	border-collapse:collapse;
+	vertical-align:top;
+}
+
+#FAQEdit td.count, #FAQEdit td.edit
+{
+	width:4%;
+	padding-left:2px;	
+}
+
+#FAQEdit td.question, #FAQEdit td.answer
+{
+	padding-left:3px;
+	border:solid 1px #ccc;
+	width:46%;	
+}
+
+#FAQEdit td.question div
+{
+	width:100%;
+	height:40px;
+	overflow:auto;
+}
+
+#FAQEdit td.answer div
+{
+	width:100%;
+	height:65px;
+	overflow:auto;
+}
+
+#FAQEdit textarea
+{
+	width:95%;
+	font-size:13px;	
+}
+
+#FAQEdit .MoveUp, #FAQEdit .MoveDown, #FAQEdit .Edit, #FAQEdit .Delete
+{
+	height: 16px;
+	width: 16px;
+	cursor: pointer;
+	background-repeat: no-repeat;
+}
+
+#FAQEdit .MoveUp
+{
+	background-image: url(/_infrastructure/images/icons/16x16/arrow_up.gif);
+}
+
+#FAQEdit .MoveDown
+{
+	background-image: url(/_infrastructure/images/icons/16x16/arrow_down.gif);
+}
+
+#FAQEdit .Edit
+{
+	background-image: url(/_infrastructure/images/icons/16x16/pencil.png);
+}
+
+#FAQEdit .Delete
+{
+	background-image: url(/_infrastructure/images/icons/16x16/cross.png);
+}
+
+.AddQuestion
+{
+	display:block;
+	width:100px;
+	height:18px;
+	padding-left:18px;
+	background-image: url(/_infrastructure/images/icons/16x16/add.png);
+	background-repeat: no-repeat;
+	
+}
+
+/* Other
+----------------------------------------------------------------------------- */
+
+.LightBox
+{
+	display: none;
+	background-image: url('/schoolsuite/images/bgtransparent40.png');
+	position: absolute;
+	z-index: 1000;
+	cursor: wait;
+	margin-top: 18px;
+}
+
+.LightBox img
+{
+	left: 45%;
+	top: 45%;	
+	position:relative;
+}
+
+#warning
+{
+	z-index: 2147483647;
+	height: 150px;
+	width: 300px;
+	border: solid 1px #DC143C;
+	background-color: #EEE8AA;
+	text-align: center;
+	font-size: 12px;
+	position: absolute;
+	padding: 5px 1px 5px 1px;
+	top: 50%;
+	margin-top: -75px;
+	left: 50%;
+	margin-left: -150px;
+	visibility: hidden;
+}
+
+#warning-icon
+{
+	text-align: right;
+	padding: 0px 5px 5px 5px;
+	background-image: url('/_infrastructure/images/icons/16x16/exclamation.png');
+	background-position: center top;
+	background-repeat: no-repeat;
+	border-bottom: solid 1px #DAA520;
+	background-color: #EEE8AA;	
+}
+
+#warning-content
+{
+	padding: 10px 5px 10px 5px;
+}
+
+td.Tooltip
+{
+    position: relative;
+    z-index: 24;
+    cursor: default;
+}
+
+td.Tooltip span
+{ 
+	display: none; 
+}
+
+td.Tooltip:hover
+{ 
+	z-index:25;
+}
+
+td.Tooltip:hover span.Tooltip
+{
+	z-index: 25;
+    display: block;
+    position: absolute;
+    /*top: 15px; */
+    left: 0px;
+    bottom: 15px;
+	padding: 8px 8px 8px 8px;
+	width: 240px;
+	color: #A0522D;
+    text-align: left;
+	background-color: #FFFACD;
+	border: solid 1px #D2691E;
+	/*filter: alpha(opacity:90);
+	KHTMLOpacity: 0.90;
+	MozOpacity: 0.90;
+	opacity: 0.90;*/
+}
+
+.DateSpanInterval
+{
+	width: 60px !important;
+}
+
+#CatalogZone1 div select
+{
+	width: 80%;
+	display:block;
+}
+
+#CatalogZone1 div input
+{
+	float: right;
+	margin-top: 5px;
+}
+
+.wpzdesignmode.CenterLeftZone
+{
+	width: 59% !important;
+	padding: 0 0 0 0;
+}
+
+.wpzdesignmode.CenterRightZone
+{
+	width: 39% !important;
+	padding: 0 0 0 0;
+}
+
+table.jCalendar {
+	border: 1px solid #000;
+	background: #aaa;
+    border-collapse: separate;
+    border-spacing: 2px;
+}
+table.jCalendar th {
+	background: #333;
+	color: #fff;
+	font-weight: bold;
+	padding: 3px 5px;
+}
+table.jCalendar td {
+	background: #ccc;
+	color: #000;
+	padding: 3px 5px;
+	text-align: center;
+}
+table.jCalendar td.other-month {
+	background: #ddd;
+	color: #aaa;
+}
+table.jCalendar td.today {
+	background: #666;
+	color: #fff;
+}
+table.jCalendar td.selected {
+	background: #f66;
+	color: #fff;
+}
+table.jCalendar td.selected:hover {
+	background: #f33;
+	color: #fff;
+}
+table.jCalendar td:hover, table.jCalendar td.dp-hover {
+	background: #fff;
+	color: #000;
+}
+table.jCalendar td.disabled, table.jCalendar td.disabled:hover {
+	background: #bbb;
+	color: #888;
+}
+
+/* For the popup */
+
+div.dp-popup {
+	position: relative;
+	background: #ccc;
+	font-size: 10px;
+	font-family: arial, sans-serif;
+	padding: 2px;
+	width: 171px;
+	line-height: 1.2em;
+}
+div#dp-popup {
+	position: absolute;
+	z-index: 1001;
+}
+div.dp-popup h2 {
+	font-size: 12px;
+	text-align: center;
+	margin: 2px 0;
+	padding: 0;
+}
+a.dp-choose-date {
+	float: left;
+	width: 16px;
+	height: 16px;
+	padding: 0;
+	margin: 0px 3px 0;
+	display: block;
+	text-indent: -2000px;
+	overflow: hidden;
+	background: url(/_infrastructure/images/icons/16x16/calendar.png) no-repeat; 
+}
+a.dp-choose-date .dp-disabled {
+	background-position: 0 -20px;
+	cursor: default;
+}
+/* makes the input field shorter once the date picker code
+ * has run (to allow space for the calendar icon
+ */
+input.dp-applied {
+	float: left;
+}
+a#dp-close {
+	font-size: 11px;
+	padding: 4px 0;
+	text-align: center;
+	display: block;
+}
+a#dp-close:hover {
+	text-decoration: underline;
+}
+div.dp-popup a {
+	color: #000;
+	text-decoration: none;
+	padding: 3px 2px 0;
+}
+div.dp-popup div.dp-nav-prev {
+	position: absolute;
+	top: 2px;
+	left: 4px;
+	width: 100px;
+}
+div.dp-popup div.dp-nav-prev a {
+	float: left;
+}
+/* Opera needs the rules to be this specific otherwise it doesn't change the cursor back to pointer after you have disabled and re-enabled a link */
+div.dp-popup div.dp-nav-prev a, div.dp-popup div.dp-nav-next a {
+	cursor: pointer;
+}
+div.dp-popup div.dp-nav-prev a.disabled, div.dp-popup div.dp-nav-next a.disabled {
+	cursor: default;
+}
+div.dp-popup div.dp-nav-next {
+	position: absolute;
+	top: 2px;
+	right: 4px;
+	width: 100px;
+}
+div.dp-popup div.dp-nav-next a {
+	float: right;
+}
+div.dp-popup a.disabled {
+	cursor: default;
+	color: #aaa;
+}
+div.dp-popup td {
+	cursor: pointer;
+}
+div.dp-popup td.disabled {
+	cursor: default;
+}
+
+.PageActionsPanel ul
+{
+	list-style-type:none;	
+	width:100%;
+	margin-left: 0;
+}
+
+.PageActionsPanel li
+{
+	height:20px;
+}
+
+.PageActionsButton
+{
+	padding-left:8px;	
+	border: solid 1px transparent;
+}
+
+.PageActionsButton .PageActionsMenu
+{
+	display: none;
+	background-color: #fff;
+	border: solid 1px #999999; 
+	padding:1px;
+	color: #333; 
+	margin-left:-11px;
+	margin-top:-7px;
+	text-align:left;
+	width:228px;
+}
+
+.PageActionsMenu li
+{
+	display:none;	
+	height:20px;
+	padding-top:4px;
+	padding-left:8px;
+	border: solid 1px transparent;
+}
+
+.PageActionsButton:hover .PageActionsMenu, .PageActionsButton:hover .PageActionsMenu li
+{
+	display: block;
+}
+
+.PageActionsButton a
+{
+	cursor:default;	
+}
+
+.PageActionsMenu li:hover
+{
+	background-color: #ffe38c;
+	border: solid 1px #ffba52;
+}
+
+.PageActionsMenu li a
+{	
+	cursor:pointer;
+}
+
+.currentMode
+{
+	padding-top: 3px;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-bottom: 5px;
+	height:20px;	
+}
+
+.EditModeMessage
+{
+    color: #cd5c01;
+    text-align: justify;
+}
+
+#EditorZone1_PropertyGridEditorPart1 table td
+{
+	padding: 2px;
+}
+
+.dock
+{
+	z-index:8000;
+	position:fixed;
+	bottom:0px;
+	right:0px;
+	width:100%;
+	height:25px;
+	display:block;
+}
+
+.dock-toolbar
+{
+	position:relative;
+	width:100%;
+	height:25px;
+	border:1px solid #feba52;
+	text-align:left; 
+	padding: 0px 4px 0px 4px;
+	background: url(/_infrastructure/images/icons/16x16/partzonegrad.gif) #ffe6a0 repeat-x;	
+}
+
+.toolbar-section
+{
+	float:left;
+	height:100%;	
+}
+
+#toolbar-right
+{
+	float: right;
+}
+
+#toolbar-logo
+{
+	width:100px; 
+	border-right: 1px solid #feba52;
+}
+
+#toolbar-user
+{
+	width: 200px;
+	padding: 5px;
+}
+
+#ss-logo
+{
+	position: absolute; 
+	left: 5px; 
+	bottom: -7px;
+}
+
+#pagestatus-container
+{
+	width: 100px;
+	padding: 5px;
+	text-align: left;
+}
+
+.btn-container
+{
+	float: left; 
+	width: 32px; 
+	height: 100%; 
+	text-align:center; 
+	padding-top: 3px;
+}
+
+.btn-container:hover
+{
+	background: url(/_infrastructure/images/icons/16x16/partzonegradhover.gif) #ffffff repeat-x;	
+}
+
+.btn-container.borderBoth
+{
+	border-left: 1px solid #feba52;
+	border-right: 1px solid #feba52;
+}
+
+.btn-container.borderRt
+{
+	border-right: 1px solid #feba52;
+}
+
+.pagestatus-text
+{
+	font-weight:bold;
+	font-size:14px;
+}
+
+.propertyTooltip
+{
+    display: none;
+	position: absolute; 
+	
+	left: 20px;
+	margin-top: 15px;	
+	
+	background-color: #fff;
+	border: solid 1px #feba52;	
+	color: #333; 
+	width: 80%;
+	padding: 5px 8px 5px 8px;
+	z-index: 10;
+}
+
+.propertyTooltipped:hover .propertyTooltip
+{
+	display: block;
+}
+
+.tooltip
+{
+	display: none;
+	position: absolute; 
+	bottom: 25px;
+	margin-left: -1px;
+	background-color: #fff;
+	border: solid 1px #feba52;	
+	color: #333; 
+	padding: 5px 8px 5px 8px;	
+	text-align:left;
+}
+
+.tooltipped:hover .tooltip
+{
+	display: block;
+}
+
+.lastright
+{
+	right: 0px;
+}
+
+.drag
+{
+	cursor: move;
+}
+
+.exception
+{
+	color: #990000;
+}
+
+/* Create Managed Page View
+----------------------------------------------------------------------------- */
+
+.AddPageDialog
+{
+    background-color: #ffffff;
+}
+
+.AddPageDialog form
+{
+    margin-bottom: 0px;
+}
+
+h1.AddPageDialogHeader
+{
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 1.2em;
+	font-weight: normal;
+	color: navy;
+	padding: 20px;
+	margin: 0px;
+	border-bottom: solid 1px #dcdcdc;
+	background-color: #f5f5f5;
+}
+
+.AddPageDialogContainer
+{
+    margin: 0px;
+    padding: 10px;
+    background-color: #ffffff;
+}
+
+.ui-widget-content
+{
+	padding: 10px 10px 10px 10px;
+	margin: 5px 0px 5px 0px;
+}
+
+.ui-state-error
+{
+    border: solid 1px #a22c0e;
+    background: url(/schoolsuite/images/ui-bg_highlight-hard_65_f3dcaa_1x100.png) #f3dcaa repeat-x 50% 50%;
+    color: #592003;
+}
+
+.CreateManagedPageFieldset
+{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+}
+
+.CreateManagedPageFieldset > div
+{
+    clear: both;
+}
+
+.CreateManagedPageFieldset .required
+{
+    background: url(/schoolsuite/images/form_asterisk.gif) no-repeat 90% 0px;
+}
+
+.CreateManagedPageFieldset label
+{
+    font-weight: normal;
+}
+
+.CreateManagedPageFieldset div.narrow label
+{
+    float: left;
+    text-align: left;
+    width: 20%;    
+}
+
+.CreateManagedPageFieldset div.narrow input
+{
+    float: none;
+    width: 50%;
+}
+
+.CreateManagedPageFieldset div.buttons
+{
+    padding-top: 10px;
+    margin-top: 0px;
+}
+
+.CreateManagedPageFieldset div.buttons input
+{
+    cursor: pointer;
+    font-size: 11px;
+    width: 100px;
+}
+
+.CreateManagedPageFieldset .TemplateSelector
+{
+    border: solid 1px #dcdcdc;
+    height: 285px;
+    overflow: auto;
+    display: block;
+    clear: both;
+    background-color: #f5f5f5;
+    margin-top: 10px;
+}
+
+.CreateManagedPageFieldset ul 
+{
+    margin-left: 0px;
+    list-style-type: none;
+    list-style-image: none;
+}
+
+.CreateManagedPageFieldset ul li
+{
+    clear: both;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.CreateManagedPageFieldset ul li input
+{
+    float: left;
+}
+
+.CreateManagedPageFieldset ul li img
+{
+    margin-right: 10px;
+    float: left;
+}
+
+.CreateManagedPageFieldset ul li .displayname
+{
+    font-weight: bold;
+    display: block;
+}
+
+.CreateManagedPageFieldset ul li .description
+{
+    display: block;
+}
+
+.CreateManagedPageFieldset ul li input[type='radio']
+{
+    cursor: pointer;
+}
+
+a.pastefromclipboard
+{
+    font-size:11px;   
+    text-decoration:none;
+}
+
+a.pastefromclipboard img
+{
+    border:none;
+    vertical-align:middle;
+}

@@ -1,0 +1,85 @@
+function toPage(pageNum) {			
+	$("#pageNumber").val(pageNum);
+   	submitSearch();
+}
+function searchKey(keyValue){
+	$("#searchType").val("");
+	$("#serachText").val(keyValue);
+	$("#searchForm").submit();
+}
+$(function () {
+	var sText = $("#serachTextshow").val();
+	//SearchHighlight("ires",sText);
+});
+
+
+/*
+ * 搜索关键字高亮
+ * idVal：检索区域
+ * keyword：关键字
+ * */
+function SearchHighlight(idVal, keyword) {
+	var pucl = document.getElementById(idVal);
+
+	if (keyword != "") {
+		keyword = multiReplace(keyword);
+	}
+	var temp = pucl.innerHTML;
+	var htmlReg = new RegExp("\<.*?\>", "i");
+	var arrA = new Array();
+	//替换HTML标签
+	for ( var i = 0; true; i++) {
+		var m = htmlReg.exec(temp);
+		if (m) {
+			arrA[i] = m;
+		} else {
+			break;
+		}
+		temp = temp.replace(m, "{[(" + i + ")]}");
+	}
+	words = unescape(keyword.replace(/\+/g, ' ')).split(/\s+/);
+	//替换关键字
+	for (w = 0; w < words.length; w++) {
+		var r = new RegExp("("
+				+ words[w].replace(/[(){}.+*?^$|\\\[\]]/g, "\\$&") + ")", "ig");
+		temp = temp.replace(r, "<em>$1</em>");
+	}
+	//恢复HTML标签
+	for ( var i = 0; i < arrA.length; i++) {
+		temp = temp.replace("{[(" + i + ")]}", arrA[i]);
+	}
+
+	pucl.innerHTML = temp;
+}
+
+/*过滤搜索关键字中的特殊符号*/
+function multiReplace(s) {
+	var pattern = new RegExp(
+			"[`~!@#$^&*()=|{}':;',\\[\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？]")
+	var rs = "";
+	for ( var i = 0; i < s.length; i++) {
+		rs = rs + s.substr(i, 1).replace(pattern, '');
+	}
+	return rs;
+}
+
+function encodeHtml(s) {
+	return (typeof s != "string") ? s : s.replace(
+		/"|&|'|<|>|[\x00-\x20]|[\x7F-\xFF]|[\u0100-\u2700]/g, function($0) {
+			var c = $0.charCodeAt(0), r = [ "&#" ];
+			c = (c == 0x20) ? 0xA0 : c;
+			r.push(c);
+			r.push(";");
+			return r.join("");
+		});
+}
+
+/*查找统一审批编码*/
+function findApply(applicant,wfid,uuid){
+   $.openPopupLayer({
+		name: "applicantLoginPopup",
+		width: 600,
+		url: "openApplicantLogin.jsp?uuid="+uuid+"&wfid="+wfid+"&applicant="+applicant
+   });				
+}
+

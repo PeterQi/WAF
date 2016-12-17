@@ -1,0 +1,235 @@
+@charset "utf-8";
+body,html{height:100%;font-family: 'Microsoft Yahei',Verdana, Arial, Helvetica, "Simsun", sans-serif;margin:0;}
+html{overflow-y:auto;min-width:1000px;}
+input{ outline:none; font-family:'Microsoft Yahei';}
+img{border:none;}
+dl,dt,dd{ margin:0; padding:0;}
+a{ text-decoration:none; font-size:14px;}
+ul,li{list-style-type:none; margin:0; padding:0;}
+.fl{float:left !important;}
+.fr{float:right !important;}
+.hide{display:none;}
+.cr{clear:both;}
+.cBox{ float:none; width:1000px;margin:0 auto;position:relative;}
+
+
+/*红色顶部菜单*/
+.topMenuBox{width:100%; height:50px; background:#9e0001;}
+.topMenu{margin:0 auto; width:1000px; height:50px;}
+.topMenu li{float:left; margin:12px 8px;}
+.topMenu li:first-child{width:135px; height:49px; background:url(../index/images/logo-top.gif) no-repeat; margin:0 15px 0 0;}
+.topMenu li a{color:#fff;}
+.topMenu li a:hover{color:#f4fa3e; font-weight:bold;}
+.topMenu li .cur{color:#f4fa3e; font-weight:bold;}
+
+/*搜索登录区域*/
+
+.searchBox{width:100%; height:110px; background:#f5f5f5;}
+.searchBox .search{ margin:0 auto; width:1000px; height:110px;}
+.searchBox .search .imgBox{ float:left; width:180px; height:80px; padding:10px 36px 0 0;}
+.searchBox .search .imgBox img{ width:180px; height:80px;}
+.searchBox .search .inputBox{float:left;width:360px; height:40px; margin-top:48px; background:#fff; position:relative;}
+.searchBox .search .inputBox input{float:left;width:283px; height:30px; border:3px #9e0001 solid; background:none; padding:2px 5px; z-index:10; position:inherit; font-size:14px; cursor:pointer; z-index:10;}
+.searchBox .search .inputBox .btn{float:left; width:60px; height:40px; background:#9e0001 url(../index/images/search.gif) no-repeat center center;}
+.searchBox .search .inputBox .inputText{position:absolute; color:#999; width:80px; left:8px; top:9px; z-index:8;}
+
+.searchBox .goToBox{float:left; width:240px; height:24px; background:#fff; border:1px #eb4b3f solid;  margin:58px 0 0 10px;}
+.searchBox .goToBox li{ float:left;  line-height:25px;  font-size:12px; position:relative;}
+.searchBox .goToBox li a{ padding-left:18px; padding-right:2px;background:url(../index/images/icon2.gif) no-repeat left center; cursor:pointer; color:#000; font-size:12px; margin-top:2px;}
+.searchBox .goToBox li .cur{border-top:1px #b5b5b5 solid; border-left:1px #b5b5b5 solid; border-right:1px #b5b5b5 solid; border-bottom:1px #fff solid;}
+.searchBox .goToBox li .cur span{ width:98%; height:2px; background:#fff; position:absolute; left:1px; bottom:3px; z-index:10003;}
+.searchBox .goToBox li:first-child{background:#eb4b3f url(../index/images/icon22.gif) no-repeat right center; color:#fff; line-height:24px; padding:0 15px 0 10px; margin-right:6px;}
+.searchBox .goToBox li ul{ width:350px; border:1px #b5b5b5 solid; padding:10px 0; background:#fff; position:absolute; right:-88px; top:20px; display:none; z-index:1002;}
+.searchBox .goToBox li ul li{background:#fff !important; float:left; width:87.5px; height:30px; line-height:30px; overflow:hidden;}
+.searchBox .goToBox li ul li:first-child{ width:25%; padding:0; line-height:30px; margin:0;}
+.searchBox .goToBox li ul li a{ background:#fff !important;}
+.searchBox .goToBox li ul li:hover{background:#eb4b3f !important; cursor:pointer;}
+.searchBox .goToBox li ul li:hover a{ background:#eb4b3f !important; color:#fff;}
+.searchBox .goToBox .w430{width:430px;}
+.searchBox .goToBox .w800{width:800px;}
+.searchBox .goToBox .w800 li{width:200px;}
+.searchBox .goToBox .w1000{width:1000px; left:-644px;}
+.searchBox .goToBox .w1000 li{width:200px;}
+.searchBox .goToBox .h50{height:35px; overflow:auto;}
+.searchBox .goToBox .h50 li{ width:195px !important;}
+
+
+.searchBox .loginBtn{ float:right;max-width:128px; overflow:hidden; height:24px; line-height:24px; font-size:14px; background:url(../index/images/male_head.png) no-repeat 2px; padding-left:24px; padding-right:5px; margin:58px 0 0 0; border:1px #eb4b3f solid; color:#eb4b3f;}
+.searchBox .loginBtn_female{ float:right;max-width:128px; overflow:hidden; height:24px; line-height:24px; font-size:14px; background:url(../index/images/female_head.png) no-repeat 2px; padding-left:24px; padding-right:5px; margin:58px 0 0 0; border:1px #eb4b3f solid; color:#eb4b3f;}
+.searchBox .loginBtn a{ color:#eb4b3f;}
+.searchBox .loginBtn_1{float:right;max-width:128px; overflow:hidden; height:24px; line-height:24px; font-size:14px; background:#9f0000 url(../index/images/icon26.png) no-repeat 2px; padding-left:24px; padding-right:10px; margin:58px 0 0 0; border:1px #9f0000 solid; color:#fff;}
+.searchBox .loginBtn_1 a{ color:#fff;}
+.searchBox .loginBtn_2{float:right; height:24px; line-height:24px; font-size:14px; background:url(../index/images/icon1.gif) no-repeat 2px; padding-left:24px; padding-right:10px; margin:58px 0 0 0; color:#eb4b3f;}
+.searchBox .loginBtn_2 a{color:#eb4b3f;}
+
+/*横向菜单*/
+.hMenuBox{ float:none; margin:0 auto; width:1000px; height:40px; border-bottom:2px #eb4b3f solid; padding-top:20px;}
+.hMenuBox li:first-child{ width:215px; background:#eb4b3f; color:#fff; font-size:14px;}
+.hMenuBox li{float:left; width:150px; height:40px; line-height:40px; text-align:center;}
+.hMenuBox li a{ color:#000; font-size:15px;}
+.hMenuBox li a:hover{color:#eb4b3f;}
+.hMenuBox li .cur{color:#eb4b3f;}
+
+
+/*左侧菜单01*/
+.lMenuBox{ float:left; width:212px; min-height:380px; border-left:1px #eb4b3f solid; border-right:1px #eb4b3f solid; border-bottom:1px #eb4b3f solid;}
+.lMenuBox ul:last-child{ border-bottom:0; height:179px;}
+.lMenuBox ul{ float:left; width:212px; height:179px; border-bottom:1px #eee solid; margin-bottom:10px; padding-bottom:10px;}
+.lMenuBox ul li{float:left; width:106px; line-height:22px; text-align:center; position:relative; cursor:pointer;}
+.lMenuBox ul li:first-child{width:153px; height:26px; text-align:left; padding-left:55px; margin:5px 0;}
+.lMenuBox ul li a{ color:#555;}
+.lMenuBox ul li a:hover{color:#eb4b3f;}
+.lMenuBox ul li span{ position:absolute; right:4px; top:-1px; width:15px; height:26px; padding-right:30px; background:url(../index/images/icon4.gif) no-repeat center;}
+
+.lMenuBox ul li dl{ position:absolute; z-index:1000; left:210px; top:-2px; width:400px; background:#fff; padding:10px 20px; border:2px #eb4b3f solid; display:none;}
+.lMenuBox ul li dl dd{ float:left; width:80px; line-height:35px; text-align:center;}
+.lMenuBox ul .cur{ border:2px #eb4b3f solid !important;}
+.lMenuBox ul .cur span{ background:#fff; right:-4px; top:0px; z-index:1001;}
+.lMenuBox ul .icon01{border:2px #fff solid; background:url(../index/images/icon8.gif) no-repeat 25px center;}
+.lMenuBox ul .icon02{border:2px #fff solid; background:url(../index/images/icon9.gif) no-repeat 25px center;}
+
+
+/*左侧菜单02*/
+.lMenuBox2{ float:left; width:212px; min-height:380px; border-left:1px #eb4b3f solid; border-right:1px #eb4b3f solid; border-bottom:1px #eb4b3f solid;}
+.lMenuBox2 ul:last-child{ border-bottom:0;}
+.lMenuBox2 ul{ float:left; width:212px; border-bottom:1px #eee solid; padding:6px 0;}
+.lMenuBox2 ul li{float:left; width:153px; height:29px; line-height:26px; text-align:left; padding-left:55px; margin:5px 0; position:relative; cursor:pointer;}
+.lMenuBox2 ul li a{ color:#555;}
+.lMenuBox2 ul li a:hover{color:#eb4b3f;}
+.lMenuBox2 ul li span{ position:absolute; right:4px; top:1px; width:15px; height:29px; padding-right:30px; background:url(../index/images/icon4.gif) no-repeat center;}
+.lMenuBox2 ul .w520{width:520px;}
+.lMenuBox2 ul .w520 dd{float:left; width:240px;}
+.lMenuBox2 ul .w520 dd a{float:left; width:240px; height:30px; line-height:30px; overflow:hidden;}
+.lMenuBox2 ul .w520 div a{ width:152px; height:30px;}
+
+.lMenuBox2 ul li dl{ position:absolute; z-index:1000; left:210px; top:-2px; width:300px; background:#fff; padding:10px; border:2px #eb4b3f solid; display:none;}
+.lMenuBox2 ul li div{float:left; width:100%; border-top:1px #bfbfbf solid; padding-top:10px;}
+.lMenuBox2 ul li div a{float:left; width:130px; height:25px; padding:0 10px; font-size:11px; line-height:25px; overflow:hidden;}
+.lMenuBox2 ul li dl dd{float:left; width:130px; padding:0 10px; line-height:35px; text-align:left;}
+.lMenuBox2 ul li dl dd a{color:#555; font-weight:bold;}
+.lMenuBox2 ul .cur{ border:2px #eb4b3f solid !important;}
+.lMenuBox2 ul .cur span{ background:#fff; right:-20px; top:0px; z-index:1001;}
+.lMenuBox2 ul .icon01{border:2px #fff solid; background:url(../index/images/icon11.gif) no-repeat 15px center;}
+.lMenuBox2 ul .icon02{border:2px #fff solid; background:url(../index/images/icon13.gif) no-repeat 15px center;}
+.lMenuBox2 ul .icon03{border:2px #fff solid; background:url(../index/images/icon14.gif) no-repeat 15px center;}
+.lMenuBox2 ul .icon04{border:2px #fff solid; background:url(../index/images/icon15.gif) no-repeat 15px center;}
+.lMenuBox2 ul .icon05{border:2px #fff solid; background:url(../index/images/icon16.gif) no-repeat 15px center;}
+.lMenuBox2 ul .icon06{border:2px #fff solid; background:url(../index/images/icon18.gif) no-repeat 15px center;}
+.lMenuBox2 ul .icon07{border:2px #fff solid; background:url(../index/images/icon19.gif) no-repeat 15px center;}
+.lMenuBox2 ul .icon08{border:2px #fff solid; background:url(../index/images/icon20.gif) no-repeat 15px center;}
+.lMenuBox2 ul .icon09{border:2px #fff solid; background:url(../index/images/icon21.gif) no-repeat 15px center;}
+
+
+
+/*右侧菜单01*/
+.rMenuBox{float:right; width:248px; height:397px; border-left:1px #eb4b3f solid; border-right:1px #eb4b3f solid; border-bottom:1px #eb4b3f solid;}
+.rMenuBox .rMenu{float:left; width:248px;}
+.rMenuBox .rMenu li{float:left; width:248px;}
+.rMenuBox .rMenu li a{float:left;width:198px; height:40px; line-height:40px; margin:5px 9px; border:1px #ffb9a0 solid; border-radius:4px; padding-left:70px; text-align:center; border:1px #ffb9a0 solid; border-radius:4px; padding-left:30px; color:#eb4b3f; font-size:16px;}
+.rMenuBox .rMenu li .icon01{ background:url(../index/images/icon23.jpg) no-repeat 60px center;}
+.rMenuBox .rMenu li .icon02{ background:url(../index/images/icon24.jpg) no-repeat 60px center;}
+.rMenuBox .rMenu li .icon03{ background:url(../index/images/icon10.jpg) no-repeat 60px center;}
+
+.rMenuBox .rMenu li .icon01:hover{background:#ffb9a0 url(../index/images/icon23_1.jpg) no-repeat 60px center; color:#9e0001;}
+.rMenuBox .rMenu li .icon02:hover{background:#ffb9a0 url(../index/images/icon24_1.jpg) no-repeat 60px center; color:#9e0001;}
+.rMenuBox .rMenu li .icon03:hover{background:#ffb9a0 url(../index/images/icon10_1.jpg) no-repeat 60px center; color:#9e0001;}
+
+.rMenuBox .sSearch{float:left; width:228px; min-height:228px; margin:5px 9px; border-radius:4px; border:1px #ffb9a0 solid;}
+.rMenuBox .sSearch .title{float:left;width:200px; padding-left:30px; height:40px; line-height:40px; color:#eb4b3f; text-align:center; background:url(../index/images/icon5.gif) no-repeat 60px center; margin-bottom:10px;}
+.rMenuBox .sSearch label{float:left; width:70px; line-height:30px; font-size:14px; margin-bottom:10px; margin-left:20px; color:#555;}
+.rMenuBox .sSearch input{float:left; width:110px; padding:2px 5px; height:25px; border:1px #d2d2d2 solid;  margin-bottom:10px;}
+.rMenuBox .sSearch .input{ width:45px;}
+.rMenuBox .sSearch .code{ float:left; width:60px; padding-left:5px;}
+.rMenuBox .sSearch .code img{ width:60px;}
+.rMenuBox .sSearch .btn{ float:left; width:200px; margin-left:12px; padding:8px 0; text-align:center; color:#fff; background:#eb4b3f;}
+
+
+
+/*右侧菜单02*/
+.rMenuBox2{float:right; width:246px; height:397px; border-left:1px #eb4b3f solid; border-right:1px #eb4b3f solid; border-bottom:1px #eb4b3f solid;}
+.rMenuBox2 .title{float:left; width:180px; height:35px; line-height:35px; text-align:left; padding:0 0 0 40px; margin:10px 10px 0 10px; position:relative; font-size:18px; border-bottom:1px #eee solid;}
+.rMenuBox2 .icon1{ background:url(../index/images/icon12.gif) no-repeat 0 center;}
+.rMenuBox2 .icon2{ background:url(../index/images/icon17.gif) no-repeat 0 center;}
+.rMenuBox2 .title a{position:absolute; right:0; bottom:0; font-size:12px; color:#a1a1a1;}
+.rMenuBox2 .btn{float:left; height:37px; padding-bottom:10px;}
+.rMenuBox2 .btn a{float:left; width:105px; height:37px; line-height:37px; border:1px #dcdcdc solid; margin-left:10px; margin-top:10px; text-align:center; color:#000; border-radius:4px;}
+.rMenuBox2 .btn a:hover{background-color:#efeff1;}
+.rMenuBox2 ul{ float:left; width:228px; padding:0 10px;}
+.rMenuBox2 ul li{float:left; width:100%; height:37px; padding:5px 0;}
+.rMenuBox2 ul li a{float:left; width:160px; height:37px; line-height:37px; text-align:left; padding-left:60px; margin:5px 0; border:1px #dcdcdc solid; border-radius:4px; cursor:pointer; color:#000; background-image:url(../index/images/left.gif); background-repeat:no-repeat;}
+.rMenuBox2 ul li a:hover{ background-color:#efeff1;}
+
+/*轮播图*/
+.slideBox{float:left;}
+.slideBox img{ width:525px;}
+#banner{width: 525px;height: 390px;padding: 5px;background: #fff;margin: 0;}
+.box{width: 525px;height: 395px;overflow: hidden;position: relative;z-index:5;background:#fff;}
+.box .pic{height: 395px;overflow: hidden;position: absolute;top: 0;left: 0;z-index:6;}
+.box .pic li{float:left;width:525px;height:395px;}
+.box .pic li img{display:block;width:525px;height:395px;}
+.box .dian{height:16px;position:absolute;right:210px;bottom:10px;z-index:99;overflow:hidden;}
+.box .dian li{float:left;width:12px;height:12px;background:#989898;border-radius: 20px;margin-left: 10px;cursor: pointer;margin-top: 2px;}
+.box .dian .current{height: 12px;width:12px;background:#eb4b3f;margin-top:2px;}
+.left{width: 42px;height: 42px;background: url(img/arrows-48-48-3.png) no-repeat -4px -51px;position: absolute;z-index: 99;top: 91px;left: 0;cursor: pointer;transition: all 0.2s;}
+.right{width: 42px;height: 42px;background: url(img/arrows-48-48-3.png) no-repeat -51px -51px;position: absolute;z-index: 99;top: 91px;right: 0;cursor: pointer;transition: all 0.2s;}
+.left:hover{background-position: -4px -3px;}
+.right:hover{background-position: -51px -3px;}
+
+/*新闻01*/
+.newsBox{float:left; width:100%; margin:30px 0 0 0;}
+.newsBox .title{float:none; margin:0 auto; width:998px; height:30px; color:#555;}
+.newsBox .title span{ float:left;}
+.newsBox .title a{ float:right; width:50px; background:url(../index/images/icon6.gif) no-repeat right center; padding-right:10px; color:#555;}
+.newsBox .box{float:none; margin:0 auto; width:998px; height:498px; border:1px #d2d2d2 solid;}
+.newsBox .box .news{ width:940px; height:125px; margin:25px auto;}
+.newsBox .box .news .newsTitle{ width:100%; height:30px; background:url(../index/images/icon3.gif) no-repeat; padding-left:30px;}
+.newsBox .box .news .newsText{ float:left; width:900px; background:#f8f8f8; border-top:1px #eb4b3f solid; padding:20px;}
+.newsBox .box .news .newsText p{ float:left; width:650px; height:70px; margin:0; padding:0; font-size:15px;}
+.newsBox .box .news .newsText .newsbtn{ float:right; width:100px; height:30px; line-height:30px; border:1px #ec4c40 solid; border-radius:4px; text-align:center; color:#ec4c40; margin-left:10px; margin-top:20px;}
+
+.newsBox .box .news .newsText .wyblBack{ float:right; width:100px; height:30px; line-height:30px; border:1px #ec4c40 solid; border-radius:4px; text-align:center; color:#ec4c40; margin-left:10px; margin-top:20px;background:#ec4c40; color:#fff;}
+
+/*新闻02*/
+.newsBox2{float:left; width:100%; margin:30px 0 0 0;}
+.newsBox2 .title a{ float:right; width:50px; background:url(../images/icon6.gif) no-repeat right center; padding-right:10px; color:#555;}
+.newsBox2 .box{float:none; margin:0 auto; width:1000px; height:auto;}
+.newsBox2 .box .news{ width:1000px; height:125px; margin:25px auto;}
+.newsBox2 .box .news .newsTitle{float:left; height:30px; background:url(../images/icon3.gif) no-repeat 0 1px; padding-left:30px; color:#000; font-weight:bold; font-size:18px; position:relative;}
+.newsBox2 .box .news .newsTitle span{ float:left; width:100%; height:5px; background:url(../images/icon27.gif) no-repeat center center; position:absolute; bottom:0; left:0;}
+.newsBox2 .box .news .newsImg{float:left; width:67px; height:87px; margin-right:20px;}
+.newsBox2 .box .news .newsText{float:left; width:958px; background:#f8f8f8; border-top:2px #eb4b3f solid; padding:20px;}
+.newsBox2 .box .news .newsText p{float:left; width:600px; height:80px; overflow: hidden; margin:0; padding:5px 0 0 0; font-size:15px;}
+.newsBox2 .box .news .newsText .newsbtn{float:right; width:100px; height:30px; line-height:30px; border:1px #ec4c40 solid; border-radius:4px; text-align:center; color:#ec4c40; margin-left:10px; margin-top:20px;}
+.newsBox2 .box .news .newsText .newsbtn:hover{background:#ec4c40; color:#fff;}
+.newsBox2 .box .news .newsText .title{font-size:16px; color:#000;}
+.newsBox2 .box .news .newsText .text{font-size:14px; color:#858585;}
+.newsBox2 .box .news .newsText .wang{background:#e93c4f; padding:2px 5px; border-radius:4px; color:#fff; margin-left:2px;}
+.newsBox2 .box .news .last{ border-top:1px #858585 dotted;}
+
+
+/*浮动*/
+.floatBox{width:55px; position:absolute; right:-100px; top:200px;}
+.float{float:left; width:55px; height:20px; line-height:20px; padding:10px 0; background:#e5e5e5; color:#fff; margin-bottom:5px; text-align:center;}
+
+/*分页*/
+.pagingBox{float:left; width:1000px; padding-top:20px;}
+.pagingBox ul{width:400px; margin:0 auto;}
+.pagingBox ul li{float:left; margin:2px 5px;}
+.pagingBox ul li a{float:left; width:32px; height:32px; text-align:center; line-height:32px; border:1px #d2d2d2 solid; color:#565656;}
+.pagingBox ul li a:hover{ background:#e5e5e5;}
+.pagingBox ul li:last-child a{ width:auto; padding:0 20px;}
+.pagingBox .btnBox a{float:left; min-width:32px; height:32px; text-align:center; line-height:32px; border:1px #d2d2d2 solid; color:#565656;}
+.pagingBox .btnBox a:hover{ background:#e5e5e5;}
+.pagingBox .btnBox span{ float:left; font-size:14px;}
+.pagingBox .btnBox span input{ width:32px; height:30px; border:1px #d2d2d2 solid; color:#565656; margin:0 5px;}
+
+
+/*页脚*/
+.footerBox{float:left; width:100%; background:#ebebed; margin-top:30px;}
+.footerBox .footer{float:none; width:1000px; height:90px; margin:0 auto;}
+.footerBox .footer .logo{ float:left; width:165px; height:41px; padding-right:15px;}
+.footerBox .footer p{float:left; width:400px; height:40px; font-size:14px; margin-top:30px; color:#5b5b5b;}
+.footerBox .footer img{float:right; padding:30px 0;}
+
+
+.searchBox .search .inputBox div{float:left;width:283px; height:30px; border:3px #9e0001 solid; background:none; padding:2px 5px; z-index:10; position:inherit; font-size:14px; cursor:pointer; z-index:10;}

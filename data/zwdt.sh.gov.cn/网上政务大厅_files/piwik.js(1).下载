@@ -1,0 +1,240 @@
+var _paq = _paq || [];
+var checkValid = function(hiddenContent){
+	var result=true;
+	if(hiddenContent!=null){
+		$.each(hiddenContent,function(n,value) {             
+	    	if (value==""||typeof(value)=="undefined"||value=="undefined"){
+	    		result=false;
+	    		return result;
+	    	}
+	    }); 
+	}
+	return result;
+};
+
+if (checkValid([searchTextPiwik,searchTypePiwik,searchResultNumPiwik])){
+
+	$('.searchUrl').live('click',function(){
+		var searchContent=$(this).attr('searchContent');
+		var clickContent=$(this).attr('clickContent');
+		if (checkValid([searchContent,clickContent])){
+			_paq.push(['trackEvent', '智能检索', searchContent, clickContent]);
+			_paq.push(['trackPageView']);
+		}
+	}); 
+
+}
+var documentTitle=$('#ModelName').val();
+var searchTextPiwik=$('#searchTextPiwik').val();
+var searchTypePiwik=$('#searchTypePiwik').val();
+var searchResultNumPiwik=$('#searchResultNumPiwik').val();
+var useridPiwik=$('#useridPiwik').val();
+var accountPiwik=$('#accountPiwik').val();
+var itemNamePiwik=$('#itemNamePiwik').val();
+var itemIdPiwik=$('#itemIdPiwik').val();
+var lifePeriod=replaceName($('#lifePeriod').val());
+var settleSP=$('#settleSP').val();
+var residencePermit=$('#residencePermit').val();
+
+
+_paq.push(['setDocumentTitle',documentTitle]);
+
+//user
+if (checkValid([useridPiwik])){
+	_paq.push(['setUserId',useridPiwik]);
+}
+if (checkValid([accountPiwik])){
+	_paq.push(['setCustomVariable',1,"政务大厅用户昵称",accountPiwik,"visit"]);
+}
+
+//for itemDetailView
+if (checkValid([itemNamePiwik,itemIdPiwik])){
+	_paq.push(['trackEvent', '办事指南', '办事指南查看', itemNamePiwik+'_'+itemIdPiwik]);
+}
+
+if (checkValid([lifePeriod])){
+	_paq.push(['trackEvent', '全生命周期', '全生命周期', lifePeriod]);
+}
+
+if (checkValid([settleSP])){
+	_paq.push(['trackEvent', '应届毕业生落户', '应届毕业生落户', settleSP]);
+}
+
+if (checkValid([residencePermit])){
+	var w = document.body.offsetWidth;
+	var event = "";
+	var type1 = $("#type1").val();
+	var type2 = $("#type2").val();
+	event = residencePermit+type1+type2;
+	if(w<800){
+		event = event+"_手机端";
+	}else{
+		event = event+"_PC端";
+	}
+	_paq.push(['trackEvent', '上海居住证专题', '上海居住证专题', event]);
+}
+
+$('.ok').live('click',function(){
+	var grsms = new Array();
+	$("input[name='grsm']:checked").each(function(i){ 
+		grsms.push($(this).val());
+	});
+	var frsms = new Array();
+	$("input[name='frsm']:checked").each(function(i){ 
+		frsms.push($(this).val());
+	});
+	for(var i=0;i<grsms.length;i++){
+		var grsm = replaceName(grsms[i]);
+		if (checkValid([grsm])){
+			_paq.push(['trackEvent', '全生命周期', '全生命周期', grsm]);
+		}
+	}
+	for(var i=0;i<frsms.length;i++){
+		var frsm = replaceName(frsms[i]);
+		if (checkValid([frsm])){
+			_paq.push(['trackEvent', '全生命周期', '全生命周期', frsm]);
+		}
+	}
+	
+	
+	
+});  
+
+$('.changeType').live('click',function(){
+	var w = document.body.offsetWidth;
+	var event = "";
+	var type1 = $("#type1").val();
+	var type2 = $("#type2").val();
+	event = residencePermit+type1+type2;
+	if(w<800){
+		event = event+"_手机端";
+	}else{
+		event = event+"_PC端";
+	}
+	_paq.push(['trackEvent', '上海居住证专题', '上海居住证专题', event]);
+}); 
+
+$('.open1').live('click',function(){
+	var w = document.body.offsetWidth;
+	var event = "_分享";
+	if(w<800){
+		event = residencePermit+event+"_手机端";
+	}else{
+		event = residencePermit+event+"_PC端";
+	}
+	_paq.push(['trackEvent', '上海居住证专题', '上海居住证专题', event]);
+}); 
+
+$('.open2').live('click',function(){
+	var w = document.body.offsetWidth;
+	var event = "_收藏";
+	if(w<800){
+		event = residencePermit+event+"_手机端";
+	}else{
+		event = residencePermit+event+"_PC端";
+	}
+	_paq.push(['trackEvent', '上海居住证专题', '上海居住证专题', event]);
+}); 
+
+$('.open3').live('click',function(){
+	var w = document.body.offsetWidth;
+	var event = "_留言";
+	if(w<800){
+		event = residencePermit+event+"_手机端";
+	}else{
+		event = residencePermit+event+"_PC端";
+	}
+	_paq.push(['trackEvent', '上海居住证专题', '上海居住证专题', event]);
+}); 
+
+function replaceName(name){
+	if(name!=null){
+		return name.replace("111","生育收养_个人")
+		   .replace("112","户籍办理_个人")
+		   .replace("113","民族宗教_个人")
+		   .replace("114","教育科研_个人")
+		   .replace("115","入伍服役_个人")
+		   .replace("116","就业创业_个人")
+		   .replace("117","职业资格_个人")
+		   .replace("118","纳税缴费_个人")
+		   .replace("119","婚姻登记_个人")
+		   .replace("120","住房保障_个人")
+		   .replace("121","社会保障_个人")
+		   .replace("122","证件办理_个人")
+		   .replace("123","交通出行_个人")
+		   .replace("124","旅游观光_个人")
+		   .replace("125","出境入境_个人")
+		   .replace("126","消费维权_个人")
+		   .replace("127","公共安全_个人")
+		   .replace("128","司法公证_个人")
+		   .replace("129","知识产权_个人")
+		   .replace("130","环保气象_个人")
+		   .replace("131","文化体育_个人")
+		   .replace("132","公用事业_个人")
+		   .replace("133","医疗卫生_个人")
+		   .replace("134","离职退休_个人")
+		   .replace("135","死亡殡葬_个人")		
+		   .replace("136","其他_个人")
+		   
+		   .replace("211","设立变更_法人")
+		   .replace("212","准营准办_法人")
+		   .replace("213","资质认证_法人")
+		   .replace("214","年检年审_法人")
+		   .replace("215","税收财务_法人")
+		   .replace("216","人力资源_法人")
+		   .replace("217","劳动保障_法人")
+		   .replace("218","投资审批_法人")
+		   .replace("219","融资信贷_法人")
+		   .replace("220","商务贸易_法人")
+		   .replace("221","招标拍卖_法人")
+		   .replace("222","海关口岸_法人")
+		   .replace("223","涉外服务_法人")
+		   .replace("224","农林牧渔_法人")
+		   .replace("225","国土建设_法人")
+		   .replace("226","交通运输_法人")
+		   .replace("227","环保绿化_法人")
+		   .replace("228","水务气象_法人")
+		   .replace("229","医疗卫生_法人")
+		   .replace("230","科技创新_法人")
+		   .replace("231","文体教育_法人")
+		   .replace("232","知识产权_法人")
+		   .replace("233","民族宗教_法人")
+		   .replace("234","质量技术_法人")
+		   .replace("235","检验检疫_法人")
+		   .replace("236","安全生产_法人")
+		   .replace("237","公安消防_法人")
+		   .replace("238","司法公证_法人")
+		   .replace("239","公用事业_法人")
+		   .replace("240","破产注销_法人")	
+		   .replace("241","其他_法人");	
+	}else{
+		return name;
+	}	
+	  
+}
+
+	
+//for search
+if (checkValid([searchTextPiwik,searchTypePiwik,searchResultNumPiwik])){
+	_paq.push(['trackSiteSearch',searchTextPiwik,searchTypePiwik,parseInt(searchResultNumPiwik)]);
+}else if (checkValid([documentTitle])){
+
+	_paq.push(['trackPageView']);
+	_paq.push(['enableLinkTracking']);
+}
+
+
+		
+(function() {
+	var u = "//218.242.233.134/piwik/";
+//	var u = "//127.0.0.1:8081/piwik/";
+	_paq.push(['setTrackerUrl', u + 'piwik.php']);
+	_paq.push(['setSiteId', 1]);
+	var d = document, g = d.createElement('script'), s = d
+			.getElementsByTagName('script')[0];
+	g.type = 'text/javascript';
+	g.async = true;
+	g.defer = true;
+	g.src = u + 'piwik.js';
+	s.parentNode.insertBefore(g, s);
+})();

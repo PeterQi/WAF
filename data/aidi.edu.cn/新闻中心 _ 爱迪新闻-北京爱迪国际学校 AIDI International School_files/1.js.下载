@@ -1,0 +1,172 @@
+
+$(function(){
+	$('.nav li').mouseover(function(){
+		
+		var currentIndex = $(this).index();
+		var left = currentIndex * 120 + 'px';
+
+		$('.nav li div').stop(false,true);
+		$(this).find('div').slideDown('slow');
+
+	}).mouseleave(function(){
+		$(this).find('strong').slideDown('slow');
+		$(this).find('div').slideUp('slow');
+    add.style.display = "none";  
+	})
+    
+
+
+  $('.nav .l').mouseover(function(){
+       $('.nav .l').stop(false,true);
+        $('.ppp').slideDown('slow');
+    }).mouseleave(function(){
+      $('.ppp').slideUp(2000);
+      })
+  
+
+});
+
+
+
+
+setInterval(function(){
+		height = document.documentElement.clientHeight;
+		
+		var top = document.getElementById("myCarousel").offsetHeight;
+		bottomAdverse = document.getElementById('bottom-adverse');
+		bottomAdverse.style.top = top+'px';
+		bottomAdverse.style.display = 'block';
+		
+		window.onscroll = function(){
+			var scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
+			
+		}
+	},1000);
+	
+
+window.onload = function(){
+  var oTop = document.getElementById("returnTop");
+  var screenw = document.documentElement.clientWidth || document.body.clientWidth;
+  var screenh = document.documentElement.clientHeight || document.body.clientHeight;
+  oTop.style.left = screenw - oTop.offsetWidth +"px";
+  oTop.style.top = screenh - oTop.offsetHeight + "px";
+  window.onscroll = function(){
+    var scrolltop = document.documentElement.scrollTop || document.body.scrollTop;
+    oTop.style.top = screenh - oTop.offsetHeight + scrolltop +"px";
+  }
+  oTop.onclick = function(){
+    document.documentElement.scrollTop = document.body.scrollTop =0;
+  }
+}  
+
+window.onload = function(){
+  var oTop = document.getElementById("returnTop");
+  var screenw = document.documentElement.clientWidth || document.body.clientWidth;
+  var screenh = document.documentElement.clientHeight || document.body.clientHeight;
+  oTop.style.left = screenw - oTop.offsetWidth +"px";
+  oTop.style.top = screenh - oTop.offsetHeight + "px";
+  window.onscroll = function(){
+    var scrolltop = document.documentElement.scrollTop || document.body.scrollTop;
+    oTop.style.top = screenh - oTop.offsetHeight + scrolltop +"px";
+  }
+  oTop.onclick = function(){
+    document.documentElement.scrollTop = document.body.scrollTop =0;
+  }
+}  
+
+
+
+
+
+
+
+	
+;
+	  
+	/*展开和收起用一个div,也可以说它是个按钮,假设它的id=d1;
+假设需要显示和隐藏的div叫d2;
+下面这段代码只是粗略的实现了你的要求,主要是给你提供个思路;
+*/
+$(function(){
+$('#d1').click(function(){//给d1绑定一个点击事件;
+            
+        /*这个判断的意义是,如果d2是隐藏的,那么让它显示出来,并将d1的文本内容替换成收起,
+        如果是显示的,那么就隐藏它并将d1的文本内容替换为展开;*/
+        if($('#d2').is(':hidden'))
+        {
+          $('#d2').slideDown('slow');  
+          $(this).text('收起');
+        }else{
+         $('#d2').slideUp('slow');
+       $(this).text('菜单'); 
+	   $(this).addClass('d2')
+	 
+	     }
+                
+    /*这是一个很简单的事件处理,如果还需要跟上图片的变换,就在判断的对应位置写入图片或者背景变换的代码,*/
+});
+});  
+  
+	 
+
+
+
+
+
+
+
+var _py = []; 
+_py.push(['a', 'FI..2Lth7hm_J89k2DNP21XmcP']); 
+_py.push(['domain','stats.ipinyou.com']); 
+_py.push(['e','']); 
+-function(d){ 
+   var f = 'https:' == location.protocol; 
+   f = (f ? 'https' : 'http') + '://'+(f?'fm.ipinyou.com':'fm.p0y.cn')+'/j/adv.js'; 
+   d.write('<script src="'+f+'"><\/script>'); 
+}(document) 
+
+
+
+     window.onload = function(){
+        var ms = document.getElementById("mysteve");
+         var add = document.getElementById("add");
+        ms.onmouseover = function(){
+            add.style.display = "block";
+        };
+         
+    };
+
+    
+
+
+
+
+window.onload = function(){
+  var oTop = document.getElementById("returnTop");
+  var screenw = document.documentElement.clientWidth || document.body.clientWidth;
+  var screenh = document.documentElement.clientHeight || document.body.clientHeight;
+  oTop.style.left = screenw - oTop.offsetWidth +"px";
+  oTop.style.top = screenh - oTop.offsetHeight + "px";
+  window.onscroll = function(){
+    var scrolltop = document.documentElement.scrollTop || document.body.scrollTop;
+    oTop.style.top = screenh - oTop.offsetHeight + scrolltop +"px";
+  }
+  oTop.onclick = function(){
+    document.documentElement.scrollTop = document.body.scrollTop =0;
+  }
+} 
+
+
+
+var _hmt = _hmt || []; 
+(function() { 
+  var hm = document.createElement("script"); 
+  hm.src = "https://hm.baidu.com/hm.js?b6801a66c58e72107d62158ec1b315b6"; 
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s); 
+})(); 
+
+
+
+
+

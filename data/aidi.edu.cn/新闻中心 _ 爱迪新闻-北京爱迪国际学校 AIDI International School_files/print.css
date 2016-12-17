@@ -1,0 +1,129 @@
+/* VERSIONS
+/* 4_5: Initial css version, with most recent production improvements
+
+/* Hide Areas 
+-------------------------------------------------------------------- */
+#nav-main, 
+#nav-const, 
+#nav-sub,
+#nav-utility,
+#nav-util,
+.nav-util,
+#breadcrumbs,
+#footer, 
+.hidden,
+.production-note,
+.readmore,
+ul.tabs,
+.idTabList,
+div.tab-collection,
+div.search,
+div.dock,
+div#warning,
+div#warning-icon,
+div.search/* div.team */,
+#nav-sc {
+	display: none;
+	}
+a { color: #000; text-decoration: none; }
+form.printable, div.tabs div, div.tabs h4.hidden { display: block !important; }
+
+/* Width of printable area 
+-------------------------------------------------------------------- */
+#primary-content, 
+#secondary-content {
+	width: 100%;
+	}
+#content,
+#primary-content, 
+#secondary-content {
+	height: auto !important;
+	}
+
+/* Font Sizes 
+-------------------------------------------------------------------- */
+html { font-size: 100%; /* for IE */ }
+body{ font-size: 62.5%; }
+h1,
+#masthead #site-name { font-size: 1.5em; margin: 0.4em 0 0.4em; font-weight: bold; }
+h2 { font-size: 1.5em; }
+h3 { font-size: 1.3em; }
+h4 { font-size: 1.1em; }
+h5 { font-size: 1.0em; }
+h6 { font-size: 0.8em; }
+h1,h2,h3 { font-weight: bold; }
+h4,h5,h6 { font-weight: bold; }
+h2,h3,h4,h5,h6 { margin: 1.2em 0 0.8em 0; line-height: 1.2em; }
+table td,
+table th { vertical-align: top; text-align: left; }
+
+
+/* Misc
+-------------------------------------------------------------------- */
+dl dd { margin-left: 0; }
+div,dl,li { height: auto !important; height: 1%; }
+
+
+/* Masthead
+-------------------------------------------------------------------- */
+#masthead img {
+	display: none;
+	}
+#masthead address span {
+	font-weight: bold;
+	display: block;
+	}	
+#masthead address {
+	font-style: normal;
+	}
+#masthead a {
+	font-size: 2.0em;
+	display: block;
+	margin-bottom: 0.3em;
+	}
+.print-instructions { 
+	border-top: 1px solid #CCC;
+	padding-top: 4px;
+	margin-top: 4px;
+	}
+	
+/* NEWS
+-------------------------------------------------------------------- */
+.news .list ul.news {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	}
+.news .list ul.news div.thumb {
+	display: none;
+	}
+
+/* NEWSLETTER
+-------------------------------------------------------------------- */
+.newsletter .caption,
+.newsletter a.readmore,
+.newsletter.archives { display: none; }		
+
+/* CALENDARS
+-------------------------------------------------------------------- */
+form#customize.active {
+	margin-top: 30px;
+	margin-left: 10px;
+    }
+	
+/* This is the print stylesheet to hide the Flash headlines from the browser... regular browser text headlines will now print as normal */
+.sIFR-flash, .sIFR-flash object, .sIFR-flash embed {
+	display: none !important;
+	height: 0;
+	width: 0;
+	position: absolute;
+	overflow: hidden;
+	}
+span.sIFR-alternate {
+	visibility: visible !important;
+	display: block !important;
+	position: static !important;
+	left: auto !important;
+	top: auto !important;
+	}
+	

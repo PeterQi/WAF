@@ -1,0 +1,8 @@
+﻿function CuteEditor_FilterHTML(editor,code)   
+{   
+    return code.split("&amp;").join("&"); 
+}   
+function CuteEditor_FilterCode(editor,code)   
+{   
+    return code.split("&amp;").join("&"); 
+}   

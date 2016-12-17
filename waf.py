@@ -15,6 +15,8 @@ def parse_cmd_args():
                       help="set HTTP Cookie header value (e.g. \"sid=foobar\")")
     parser.add_option("--header", dest="header",
                       help="set a custom HTTP header (e.g. \"Max-Forwards=10\")")
+    parser.add_option("--test", dest="test", action = "store_true",
+                      help="make a test")
     (options, args) = parser.parse_args()
     if not options.url or not options.param:
         parser.error("Missing argument for target url or target param. Use '-h' for help.")
@@ -29,10 +31,19 @@ def first_request(options):
         req = requests.post(options.url,headers=headers,data=options.data)
     else:
         req = requests.get(options.url,headers=headers)
+    return req
+
+def test(opt):
+    req = first_request(opt)
+    print req.headers
     print req.content
-    
+    #fp = open(opt.url,'w')
+    #fp.write(req.headers
 def main():
     opt = parse_cmd_args()
+    if opt.test:
+        test(opt)
+        return
     first_request(opt)
     from sys import path
     path.append(main_path+'/sqlmap')

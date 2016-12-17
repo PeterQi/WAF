@@ -1,0 +1,14 @@
+HTTP/1.1 302 Found
+Date: Sat, 17 Dec 2016 04:57:31 GMT
+Location: /
+Content-Length: 185
+Connection: close
+Content-Type: text/html; charset=iso-8859-1
+
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>302 Found</title>
+</head><body>
+<h1>Found</h1>
+<p>The document has moved <a href="/">here</a>.</p>
+</body></html>

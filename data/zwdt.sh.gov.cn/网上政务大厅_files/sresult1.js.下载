@@ -1,0 +1,150 @@
+$(document).ready(function(){	
+	var classification=$('#classification').val();
+	if("all"==classification){
+		openUl('allClassification','sel');
+	}
+	if("window"==classification){
+		openUl('windowClassification','sel');
+	}
+	if("guide"==classification){
+		openUl('guideClassification','sel');
+	}
+	if("sheet"==classification){
+		openUl('sheetClassification','sel');
+	}
+	if("energy"==classification){
+		openUl('energyClassification','sel');
+	}
+	if("ans"==classification){
+		openUl('ansClassification','sel');
+	}
+	
+	var range=$('#range').val();
+	if("all"==range){
+		openUl('allRange','sel');
+	}
+	if("title"==range){
+		openUl('titleRange','sel');
+	}
+	if("content"==range){
+		openUl('contentRange','sel');
+	}
+	
+	var sort=$('#sort').val();
+	if("match"==sort){
+		openUl('matchSort','up');
+	}
+	if("time"==sort){
+		openUl('timeSort','up');
+	}
+	var part=$('#part').val();
+	if("participles"==part){
+		openUl('participles','sel');
+	}
+	if("noParticiples"==part){
+		openUl('noParticiples','sel');
+	}
+	
+	var area=$('#area').val();
+	openUl(area,'hover');
+	if($('#show').val()!='false'){
+		var areaText=$('.hover a').attr('value');
+		$('#selectText').html("查询结果("+areaText+")");
+	}else{
+		$('#selectText').html("查询结果");
+	}
+	
+	
+	$('#page').css("width",lengthPlusStr);
+})
+function getClassification(value){
+	if('all'==value){
+		$('#classification').val('all');
+		$("#searchForm").submit();
+	}
+	if('window'==value){
+		$('#classification').val('window');
+		$("#searchForm").submit();
+	}
+	if('guide'==value){
+		$('#classification').val('guide');
+		$("#searchForm").submit();
+	}
+	if('sheet'==value){
+		$('#classification').val('sheet');
+		$("#searchForm").submit();
+	}
+	if('energy'==value){
+		$('#classification').val('energy');
+		$("#searchForm").submit();
+	}
+	if('ans'==value){
+		$('#classification').val('ans');
+		$("#searchForm").submit();
+	}
+}
+function getRange(value){
+	if('all'==value){
+		$('#range').val('all');
+		$("#searchForm").submit();
+	}
+	if('title'==value){
+		$('#range').val('title');
+		$("#searchForm").submit();
+	}
+	if('content'==value){
+		$('#range').val('content');
+		$("#searchForm").submit();
+	}
+}
+function getSort(value){
+	if('time'==value){
+		$('#sort').val('time');
+		$("#searchForm").submit();
+	}
+	if('match'==value){
+		$('#sort').val('match');
+		$("#searchForm").submit();
+	}
+}
+function getParticiples(value){
+	if('noParticiples'==value){
+		$('#part').val('noParticiples');
+		$("#searchForm").submit();
+	}
+	if('participles'==value){
+		$('#part').val('participles');
+		$("#searchForm").submit();
+	}
+}
+function quankai(){
+	$('#part').val('participles');
+	$('#range').val('all');
+	$('#sort').val('match');
+	$("#searchForm").submit();
+}
+function quxian(value){
+	$('#area').val(value);
+	var quxianList = document.getElementById("quxianList");
+	quxianList.style.display = "none";
+	$("#searchForm").submit();
+}
+function openSelect(){
+        var triangle = document.getElementById("triangle");
+        var quxianList = document.getElementById("quxianList");
+        if (triangle.className == "border-triangle") {
+            triangle.className = "border-triangle flipy";
+            quxianList.style.display = "block";
+        } 
+		else {
+            triangle.className = "border-triangle";
+            quxianList.style.display = "none";
+        }
+    }
+function openUl(id, className) {
+	$("#"+id).addClass(className).siblings().removeClass(className);
+}
+function relevants(rel){
+	$("#serachText").val(rel);
+	$("#searchForm").submit();
+}

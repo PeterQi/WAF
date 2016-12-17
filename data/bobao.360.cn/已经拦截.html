@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<!-- saved from url=(0279)http://bobao.360.cn/search/index?keywords=AND+1%3D1+UNION+ALL+SELECT+1%2CNULL%2C%27%3Cscript%3Ealert%28%5C%22XSS%5C%22%29%3C%2Fscript%3E%27%2Ctable_name+FROM+information_schema.tables+WHERE+2%3E1-%2D%2F**%2F%3B+EXEC+xp_cmdshell%28%27cat+..%2F..%2F..%2Fetc%2Fpasswd%27%29%23&type= -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>已经拦截</title>
+
+</head>
+
+<body style="background: url(&#39;/wzws-waf-cgi/bg.jpg&#39;);font-family:&#39;Microsoft Yahei&#39;;">
+<div style="width:800px;margin:100px auto 0px;text-align:center;">
+	<img src="./已经拦截_files/icon403.png" border="0">
+	<br>
+
+	<p style="color:#686868;line-height:30px;margin:0px;">当前访问可能对网站安全造成威胁，已被网站卫士拦截。<br><a href="javascript:;" onclick="javascript:showlayer();" style="color:#0573e3;">详情请点击这里</a></p>
+	<div id="hiddenlayer" style="display:none;">
+		<p style="color:#686868;font-size:12px;margin-top:20px;">拦截URL：<span id="wurl">http://bobao.360.cn/search/index?keywords=AND+1%3D1+UNION+ALL+SELECT+1%2CNULL%2C%27%3Cscript%3Ealert%28%5C%22XSS%5C%22%29%3C%2Fscript%3E%27%2Ctable_name+FROM+information_schema.tables+WHERE+2%3E1--%2F**%2F%3B+EXEC+xp_cmdshell%28%27cat+..%2F..%2F..%2Fetc%2Fpasswd%27%29%23&amp;amp;type=</span></p>
+		<p style="color:#686868;font-size:14px;">如果您是站长，请点击 <span style="background-color:#01ab85;font-size:16px;padding:6px 8px 8px;border-radius: 5px;-webkit-border-radius: 5px;-moz-border-radius: 5px;-o-border-radius: 5px;"><a style="color:#fff;text-decoration: none;" href="javascript:void(0);" onclick="tongdao()">站长绿色通道</a></span> 使您的访问不再被拦截</p>
+	</div>
+	<div style="border-top:1px dashed #686868;width:700px;margin:35px auto 35px;"></div>
+	<img src="./已经拦截_files/wzblogo.png" border="0">
+</div>
+
+<script type="text/javascript" async="" src="./已经拦截_files/ga.js.下载"></script><script type="text/javascript">
+var isshow = 0;
+function showlayer(){
+	eleid = document.getElementById('hiddenlayer');
+	if(isshow==0){
+		eleid = document.getElementById('hiddenlayer');
+		eleid.style.display="";
+		isshow =1;
+	}else{
+		eleid.style.display="none";
+		isshow = 0;
+	}
+}
+
+function Base64() {
+ 
+	// private property
+	_keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+ 
+	// public method for encoding
+	this.encode = function (input) {
+		var output = "";
+		var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+		var i = 0;
+		input = _utf8_encode(input);
+		while (i < input.length) {
+			chr1 = input.charCodeAt(i++);
+			chr2 = input.charCodeAt(i++);
+			chr3 = input.charCodeAt(i++);
+			enc1 = chr1 >> 2;
+			enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+			enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+			enc4 = chr3 & 63;
+			if (isNaN(chr2)) {
+				enc3 = enc4 = 64;
+			} else if (isNaN(chr3)) {
+				enc4 = 64;
+			}
+			output = output +
+			_keyStr.charAt(enc1) + _keyStr.charAt(enc2) +
+			_keyStr.charAt(enc3) + _keyStr.charAt(enc4);
+		}
+		return output;
+	}
+
+	// private method for UTF-8 encoding
+	_utf8_encode = function (string) {
+		string = string.replace(/\r\n/g,"\n");
+		var utftext = "";
+		for (var n = 0; n < string.length; n++) {
+			var c = string.charCodeAt(n);
+			if (c < 128) {
+				utftext += String.fromCharCode(c);
+			} else if((c > 127) && (c < 2048)) {
+				utftext += String.fromCharCode((c >> 6) | 192);
+				utftext += String.fromCharCode((c & 63) | 128);
+			} else {
+				utftext += String.fromCharCode((c >> 12) | 224);
+				utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+				utftext += String.fromCharCode((c & 63) | 128);
+			}
+ 
+		}
+		return utftext;
+	}
+ 
+}
+
+
+function HTMLEncode(html) 
+{
+	var temp = document.createElement ("div"); 
+	(temp.textContent != null) ? (temp.textContent = html) : (temp.innerText = html); 
+	var output = temp.innerHTML; 
+	temp = null; 
+	return output; 
+} 
+
+function $(id){return document.getElementById(id);}
+
+function wubao(){
+	var host = location.hostname;
+	location.href="fankui.html?"+host;
+}
+
+function tongdao(){
+	var host = location.hostname;
+	var url = HTMLEncode(location.href);
+	var index = url.indexOf("?");
+	if(index>0){
+		url = url.substr(0,index);
+	}
+	var b = new Base64();  
+	url = b.encode(url); 
+	location.href="http://wangzhan.360.cn/index/shouquan/host/"+host+"/?url="+url;
+}
+
+$("wurl").appendChild(document.createTextNode(HTMLEncode(location.href)));
+</script>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-32745158-2']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+
+
+</body></html>

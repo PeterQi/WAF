@@ -1,0 +1,52 @@
+.m-page{overflow:hidden;position:relative;margin-top:20px;padding:10px 0;height:37px}
+.m-page .wraper{float:left;margin-left:50%}
+.m-page .inner{float:left;margin-left:-50%}
+.m-page .inner,.m-page .wraper{min-width:650px;_float:none;_width:760px;_margin-left:auto;_margin-right:auto}
+.m-page .items{float:left}
+.m-page .item{position:relative;float:left;margin-left:-1px;width:35px;border:solid 1px #ededed;height:35px;color:#3e3e3e;text-align:center;line-height:35px;cursor:pointer;-webkit-transition:all .1s linear;-moz-transition:all .1s linear;-o-transition:all .1s linear;transition:all .1s linear}
+.m-page .item .num{position:relative;z-index:1;display:inline-block;width:100%;text-decoration:none;font-size:14px}
+.m-page .item:hover{z-index:1;border-color:#f40}
+.m-page .dot{border:none;line-height:37px;width:24px;cursor:default}
+.m-page .dot:hover{color:#3e3e3e}
+.m-page .icon{_margin-top:12px}
+.m-page .next,.m-page .prev{width:70px;font-weight:400}
+.m-page .prev{margin-right:6px;margin-left:0}
+.m-page .next{margin-left:5px}
+.m-page .dot+.next{margin-left:-1px}
+.m-page .next-disabled,.m-page .prev-disabled{color:#ccc}
+.m-page .next-disabled:hover,.m-page .prev-disabled:hover{border-color:#ededed}
+.m-page .active,.m-page .active:hover{position:relative;z-index:1;background:#f40;color:#fff;border-color:#f40;cursor:default;text-decoration:none}
+.m-page .icon-btn-star,.m-page .icon-btn-star-selected{display:block;margin:5px auto 0}
+.m-page .page0:hover .star-gif{display:none}
+.m-page .page0 .star-gif{position:absolute;top:11px;left:10px}
+.m-page .form{float:left}
+.m-page .text,.m-page .total{_display:inline;float:left;line-height:37px}
+.m-page .btn,.m-page .input,.m-page .text{margin-left:5px}
+.m-page .total{margin-left:10px}
+.m-page .input,.m-page .text,.m-page .total{color:#999}
+.m-page .btn,.m-page .input{margin-top:7px;float:left;_display:inline}
+.m-page .input{width:35px;border:solid 1px #ededed;height:21px;text-align:center}
+.ks-ie8 .m-page .input{line-height:21px}
+.m-page .btn{height:21px;width:43px;-webkit-border-radius:2px;-webkit-background-clip:padding-box;-moz-border-radius:2px;-moz-background-clip:padding;border-radius:2px;background-clip:padding-box;border:solid 1px #ededed;text-align:center;line-height:21px;cursor:pointer}
+.m-page .btn:hover{color:#f40;border-color:#f40}.m-bottomsearch{margin-top:20px}
+.m-bottomsearch .inner{height:35px;padding:0 20%}
+.m-bottomsearch .input-box{margin-right:80px;border:solid 2px #f50;border-right:none;height:31px;overflow:hidden}
+.m-bottomsearch .input{height:100%;width:100%;margin-left:5px;border:none 0;outline:0;font-size:14px}
+.ks-ie6 .m-bottomsearch .input,.ks-ie7 .m-bottomsearch .input,.ks-ie8 .m-bottomsearch .input{line-height:31px;height:31px}
+.ks-ie6 .m-bottomsearch .input{float:left}
+.m-bottomsearch .submit{position:relative;float:right;width:80px;height:35px;border:none;cursor:pointer}
+.ks-ie7 .m-bottomsearch .submit{line-height:175px}
+.ks-ie6 .m-bottomsearch .submit{line-height:175px;margin-bottom:-35px;margin-right:-5px}.m-feedback .tb-side{position:fixed;_position:absolute;right:3px;bottom:50px;z-index:100000}
+.m-feedback .tb-side li{position:relative;padding:5px 0;width:48px;height:48px;-webkit-transform:translateZ(0)}
+.m-feedback .tb-side a span{position:absolute;display:block;width:48px;height:48px;right:0;text-indent:-10000px;outline:0;overflow:hidden}
+.m-feedback .tb-side .experience,.m-feedback .tb-side .experience span{height:60px}
+.m-feedback .tb-side .advice .hover,.m-feedback .tb-side .help .hover{border:1px solid #FE8101;background-color:#FFA405}
+.m-feedback .tb-side .gotop{display:none}
+.m-feedback .tb-side .next,.m-feedback .tb-side .prev{display:none}
+.m-feedback .tb-side .show{display:block}.m-supertab .tabs{margin:20px 0 10px;font:12px/1.5 tahoma,arial,'宋体';border-bottom:1px solid #e6e6e6}
+.m-supertab .tabs .tab{float:left;border-bottom:3px solid transparent;text-align:center;width:68px;line-height:32px;height:32px}
+.m-supertab .tabs .tab a{font-size:14px;text-decoration:none;color:#000}
+.m-supertab .tabs .tab a:hover{color:#000}
+.m-supertab .tabs .tab-actived{border-bottom-color:#F60}
+.m-supertab .tabs .tab-actived a{color:#F60;font-weight:700}
+.m-supertab .tabs .tab-actived a:hover{color:#F60}

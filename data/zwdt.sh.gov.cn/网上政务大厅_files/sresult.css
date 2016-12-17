@@ -1,0 +1,213 @@
+h3 {
+	display: block;
+	font-size: 1.17em;
+	-webkit-margin-before: 1em;
+	-webkit-margin-after: 1em;
+	-webkit-margin-start: 0px;
+	-webkit-margin-end: 0px;
+}
+h3.r {
+	display: block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-weight: normal;
+	text-decoration:underline;
+	margin-bottom: 5px;
+	margin-top: 10px;
+}
+#pagination-flickr {
+	margin: 10px 10px 10px 120px;
+	float: left;
+	_display: inline;
+}
+#pagination-flickr li {
+	border: 1px solid #ffffff;
+	margin: 0;
+	padding: 0;
+	font-size: medium;
+	list-style: none;
+	display: inline;
+}
+#pagination-flickr a {
+	margin-right: 3px;
+	border: 1px solid #f1f1f1;
+	font-size: medium;
+}
+#pagination-flickr .previous-off, #pagination-flickr .next-off {
+	color: #DD4B39;
+	display: block;
+	float: left;
+	font-weight: bold;
+	padding: 4px 6px 4px 0px;
+}
+#pagination-flickr .next a, #pagination-flickr .previous a {
+	font-size: medium;
+}
+#pagination-flickr .active {
+	color: #DD4B39;
+	font-weight: bold;
+	display: block;
+	float: left;
+	padding: 4px 6px 4px 0px;
+}
+#pagination-flickr a:link, #pagination-flickr a:visited {
+	color: #207CE5;
+	display: block;
+	float: left;
+	padding: 3px 6px;
+	text-decoration: none;
+}
+#pagination-flickr a:hover {
+	background: #207CE5;
+	color: #ffffff;
+}
+.reslutMsg {
+	clear: both;
+	float: left;
+	margin: 0px 0px 0px 30px;
+	padding: 6px 0px;
+	color: #999;
+	font-size: medium;
+	line-height: 35px;
+	_display: inline;
+}
+#ires {
+	width: 600px;
+	float: left;
+	clear: both;
+	margin: 0px 10px 10px 30px;
+	_display: inline;
+}
+#rso {
+	float: left;
+}
+#rso a{
+	font-size: medium;
+	color: #0000EE;
+	white-space: normal;
+}
+#rso a:hover {
+	color: #DD4B39;
+}
+#rso li.g {
+	float: left;
+	text-align: left;
+	margin: 3px 0px;
+	width : 800px;
+}
+#rso li.g div {
+	display: block;
+	float: left;
+	width : 800px;
+}
+#rso li.g div.t h3 {
+	float: left;
+	display: block;
+}
+#rso li.g div.t h3 a {
+	font-size: medium;
+	color: #0000EE;
+	white-space: normal;
+}
+#rso li.g div.t h3 a:hover {
+	color: #DD4B39;
+}
+#rso li.g div.t h3 a:active {
+	color: #333333;
+}
+#rso li.g div.t h3 a:visited {
+	color: #04518c;
+}
+#rso li.g div.t h3 span {
+	color: #c6c6c6;
+	font-size: medium;
+	margin-bottom: 0px;
+	top: 12px;
+}
+#rso li.g div.c {
+	font-size: small;
+	line-height: 1.24;
+	min-width: 599px;
+}
+#rso li.g div.c em {
+	font-size: small;
+	line-height: 1.24;
+}
+#sresult {
+	overflow:hidden;
+	width: 990px;
+	background-color:#fff;
+	border: 1px solid #BBB;
+	margin-bottom: 10px;
+	min-height:540px;
+}
+#rso a.a1{
+	font-size: small;
+	line-height: 1.24;
+	color: red;
+}
+#rso a.a2{
+	font-size: small;
+	line-height: 1.24;
+	color: red;
+}
+#rso a.a3{
+	font-size: small;
+	line-height: 1.24;
+	color: red;
+}
+#rso a.a4{
+	font-size: small;
+	line-height: 1.24;
+	color: red;
+}
+#rso a.a5{
+	font-size: small;
+	line-height: 1.24;
+	color: red;
+}
+
+/*头部样式*/
+.search-cont-nav {
+	font-family:"微软雅黑";
+    line-height: 25px;
+    height: 25px;
+    margin: 20px auto 0px auto;
+    font-size: 13px;
+}
+.search-cont-nav dl dt {
+    float: left;
+    display: block;
+    padding: 0 5px;
+    background: #ec4c40;
+    line-height: 25px;
+    color: #fff;
+    border-radius: 5px;
+    margin: 0 10px;
+}
+.search-cont-nav dl a.sel, .search-cont-nav dl a:hover {
+    color: #9e0001;
+    border-bottom: 2px solid #9e0001;
+}
+.search-cont-nav dl a {
+    display: block;
+    margin: 0 5px;
+    float: left;
+    color: #1b1b1b;
+}
+a {
+    color: #999;
+    text-decoration: none;
+}
+
+.search-cont-nav dl.px a.up {
+    border: 1px solid #9e0001;
+    padding: 0 5px;
+    color: #9e0001;
+   /* padding-right: 20px;
+    background: url(../images/arr-top.png) no-repeat right; */
+}
+.search-cont-nav dl.px a {
+    border: none;
+}
