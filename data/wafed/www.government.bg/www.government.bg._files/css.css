@@ -1,0 +1,29 @@
+a{text-transform:uppercase;text-decoration:none;color:#1f1a17;font-size:9px;font-family:verdana}
+a:hover{color:#968789;}
+ .s,input,textarea,select{font:10px verdana,sans-serif;text-decoration:none;color:#000000;background:white;
+border-top:1px ridge;border-left:1px ridge;border-bottom:1px ridge;border-right:1px ridge;}
+a.header{text-transform:none;text-decoration:none;color:#ffffff;font-size:12px;font-family:verdana}
+a.header:hover{color:#ffffff;text-decoration:none;}
+table{font-family:verdana;font-size:11px}
+
+
+.qs_nav {
+    background-color: #aaa9a9;
+    font: normal normal normal 1em "Verdana,arial,sans-serif";
+    color: #fff;
+}
+.qs_results { 
+    float: right;	/* align the div block		*/
+    text-align: right;	/* align the text in the div	*/
+}
+.qs_search {}
+.qs_noresults { color: red; }
+.qs_pages { 
+    margin-left: auto;	/* center the div */
+    margin-right: auto;
+    text-align: center;
+}
+.qs_pagelink { color: #000; }
+.qs_currpage { color: #a82928; }
+.qs_prev { color: #000; }
+.qs_next { color: #000; }

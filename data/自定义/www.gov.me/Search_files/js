@@ -1,0 +1,32 @@
+Type.registerNamespace('SnT.VladaCGCms.Modules');
+SnT.VladaCGCms.Modules.SurveyService=function() {
+SnT.VladaCGCms.Modules.SurveyService.initializeBase(this);
+this._timeout = 0;
+this._userContext = null;
+this._succeeded = null;
+this._failed = null;
+}
+SnT.VladaCGCms.Modules.SurveyService.prototype={
+_get_path:function() {
+ var p = this.get_path();
+ if (p) return p;
+ else return SnT.VladaCGCms.Modules.SurveyService._staticInstance.get_path();},
+Load:function(surveyId,languageId,succeededCallback, failedCallback, userContext) {
+return this._invoke(this._get_path(), 'Load',false,{surveyId:surveyId,languageId:languageId},succeededCallback,failedCallback,userContext); },
+Save:function(surveyId,answerId,languageId,succeededCallback, failedCallback, userContext) {
+return this._invoke(this._get_path(), 'Save',false,{surveyId:surveyId,answerId:answerId,languageId:languageId},succeededCallback,failedCallback,userContext); }}
+SnT.VladaCGCms.Modules.SurveyService.registerClass('SnT.VladaCGCms.Modules.SurveyService',Sys.Net.WebServiceProxy);
+SnT.VladaCGCms.Modules.SurveyService._staticInstance = new SnT.VladaCGCms.Modules.SurveyService();
+SnT.VladaCGCms.Modules.SurveyService.set_path = function(value) { SnT.VladaCGCms.Modules.SurveyService._staticInstance.set_path(value); }
+SnT.VladaCGCms.Modules.SurveyService.get_path = function() { return SnT.VladaCGCms.Modules.SurveyService._staticInstance.get_path(); }
+SnT.VladaCGCms.Modules.SurveyService.set_timeout = function(value) { SnT.VladaCGCms.Modules.SurveyService._staticInstance.set_timeout(value); }
+SnT.VladaCGCms.Modules.SurveyService.get_timeout = function() { return SnT.VladaCGCms.Modules.SurveyService._staticInstance.get_timeout(); }
+SnT.VladaCGCms.Modules.SurveyService.set_defaultUserContext = function(value) { SnT.VladaCGCms.Modules.SurveyService._staticInstance.set_defaultUserContext(value); }
+SnT.VladaCGCms.Modules.SurveyService.get_defaultUserContext = function() { return SnT.VladaCGCms.Modules.SurveyService._staticInstance.get_defaultUserContext(); }
+SnT.VladaCGCms.Modules.SurveyService.set_defaultSucceededCallback = function(value) { SnT.VladaCGCms.Modules.SurveyService._staticInstance.set_defaultSucceededCallback(value); }
+SnT.VladaCGCms.Modules.SurveyService.get_defaultSucceededCallback = function() { return SnT.VladaCGCms.Modules.SurveyService._staticInstance.get_defaultSucceededCallback(); }
+SnT.VladaCGCms.Modules.SurveyService.set_defaultFailedCallback = function(value) { SnT.VladaCGCms.Modules.SurveyService._staticInstance.set_defaultFailedCallback(value); }
+SnT.VladaCGCms.Modules.SurveyService.get_defaultFailedCallback = function() { return SnT.VladaCGCms.Modules.SurveyService._staticInstance.get_defaultFailedCallback(); }
+SnT.VladaCGCms.Modules.SurveyService.set_path("/App_Modules__SnT.VladaCGCms.Modules.Pck__SnT.VladaCGCms.Modules.CustomSurvey.SurveyService.asmx");
+SnT.VladaCGCms.Modules.SurveyService.Load= function(surveyId,languageId,onSuccess,onFailed,userContext) {SnT.VladaCGCms.Modules.SurveyService._staticInstance.Load(surveyId,languageId,onSuccess,onFailed,userContext); }
+SnT.VladaCGCms.Modules.SurveyService.Save= function(surveyId,answerId,languageId,onSuccess,onFailed,userContext) {SnT.VladaCGCms.Modules.SurveyService._staticInstance.Save(surveyId,answerId,languageId,onSuccess,onFailed,userContext); }

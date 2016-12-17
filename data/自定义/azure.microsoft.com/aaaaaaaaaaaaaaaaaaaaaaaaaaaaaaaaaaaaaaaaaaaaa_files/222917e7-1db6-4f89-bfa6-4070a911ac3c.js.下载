@@ -1,0 +1,633 @@
+// Copyright 2006-2016 ClickTale Ltd., US Patent Pending
+// Generated on: 12/6/2016 4:30:26 AM (UTC 12/6/2016 10:30:26 AM)
+
+window.ClickTaleGlobal = window.ClickTaleGlobal || {};
+ClickTaleGlobal.scripts = ClickTaleGlobal.scripts || {};
+ClickTaleGlobal.scripts.filter = ClickTaleGlobal.scripts.filter || (function () {
+    var recordingThreshold = Math.random() * 100;
+
+    return {
+        isRecordingApproved: function(percentage) {
+            return recordingThreshold <= percentage;
+        }
+    }
+})();
+
+			
+// Copyright 2006-2016 ClickTale Ltd., US Patent Pending
+// PID: 38960
+// WR destination: www02
+// WR version: latest
+// Recording ratio: 0.15
+// Generated on: 12/6/2016 4:30:26 AM (UTC 12/6/2016 10:30:26 AM)
+(function (){
+	var dependencyCallback;
+        var scriptSyncTokens = ["wr"];
+        var dependencies = scriptSyncTokens.slice(0);
+	var ct2Callback, isRecorderReady;
+    var clickTaleOnReadyList = window.ClickTaleOnReadyList || (window.ClickTaleOnReadyList = []);
+    function isValidToken(token) {
+        if (scriptSyncTokens.indexOf(token) > -1) {
+			var index = dependencies.indexOf(token);
+
+			if (index > -1) {
+				dependencies.splice(index, 1);
+				return true;
+			}
+        }
+
+        return false;
+    }
+
+    clickTaleOnReadyList.push(function () {
+        if (ct2Callback) {
+            ct2Callback();
+        }
+
+        isRecorderReady = true;
+    });
+
+    window.ClickTaleGlobal = window.ClickTaleGlobal || {};
+    ClickTaleGlobal.scripts = ClickTaleGlobal.scripts || {};
+    ClickTaleGlobal.scripts.dependencies = {
+        setDependencies: function (deps) {
+            scriptSyncTokens = deps;
+        },
+        onDependencyResolved: function (callback) {
+            dependencyCallback = callback;
+        },
+        notifyScriptLoaded: function (token) {
+            if (isValidToken(token)) {
+                if (dependencies.length === 0 && typeof dependencyCallback === "function") {
+                    dependencyCallback();
+                }
+            }
+        }
+    };
+
+	ClickTaleGlobal.scripts.integration = {
+		onReady: function (callback) {
+			if (isRecorderReady) {
+				callback();
+			}
+			else {
+				ct2Callback = callback;
+			}
+		}
+    };
+})();
+
+
+
+function ClickTaleCDNHTTPSRewrite(u)
+{
+	try
+	{
+		var scripts = document.getElementsByTagName('script');
+		if(scripts.length)
+		{
+			var script = scripts[ scripts.length - 1 ], s='https://clicktalecdn.sslcs.cdngc.net/';
+			if(script.src && script.src.substr(0,s.length)==s )
+				return u.replace('https://cdnssl.clicktale.net/',s);
+		}
+	}
+	catch(e)
+	{
+	}
+	return u;
+} 
+
+var ClickTaleIsXHTMLCompliant = true;
+if (typeof (ClickTaleCreateDOMElement) != "function")
+{
+	ClickTaleCreateDOMElement = function(tagName)
+	{
+		if (document.createElementNS)
+		{
+			return document.createElementNS('http://www.w3.org/1999/xhtml', tagName);
+		}
+		return document.createElement(tagName);
+	}
+}
+
+if (typeof (ClickTaleAppendInHead) != "function")
+{
+	ClickTaleAppendInHead = function(element)
+	{
+		var parent = document.getElementsByTagName('head').item(0) || document.documentElement;
+		parent.appendChild(element);
+	}
+}
+
+if (typeof (ClickTaleXHTMLCompliantScriptTagCreate) != "function")
+{
+	ClickTaleXHTMLCompliantScriptTagCreate = function(code)
+	{
+		var script = ClickTaleCreateDOMElement('script');
+		script.setAttribute("type", "text/javascript");
+		script.text = code;
+		return script;
+	}
+}	
+
+var pccScriptElement = ClickTaleCreateDOMElement('script');
+pccScriptElement.type = "text/javascript";
+pccScriptElement.src = (document.location.protocol=='https:'?
+ClickTaleCDNHTTPSRewrite('https://cdnssl.clicktale.net/www02/pcc/222917e7-1db6-4f89-bfa6-4070a911ac3c.js?DeploymentConfigName=Release_12062016&Version=1'):
+'http://cdn.clicktale.net/www02/pcc/222917e7-1db6-4f89-bfa6-4070a911ac3c.js?DeploymentConfigName=Release_12062016&Version=1');
+document.body.appendChild(pccScriptElement);
+	
+var ClickTalePrevOnReady;
+if(typeof ClickTaleOnReady == 'function')
+{
+	ClickTalePrevOnReady=ClickTaleOnReady;
+	ClickTaleOnReady=undefined;
+}
+
+if (typeof window.ClickTaleScriptSource == 'undefined')
+{
+	window.ClickTaleScriptSource=(document.location.protocol=='https:'
+		?ClickTaleCDNHTTPSRewrite('https://cdnssl.clicktale.net/www/')
+		:'http://cdn.clicktale.net/www/');
+}
+
+
+// Start of user-defined pre WR code (PreLoad)b
+//PTC Code Version 8
+
+window.ClickTaleSettings = window.ClickTaleSettings || {};
+window.ClickTaleSettings.PTC = window.ClickTaleSettings.PTC || {};
+//set the following property only when there are No Load errors in recordings
+window.ClickTaleIncludedOnWindowLoad = true;
+window.ClickTaleIncludedOnDOMReady = true;
+window.ClickTaleSettings.PTC.EnableChangeMonitor = false;
+window.ClickTaleSettings.PTC.UseTransport = true;
+
+window.ClickTaleSettings.CheckAgentSupport = function (f, v) {
+    if (v.t == v.IE && v.v <= 8) {
+        window.ClickTaleSettings.PTC.okToRunPCC = false;
+        return false;
+    }
+    else {
+        if (!(v.t == v.IE && v.v <= 10)) {
+            window.ClickTaleSettings.PTC.EnableChangeMonitor = true;
+            window.ClickTaleSettings.PTC.ConfigChangeMonitor();
+        }
+        var fv = f(v);
+        window.ClickTaleSettings.PTC.okToRunPCC = fv;
+        return fv;
+    }
+};
+
+window.ClickTaleSettings.PTC.RulesObj = [{
+    selector: "input[type=\"text\"], input[type=\"tel\"], input[type=\"email\"]",
+    changeMon: {
+        Attributes: ['value'],
+        Text: false
+    },
+    rewriteApi: {
+        Attributes: ['value'],
+        Text: false
+    }
+}, {
+    selector: ".msame_Drop_active_right .msame_TxtTrunc,.msame_Drop_accts_list .msame_TxtTrunc,.msame_Header_name.msame_TxtTrunc,.msame_Header_fullName,.msame_Header_nickName,.msame_Header_email",
+    changeMon: {
+        Attributes: false,
+        Text: true
+    },
+    rewriteApi: {
+        Attributes: false,
+        Text: true
+    }
+}, {
+    selector: ".msame_Header_picframe img, .msame_Drop_active_picframe img",
+    changeMon: {
+        Attributes: ['src'],
+        Text: false
+    },
+    rewriteApi: {
+        Attributes: ['src'],
+        Text: false
+    }
+}, {
+    selector: ".ctHidden",
+    changeMon: {
+        Attributes: ['value'],
+        Text: true
+    },
+    rewriteApi: {
+        Attributes: ['value'],
+        Text: true
+    }
+}]
+
+window.ClickTaleSettings.PTC.RulesObjRemoveEls = [
+];
+
+(function () {
+    if (typeof window.ClickTalePIISelector === 'string' && window.ClickTalePIISelector != '') {
+        try {
+            var domNodes = document.querySelectorAll(window.ClickTalePIISelector);
+            if (domNodes) {
+                window.ClickTaleSettings.PTC.RulesObj.push({
+                    selector: window.ClickTalePIISelector,
+                    changeMon: {
+                        Attributes: ['value'],
+                        Text: true
+                    },
+                    rewriteApi: {
+                        Attributes: ['value'],
+                        Text: true
+                    }
+                });
+            }
+        }
+        catch (err) {
+        }
+    }
+})();
+
+window.ClickTaleSettings.PTC.cloneNodeIE9 = function (node) {
+    var clone = node.nodeType === 3 ? document.createTextNode(node.nodeValue) : node.cloneNode(false);
+    var child = node.firstChild;
+    while (child) {
+        var nodeName = child.nodeName.toLowerCase();
+        if (nodeName == 'script') {
+            var script = document.createElement('script');
+            clone.appendChild(script);
+        }
+        else if (window.ClickTaleSettings.PTC.cloneNodeIE9.badEls[nodeName]) {
+            var newN = document.createElement(nodeName);
+            var attributes = child.attributes;
+            var attrLength = attributes.length;
+            for (var i = 0; i < attrLength; i++) {
+                var attr = attributes[i];
+                if (!/['"{}]/.test(attr.nodeName)) {
+                    newN.setAttribute('ctdep-' + attr.nodeName, attr.nodeValue);
+                }
+            }
+            clone.appendChild(newN);
+        }
+        else {
+            clone.appendChild(window.ClickTaleSettings.PTC.cloneNodeIE9(child));
+        }
+        child = child.nextSibling;
+    }
+    return clone;
+}
+
+window.ClickTaleSettings.PTC.cloneNodeIE9.badEls = {
+    'iframe': true,
+    'img': true,
+    'source' : true
+};
+
+window.ClickTaleSettings.PTC.ConfigChangeMonitor = function() {
+
+    if (window.ClickTaleSettings.PTC.EnableChangeMonitor) {
+        window.ClickTaleSettings.XHRWrapper = {
+            Enable: false
+        };
+
+        var script = document.createElement("SCRIPT");
+        script.src = (document.location.protocol === "https:" ? "https://cdnssl." : "http://cdn.") + "clicktale.net/www/ChangeMonitor-latest.js";
+        document.body.appendChild(script);
+
+        window.ClickTaleSettings.ChangeMonitor = {
+            Enable: true,
+            AddressingMode: "id",
+            OnReadyHandler: function(changeMonitor) {
+                changeMonitor.observe();
+
+                var CMRemrule = window.ClickTaleSettings.PTC.RulesObjRemoveEls;
+                if (CMRemrule) {
+                    for (var i = 0; i < CMRemrule.length; i++) {
+                        var rule = CMRemrule[i];
+                        var CMlocation = rule['location'];
+                        if ((!CMlocation || (CMlocation && document.location[CMlocation['prop']].toLowerCase().search(CMlocation.search) != -1))) {
+                            if (rule.changeMon) {
+                                changeMonitor.exclude(rule.changeMon);
+                            }
+                            if (rule.changeMonLive) {
+                                changeMonitor.exclude({
+                                    selector: rule.changeMonLive,
+                                    multiple: true
+                                });
+                            }
+                        }
+                    }
+                }
+            },
+            OnBeforeReadyHandler: function(settings) {
+                settings.Enable = window.ClickTaleGetUID ? !!ClickTaleGetUID() : false;
+                return settings;
+            },
+            Filters: {
+                MaxBufferSize: 300000,
+                MaxElementCount: 3000
+            },
+            PII: {
+                Text: [],
+                Attributes: []
+            }
+        }
+        var RulesObj = window.ClickTaleSettings.PTC.RulesObj;
+        if (RulesObj) {
+            window.ClickTaleSettings.ChangeMonitor.PII.Text = window.ClickTaleSettings.ChangeMonitor.PII.Text || [];
+            window.ClickTaleSettings.ChangeMonitor.PII.Attributes = window.ClickTaleSettings.ChangeMonitor.PII.Attributes || [];
+            for (var i = 0; i < RulesObj.length; i++) {
+                var CMrule = RulesObj[i]['changeMon'];
+                var CMlocation = RulesObj[i]['location'];
+                if (!CMrule || (CMlocation && document.location[CMlocation['prop']].toLowerCase().search(CMlocation.search) === -1)) {
+                    continue;
+                }
+                var selector = RulesObj[i]['selector'];
+                var attributesArr = CMrule.Attributes;
+                if (attributesArr instanceof Array) {
+                    window.ClickTaleSettings.ChangeMonitor.PII.Attributes.push({
+                        selector: selector,
+                        transform: (function(attributesArr) {
+                            return function(el) {
+                                var attrs = el.attributes;
+                                var attrsToReturn = {}
+                                for (var i = 0; i < attrs.length; i++) {
+                                    var name = attrs[i].nodeName;
+                                    attrsToReturn[name] = attrs[i].nodeValue;
+                                }
+                                for (var u = 0; u < attributesArr.length; u++) {
+                                    var attr = attributesArr[u];
+                                    var attrib = el.getAttribute(attr);
+                                    if (typeof attrib === 'string') {
+                                        attrsToReturn[attr] = attrib.replace(/\w/g, '-');
+                                    }
+                                }
+
+                                return attrsToReturn;
+                            }
+                        })(attributesArr)
+                    });
+                }
+                if (CMrule.Text) {
+                    window.ClickTaleSettings.ChangeMonitor.PII.Text.push({
+                        selector: selector,
+                        transform: function(el) {
+                            return el.textContent.replace(/\w/g, '-');
+                        }
+                    });
+                }
+            }
+        }
+    }
+};
+
+window.ClickTaleSettings.Compression = {
+    Method: function () {
+        return "deflate";
+    }
+};
+
+window.ClickTaleSettings.Persistence = {
+	EnableStorage: true,
+	EnableDispatch: true,
+	AutoDispatch: true
+};
+
+window.ClickTaleSettings.Transport = {
+    Legacy: false,
+    MaxConcurrentRequests: 5
+};
+
+window.ClickTaleSettings.RewriteRules = {
+    OnBeforeRewrite: function(rewriteApi) {
+        var bodyClone = ClickTaleSettings.PTC.cloneNodeIE9(document.documentElement);
+
+        if (window.ClickTaleSettings.PTC.RulesObj) {
+            rewriteApi.add(function(buffer) {
+
+                var RulesObj = window.ClickTaleSettings.PTC.RulesObj;
+                for (var i = 0; i < RulesObj.length; i++) {
+                    var rewriteApirule = RulesObj[i]['rewriteApi'];
+                    var rewriteApilocation = RulesObj[i]['location'];
+                    if (!rewriteApirule || (rewriteApilocation && document.location[rewriteApilocation['prop']].toLowerCase().search(rewriteApilocation.search) === -1)) {
+                        continue;
+                    }
+                    var selector = RulesObj[i]['selector'];
+                    var elements = bodyClone.querySelectorAll(selector);
+
+                    Array.prototype.forEach.call(elements, function(el, ind) {
+                        var attributesArr = rewriteApirule.Attributes;
+                        if (attributesArr instanceof Array) {
+
+                            for (var u = 0; u < attributesArr.length; u++) {
+                                var attr = attributesArr[u];
+                                var attrib = el.getAttribute(attr);
+                                if (typeof attrib === 'string') {
+                                    el.setAttribute(attr, attrib.replace(/\w/g, '-'));
+                                }
+                            }
+
+                        }
+                        if (rewriteApirule.Text) {
+                            var children = el.childNodes;
+                            Array.prototype.forEach.call(children, function(child) {
+                                if (child && child.nodeType === 3) {
+                                    child.textContent = child.textContent.replace(/\w/g, '-');
+                                }
+                            });
+                        }
+                    });
+                }
+
+                var RulesObjRemoveEls = window.ClickTaleSettings.PTC.RulesObjRemoveEls;
+                if (RulesObjRemoveEls) {
+                    for (var i = 0; i < RulesObjRemoveEls.length; i++) {
+                        if (RulesObjRemoveEls[i].rewriteApi) {
+                            var elementsToRemove = bodyClone.querySelectorAll(RulesObjRemoveEls[i].rewriteApi);
+                            Array.prototype.forEach.call(elementsToRemove, function(el, ind) {
+                                if (el.parentNode) {
+                                    el.parentNode.removeChild(el);
+                                }
+                            });
+                        }
+                        if (RulesObjRemoveEls[i].rewriteApiReplace) {
+                            var elementsToReplace = bodyClone.querySelectorAll(RulesObjRemoveEls[i].rewriteApiReplace);
+                            Array.prototype.forEach.call(elementsToReplace, function(el, ind) {
+                                if (el.parentNode) {
+                                    var comment = document.createComment(el.outerHTML);
+                                    el.parentNode.replaceChild(comment, el);
+                                }
+                            });
+                        }
+                    }
+                }
+
+                return bodyClone.innerHTML.replace(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi, '<script><\/script>').replace(/(<div id="?ClickTaleDiv"?[^>]+>)\s*<script[^>]+><\/script>\s*(<\/div>)/i, '$1$2');
+            });
+        }
+        rewriteApi.add({
+            pattern: /ctdep-/gi,
+            replace: ''
+        });
+        rewriteApi.add({
+            pattern: /(<head[^>]*>)/i,
+            replace: '$1<script type="text\/javascript" class="cm-ignore" src="http:\/\/dummytest.clicktale-samples.com\/GlobalResources\/jquery.js"><\/script>'
+        });
+    }
+};
+// End of user-defined pre WR code
+
+
+var ClickTaleOnReady = function()
+{
+	var PID=38960, 
+		Ratio=0.15, 
+		PartitionPrefix="www02";
+	
+	if (window.navigator && window.navigator.loadPurpose === "preview") {
+       return; //in preview
+	};
+		
+	
+	// Start of user-defined header code (PreInitialize)
+	if (typeof ClickTaleSetAllSensitive === "function") {
+    ClickTaleSetAllSensitive();
+}
+
+window.ClickTaleSettings.PTC.InitFuncs = window.ClickTaleSettings.PTC.InitFuncs || [];
+window.ClickTaleSettings.PTC.InitFuncs.push(function() {
+    var pcc = document.querySelector('script[src*="clicktale"][src*="pcc"]');
+    if (pcc) {
+        var versionmatch = pcc.src.match(/DeploymentConfigName=(.+)/i);
+        if (versionmatch && typeof ClickTaleExec === 'function') {
+            ClickTaleExec("console.info('" + versionmatch[0] + "');");
+            ClickTaleEvent("Config: " + versionmatch[1].replace(/\&.+/, ''));
+        }
+    }
+});
+
+//MSAZURE-22
+if (window['optimizely'] && window['optimizely']['activeExperiments'] && typeof ClickTaleGetUID === 'function' && (ClickTaleGetUID() === '0' || ClickTaleGetUID() === null)) {
+    window.ClickTaleUIDCookieName = 'WRUID20161206';
+    Ratio = 1;
+} else {
+	//MSAZURE-17
+	try {
+		var ratios = [
+			{u:'/en-us/',r: 0.1},
+			{u:'/en-us/free/',r: 0.25},
+			{u:'/en-us/pricing/purchase-options/',r: 0.5},
+			{u:'/en-us/solutions/*',r: 1.0},
+			{u:'/en-us/pricing/details/virtual-machines/*',r: 1.0},
+			{u:'/en-us/get-started/web-app/',r: 1.0},
+			{u:'/en-us/get-started/videos/get-started-portal-app-service/',r: 1.0},
+			{u:'/en-us/support/options/',r: 0.1},
+			{u:'/en-us/status/',r: 0.05},
+			{u:'/en-us/campaigns/ingite-2016',r: 0.5}
+		];
+		for(var i=0; i< ratios.length; i++) {
+			var url = ratios[i].u;
+			if(url.indexOf("*") > -1 ) {//wildcard
+				url = url.substring(0, url.length - 1) 
+				if(document.location.href.indexOf(url) > -1) {
+					window.ClickTaleUIDCookieName = 'WRUIDA';
+					Ratio = ratios[i].r;
+				}
+			} else if (document.location.pathname == ratios[i].u) {
+				window.ClickTaleUIDCookieName = 'WRUIDA';
+				Ratio = ratios[i].r;
+			}
+		}
+		window.ctRatio = Ratio;
+	}
+	catch(e) {}
+}
+
+function doUpload() {
+    if (typeof ClickTaleUploadPageNow === 'function' && ClickTaleIsRecording()) {
+        ClickTaleUploadPageNow();
+    };
+};
+
+function isReadyToRecord() {
+    if (typeof ClickTaleUploadPageNow === 'function') {        
+        return true;
+    }
+    return false;
+};
+
+function doOnlyWhen(toDoHandler, toCheckHandler, interval, times, failHandler) {
+    if ((!toDoHandler) || (!toCheckHandler)) return;
+    if (typeof interval == "undefined") interval = 1000;
+    if (typeof times == "undefined") times = 20;
+    if (--times < 0) {
+        if (typeof failHandler === 'function') {
+            failHandler();
+        }
+        return;
+    }
+    if (toCheckHandler()) {
+        toDoHandler();
+        return;
+    }
+    setTimeout(function() {
+        doOnlyWhen(toDoHandler, toCheckHandler, interval, times, failHandler);
+    }, interval);
+};
+
+if (typeof ClickTaleDelayUploadPage === 'function' && window.ClickTaleSettings.PTC.UseTransport) {
+
+    ClickTaleDelayUploadPage();
+
+    doOnlyWhen(doUpload, isReadyToRecord, 1000, 20, doUpload);
+	
+    var initFuncs = window.ClickTaleSettings.PTC.InitFuncs;
+    for (var i = 0, initLen = initFuncs.length; i < initLen; i++) {
+        if (typeof initFuncs[i] === 'function') {
+            initFuncs[i]();
+        }
+    }
+}
+
+
+
+	// End of user-defined header code (PreInitialize)
+    
+	
+	window.ClickTaleIncludedOnDOMReady=true;
+	
+	ClickTale(PID, Ratio, PartitionPrefix);
+	
+	if((typeof ClickTalePrevOnReady == 'function') && (ClickTaleOnReady.toString() != ClickTalePrevOnReady.toString()))
+	{
+    	ClickTalePrevOnReady();
+	}
+	
+	
+	// Start of user-defined footer code
+	
+	// End of user-defined footer code
+	
+};
+
+ 
+(function() {
+	var div = ClickTaleCreateDOMElement("div");
+	div.id = "ClickTaleDiv";
+	div.style.display = "none";
+	document.body.appendChild(div);
+
+	
+	
+	var externalWrScript = ClickTaleCreateDOMElement("script");
+	var wrSrc = (document.location.protocol=='https:'?'https://cdnssl.clicktale.net/www/' : 'http://cdn.clicktale.net/www/') + 'tc/WR-latest.js';
+	externalWrScript.src = (window.ClickTaleCDNHTTPSRewrite?ClickTaleCDNHTTPSRewrite(wrSrc):wrSrc);
+	externalWrScript.type = 'text/javascript';
+		externalWrScript.async = true;
+		document.body.appendChild(externalWrScript);
+})();
+
+
+
+
+
+!function(){function t(){window.addEventListener&&addEventListener("message",e,!1)}function e(t){var e,n=new RegExp("(clicktale.com|ct.test)($|:)"),i=new RegExp("ct.test"),c=!1,l=t.origin;try{e=JSON.parse(t.data)}catch(d){return}n.test(t.origin)!==!1&&(window.ct_ve_parent_window=t.source,i.test(t.origin)===!0&&(c=!0),"CTload_ve"===e["function"]&&"function"==typeof ClickTaleGetPID&&null!==ClickTaleGetPID()&&o(l,c))}function n(t){return document.createElementNS?document.createElementNS("http://www.w3.org/1999/xhtml",t):document.createElement(t)}function o(t,e){var o=n("script");o.setAttribute("type","text/javascript"),o.setAttribute("id","ctVisualEditorClientModule");var i;i=e?document.location.protocol+"//ct.test/VisualEditor/Client/dist/veClientModule.js":document.location.protocol+"//"+t.match(/subs\d*/)[0]+".app.clicktale.com/VisualEditor/Client/dist/veClientModule.js",o.src=i,document.getElementById("ctVisualEditorClientModule")||document.body.appendChild(o)}try{var i=window.chrome,c=window.navigator&&window.navigator.vendor;null!==i&&void 0!==i&&"Google Inc."===c&&t()}catch(l){}}();

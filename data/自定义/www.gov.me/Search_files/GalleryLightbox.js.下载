@@ -1,0 +1,1040 @@
+function ImageInfo() {
+    this.Id = '';
+    this.Title = '';
+    this.Description = '';
+    this.ImageUrl = '';
+    this.ThumbnailUrl = '';
+    this.Author = '';
+    this.Source = '';
+    this.Rating = '';
+    this.VoteCount = '';
+    this.VoteSum = '';
+}
+
+function GalleryInfo() {
+    this.Id = '';
+    this.Title = '';
+    this.Description = '';
+}
+
+function Lightbox(settings) {
+
+    var _carousel;
+    var _slideShowInterval;
+    var _isFirstImageLoaded = false;
+
+    settings = jQuery.extend({
+        // Configuration related to overlay
+        overlayBgColor: '#000', 	// (string) Background color to overlay; inform a hexadecimal value like: #RRGGBB. Where RR, GG, and BB are the hexadecimal values for the red, green, and blue values of the color.
+        overlayOpacity: 0.8, 	// (integer) Opacity value to overlay; inform: 0.X. Where X are number from 0 to 9
+        // Configuration related to images
+        imageLoading: galleryLightboxDefaults.WebResourcesFolder + 'images/lightbox-ico-loading.gif', 	// (string) Path and the name of the loading icon
+        imageBtnPrev: galleryLightboxDefaults.WebResourcesFolder + 'images/arrow-big-left.png', 		// (string) Path and the name of the prev button image
+        imageBtnNext: galleryLightboxDefaults.WebResourcesFolder + 'images/arrow-big-right.png', 		// (string) Path and the name of the next button image
+        imageBlank: galleryLightboxDefaults.WebResourcesFolder + 'images/lightbox-blank.gif', 		// (string) Path and the name of a blank image (one pixel)
+        imageClose: galleryLightboxDefaults.WebResourcesFolder + 'images/close.png',
+        imageThumbnailsOff: galleryLightboxDefaults.WebResourcesFolder + 'images/icon-sakrij-thumbnailove.png',
+        imageThumbnailsOn: galleryLightboxDefaults.WebResourcesFolder + 'images/icon-prikazi-thumbnailove.png',
+        imageSlideShowOn: galleryLightboxDefaults.WebResourcesFolder + 'images/icon-stop-slideshow.png',
+        imageSlideShowOff: galleryLightboxDefaults.WebResourcesFolder + 'images/icon-play-slideshow.png',
+        imageInfoOff: galleryLightboxDefaults.WebResourcesFolder + 'images/icon-sakrij-info-o-slici.png',
+        imageInfoOn: galleryLightboxDefaults.WebResourcesFolder + 'images/icon-pokazi-info-o-slici.png',
+        // Configuration related to container image box
+        containerBorderSize: 0, 		// (integer) If you adjust the padding in the CSS for the container, #gallerylightbox-gallerylightbox-lightbox-container-image-box, you will need to update this value
+        containerResizeSpeed: 400, 	// (integer) Specify the resize duration of container image. These number are miliseconds. 400 is default.
+        // Configuration related to texts in caption. For example: Image 2 of 8. You can alter either "Image" and "of" texts.
+        txtImage: galleryLightboxDefaults.TextImage, // (string) Specify text "Image"
+        txtImageOf: galleryLightboxDefaults.TextImageOf, 	// (string) Specify text "of"
+        txtInfoOn: galleryLightboxDefaults.TextInfoOn,
+        txtInfoOff: galleryLightboxDefaults.TextInfoOff,
+        txtThumbnailsOff: galleryLightboxDefaults.TextThumbnailsOff,
+        txtThumbnailsOn: galleryLightboxDefaults.TextThumbnailsOn,
+        txtVotes: galleryLightboxDefaults.TextVotes,
+        txtVoteForImage: galleryLightboxDefaults.TextVoteForImage,
+        // Configuration related to keyboard navigation
+        keyToClose: 'c', 	// (string) (c = close) Letter to close the jQuery lightBox interface. Beyond this letter, the letter X and the ESCAPE key is used to.
+        keyToPrev: 'p', 	// (string) (p = previous) Letter to show the previous image
+        keyToNext: 'n', 	// (string) (n = next) Letter to show the next image.
+        galleryInfo: GalleryInfo,
+        activeImage: 0,
+        width: galleryLightboxDefaults.Width,
+        height: galleryLightboxDefaults.Height,
+        imageFormatId: galleryLightboxDefaults.ImageFormatId,
+        thumbnailFormatId: galleryLightboxDefaults.ThumbnailFormatId,
+        imageWidth: galleryLightboxDefaults.ImageWidth,
+        imageHeight: galleryLightboxDefaults.ImageHeight,
+        thumbnailPageUrl: galleryLightboxDefaults.ThumbnailPageUrl,
+        thumbnailWidth: galleryLightboxDefaults.ThumbnailWidth,
+        thumbnailHeight: galleryLightboxDefaults.ThumbnailHeight,
+        showImageInfo: true,
+        showThumbnails: galleryLightboxDefaults.ShowThumbnails,
+        showGalleryInfo: galleryLightboxDefaults.ShowGalleryInfo,
+        showVoting: galleryLightboxDefaults.ShowVoting,
+        imageStar: galleryLightboxDefaults.WebResourcesFolder + 'images/star.png',
+        imageStarInactive: galleryLightboxDefaults.WebResourcesFolder + 'images/star-blank.png',
+        imageStarHover: galleryLightboxDefaults.WebResourcesFolder + 'images/star-on.png',
+        slideShowOn: galleryLightboxDefaults.SlideShowOn,
+        slideShowDelay: galleryLightboxDefaults.SlideShowDelay,
+        txtSlideShowTurnOn: galleryLightboxDefaults.TextSlideShowOn,
+        txtSlideShowTurnOff: galleryLightboxDefaults.TextSlideShowOff,
+        isInsideDiv: galleryLightboxDefaults.isInsideDiv,
+        insideDivId: galleryLightboxDefaults.insideDivId,
+        txtClose: galleryLightboxDefaults.TextClose,
+        useIframeLoader: galleryLightboxDefaults.useIframeLoader,
+        imageLoaderPage: galleryLightboxDefaults.ImageLoaderPage,
+        textAuthorLabel: galleryLightboxDefaults.TextAuthorLabel,
+        textOriginLabel: galleryLightboxDefaults.TextOriginLabel
+    }, settings);
+
+    function NavigationWrapperOn() {
+        if (jQuery('#gallerylightbox-lightbox-nav-btnPrev').css('display') == 'none' || jQuery('#gallerylightbox-lightbox-nav-btnNext').css('display') == 'none') {
+            jQuery('#gallerylightbox-lightbox-nav-btnPrev').css({ 'display': 'block' });
+            jQuery('#gallerylightbox-lightbox-nav-btnNext').css({ 'display': 'block' });
+        }
+    }
+
+    function NavigationWrapperOff() {
+        if (jQuery('#gallerylightbox-lightbox-nav-btnPrev').css('display') == 'block' || jQuery('#gallerylightbox-lightbox-nav-btnNext').css('display') == 'block') {
+            var navHeight = jQuery('#gallerylightbox-lightbox-nav').height(); //IE6 fix
+            jQuery('#gallerylightbox-lightbox-nav-btnPrev').css({ 'display': 'none' });
+            jQuery('#gallerylightbox-lightbox-nav-btnNext').css({ 'display': 'none' });
+            jQuery('#gallerylightbox-lightbox-nav').height(navHeight);
+        }
+    }
+
+    var NavigationWrapperHoverConfig = {
+        sensitivity: 3, // number = sensitivity threshold (must be 1 or higher)
+        interval: 1, // number = milliseconds for onMouseOver polling interval
+        over: NavigationWrapperOn, // function = onMouseOver callback (REQUIRED)
+        timeout: 500, // number = milliseconds delay before onMouseOut
+        out: NavigationWrapperOff // function = onMouseOut callback (REQUIRED)    
+    }
+
+    function ShowGallery() {
+        // Call the function to create the markup structure; style some elements; assign events in some elements.
+        SetInterface();
+        // Call the function that prepares image exibition
+        LoadImage();
+        return false;
+    }
+
+    function SetInterface() {
+        if (settings.isInsideDiv == true) {
+            jQuery('#' + settings.insideDivId).html('<div id="gallerylightbox-jquery-lightbox" style="position: relative"><div id="gallerylightbox-jquery-lightbox-galleryinfo-box"><div id="gallerylightbox-jquery-lightbox-galleryinfo"></div><div id="gallerylightbox-jquery-lightbox-galleryinfo-close"></div></div><div id="gallerylightbox-lightbox-container-box"><div id="gallerylightbox-lightbox-loading"><a href="#" id="gallerylightbox-lightbox-loading-link"><img src="' + settings.imageLoading + '"  style="visibility: visible" /></a></div><div id="gallerylightbox-gallerylightbox-lightbox-container-image-box"><div id="gallerylightbox-lightbox-container-image"></div></div><div id="gallerylightbox-lightbox-nav"><a href="#" id="gallerylightbox-lightbox-nav-btnPrev" style="display: none"></a><a href="#" id="gallerylightbox-lightbox-nav-btnNext" style="display: none"></a></div><div id="gallerylightbox-lightbox-container-image-data-box" style="display: none"></div></div><div id="gallerylightbox-jquery-lightbox-toolbox-box"></div><div id="gallerylightbox-jquery-lightbox-thumbnails-box" style="width: 0px;"></div></div><div id="divIframe" style="display: none"></div>');
+        }
+        else {
+            jQuery('body').append('<div id="gallerylightbox-jquery-overlay"></div><div id="gallerylightbox-jquery-lightbox"><div id="gallerylightbox-jquery-lightbox-galleryinfo-box"><div id="gallerylightbox-jquery-lightbox-galleryinfo"></div><div id="gallerylightbox-jquery-lightbox-galleryinfo-close"></div></div><div id="gallerylightbox-lightbox-container-box"><div id="gallerylightbox-lightbox-loading"><a href="#" id="gallerylightbox-lightbox-loading-link"><img src="' + settings.imageLoading + '" style="visibility: visible" /></a></div><div id="gallerylightbox-gallerylightbox-lightbox-container-image-box"><div id="gallerylightbox-lightbox-container-image"></div></div><div id="gallerylightbox-lightbox-nav"><a href="#" id="gallerylightbox-lightbox-nav-btnPrev" style="display: none"></a><a href="#" id="gallerylightbox-lightbox-nav-btnNext" style="display: none"></a></div><div id="gallerylightbox-lightbox-container-image-data-box" style="display: none"></div></div><div id="gallerylightbox-jquery-lightbox-toolbox-box"></div><div id="gallerylightbox-jquery-lightbox-thumbnails-box" style="width: 0px;"></div></div><div id="divIframe" style="display: none"></div>');
+        }
+
+        // Hide Flash and Select
+        jQuery('embed, object, select, iframe, div[id^=banner], span[id^=banner]').css({ 'visibility': 'hidden' });
+
+        jQuery('#gallerylightbox-jquery-lightbox-galleryinfo-box').css({ width: parseInt(settings.width) });
+        jQuery('#gallerylightbox-jquery-lightbox-galleryinfo-box').unbind().bind('click', function() { return false; });
+        if (settings.isInsideDiv == true) {
+            jQuery('#gallerylightbox-jquery-lightbox-galleryinfo-close').html('');
+        }
+        else {
+            jQuery('#gallerylightbox-jquery-lightbox-galleryinfo-close').html(settings.txtClose + ' <img src="' + settings.imageClose + '"  style="visibility: visible" align="absmiddle" />').unbind().bind('click', function() { Finish(); return false; });
+            jQuery('#gallerylightbox-jquery-lightbox-galleryinfo-box').height(jQuery('#gallerylightbox-jquery-lightbox-galleryinfo-close').height());
+        }
+
+        ShowGalleryInfo();
+
+        var arrPageSizes = GetPageSize();
+
+        jQuery('#gallerylightbox-jquery-overlay').css({
+            backgroundColor: settings.overlayBgColor,
+            opacity: settings.overlayOpacity,
+            width: arrPageSizes[0],
+            height: arrPageSizes[1]
+        }).fadeIn();
+
+        var boxWidth = parseInt(settings.width) + parseInt(settings.containerBorderSize * 2);
+        var boxHeight = parseInt(settings.height) + parseInt(settings.containerBorderSize * 2);
+
+        jQuery('#gallerylightbox-lightbox-container-box').width(boxWidth);
+        jQuery('#gallerylightbox-lightbox-container-box').height(boxHeight);
+
+        var arrPageScroll = GetPageScroll();
+
+        if (settings.isInsideDiv != true) {
+            var topValue = arrPageScroll[1] + ((jQuery(window).height() / 2) - ((jQuery('#gallerylightbox-jquery-lightbox').height() + jQuery('#gallerylightbox-jquery-lightbox-galleryinfo-box').height() + 85) / 2));
+            if (topValue < 0) {
+                topValue = 0;
+            }
+            jQuery('#gallerylightbox-jquery-lightbox').css({
+                top: topValue,
+                /*top: arrPageScroll[1] + ((parseInt(arrPageSizes[3]) - jQuery('#gallerylightbox-jquery-lightbox-galleryinfo-box').height() - jQuery('#gallerylightbox-jquery-lightbox-thumbnails-box').height()) / 10),*/
+                left: arrPageScroll[0]
+            });
+        }
+        jQuery('#gallerylightbox-jquery-lightbox').show();
+
+        jQuery('#gallerylightbox-jquery-overlay').unbind().click(function() {
+            Finish();
+            return false;
+        });
+        jQuery('#gallerylightbox-jquery-lightbox').unbind().click(function() {
+            Finish();
+            return false;
+        });
+        jQuery(window).resize(function() {
+            var arrPageSizes = GetPageSize();
+            jQuery('#gallerylightbox-jquery-overlay').css({
+                width: arrPageSizes[0],
+                height: arrPageSizes[1]
+            });
+
+            var arrPageScroll = GetPageScroll();
+            if (settings.isInsideDiv != true) {
+                var topValue = arrPageScroll[1] + ((jQuery(window).height() / 2) - ((jQuery('#gallerylightbox-jquery-lightbox').height()) / 2));
+                if (topValue < 0) {
+                    topValue = 0;
+                }
+                jQuery('#gallerylightbox-jquery-lightbox').css({
+                    top: topValue,
+                    left: arrPageScroll[0]
+                });
+            }
+        });
+
+        jQuery('#gallerylightbox-lightbox-nav-btnPrev').css({ 'background': 'transparent url(' + settings.imageBtnPrev + ') left 15% no-repeat' });
+        jQuery('#gallerylightbox-lightbox-nav-btnNext').css({ 'background': 'transparent url(' + settings.imageBtnNext + ') right 15% no-repeat' });
+        jQuery('#gallerylightbox-lightbox-nav-btnPrev')
+                .unbind()
+                .bind('click', function() {
+                    LoadPreviousImage();
+                    return false;
+                });
+        jQuery('#gallerylightbox-lightbox-nav-btnNext')
+                .unbind()
+                .bind('click', function() {
+                    LoadNextImage();
+                    return false;
+                })
+
+        ShowToolbox();
+        jQuery('#gallerylightbox-lightbox-image,#gallerylightbox-lightbox-container-image-data-box').hide();
+    }
+
+    function ShowGalleryInfo() {
+        if (settings.showGalleryInfo == true) {
+            if (settings.galleryInfo.Title.length == 0) {
+                settings.galleryInfo.Title = '&nbsp;';
+            }
+            var galleryInfoString = '<span class="gallerylightbox-jquery-lightbox-galleryinfo-title">' + settings.galleryInfo.Title + '</span>';
+            if (settings.galleryInfo.Description != null && settings.galleryInfo.Description.length > 0) {
+                galleryInfoString = galleryInfoString + ' <span class="gallerylightbox-jquery-lightbox-galleryinfo-description">| ' + settings.galleryInfo.Description + '</span>';
+            }
+
+            jQuery('#gallerylightbox-jquery-lightbox-galleryinfo').html(galleryInfoString);
+            jQuery('#gallerylightbox-jquery-lightbox-galleryinfo-box').height(jQuery('#gallerylightbox-jquery-lightbox-galleryinfo').height() + 10);
+        }
+        else {
+            jQuery('#gallerylightbox-jquery-lightbox-galleryinfo').html('');
+        }
+    }
+
+    function ShowToolbox() {
+        var infoText;
+        var infoIcon
+        if (settings.showImageInfo == true) {
+            infoText = settings.txtInfoOff;
+            infoIcon = settings.imageInfoOn;
+        }
+        else {
+            infoText = settings.txtInfoOn;
+            infoIcon = settings.imageInfoOff;
+        }
+        var thumbnailStatusText;
+        var thumbnailStatusIcon;
+        if (settings.showThumbnails == true) {
+            thumbnailStatusText = settings.txtThumbnailsOff;
+            thumbnailStatusIcon = settings.imageThumbnailsOn;
+        }
+        else {
+            thumbnailStatusText = settings.txtThumbnailsOn;
+            thumbnailStatusIcon = settings.imageThumbnailsOff;
+        }
+        var slideShowStatusText;
+        var slideShowStatusIcon;
+        if (settings.slideShowOn == true) {
+            slideShowStatusText = settings.txtSlideShowTurnOff;
+            slideShowStatusIcon = settings.imageSlideShowOn;
+        }
+        else {
+            slideShowStatusText = settings.txtSlideShowTurnOn;
+            slideShowStatusIcon = settings.imageSlideShowOff;
+        }
+
+        jQuery('#gallerylightbox-jquery-lightbox-toolbox-box').html('<div id="gallerylightbox-jquery-lightbox-toolbox"><div id="gallerylightbox-lightbox-image-details-voting"></div><div id="gallerylightbox-lightbox-image-details-toolbox"><ul class="galleryButton"><li><a id="gallerylightbox-jquery-lightbox-toolbox-slideshowstatus" class="gallerylightbox-jquery-lightbox-toolbox-anchors"><span>' + slideShowStatusText + '</span></a></li><li><a id="gallerylightbox-jquery-lightbox-toolbox-infostatus" class="gallerylightbox-jquery-lightbox-toolbox-anchors"><span>' + infoText + '</span></a></li><li><a id="gallerylightbox-jquery-lightbox-toolbox-thumbnailstatus" class="gallerylightbox-jquery-lightbox-toolbox-anchors"><span>' + thumbnailStatusText + '</span></a></li></ul></div></div>');
+        /*jQuery('#gallerylightbox-jquery-lightbox-toolbox-box').html('<div id="gallerylightbox-jquery-lightbox-toolbox"><div id="gallerylightbox-lightbox-image-details-author"></div><div id="gallerylightbox-lightbox-image-details-toolbox"><table border="0" cellpadding="0" cellspacing="0"><tr><td><a id="gallerylightbox-jquery-lightbox-toolbox-infostatus" class="gallerylightbox-jquery-lightbox-toolbox-anchors"><img id="gallerylightbox-jquery-lightbox-toolbox-infostatus-img" align="absmiddle" style="visibility: visible" title="' + infoText + '" src="' + infoIcon + '" /></a></td><td><a id="gallerylightbox-jquery-lightbox-toolbox-thumbnailstatus" class="gallerylightbox-jquery-lightbox-toolbox-anchors"><img id="gallerylightbox-jquery-lightbox-toolbox-thumbnailstatus-img" align="absmiddle" style="visibility: visible" title="' + thumbnailStatusText + '" src="' + thumbnailStatusIcon + '" /></a></td><td><a id="gallerylightbox-jquery-lightbox-toolbox-slideshowstatus" class="gallerylightbox-jquery-lightbox-toolbox-anchors"><img id="gallerylightbox-jquery-lightbox-toolbox-slideshowstatus-img" align="absmiddle" style="visibility: visible" title="' + slideShowStatusText + '" src="' + slideShowStatusIcon + '" /></a></td><td><div id="gallerylightbox-lightbox-image-details-currentNumber"></div></td></tr></table></div></div>');*/
+        jQuery('#gallerylightbox-jquery-lightbox-toolbox-box').css({ width: parseInt(settings.width) });
+        jQuery('#gallerylightbox-jquery-lightbox-toolbox-box').unbind().bind('click', function() { return false; });
+        jQuery('#gallerylightbox-jquery-lightbox-toolbox-infostatus').click(function() {
+            if (settings.showImageInfo == true) {
+                jQuery('#gallerylightbox-jquery-lightbox-toolbox-infostatus').html('<span>' + settings.txtInfoOn + '</span>');
+                settings.showImageInfo = false;
+            }
+            else {
+                jQuery('#gallerylightbox-jquery-lightbox-toolbox-infostatus').html('<span>' + settings.txtInfoOff + '</span>');
+                settings.showImageInfo = true;
+            }
+            ShowImageData();
+            return false;
+        });
+
+        jQuery('#gallerylightbox-jquery-lightbox-toolbox-thumbnailstatus').click(function() {
+            if (settings.showThumbnails == true) {
+                jQuery('#gallerylightbox-jquery-lightbox-toolbox-thumbnailstatus').html('<span>' + settings.txtThumbnailsOn + '</span>');
+                settings.showThumbnails = false;
+            }
+            else {
+                jQuery('#gallerylightbox-jquery-lightbox-toolbox-thumbnailstatus').html('<span>' + settings.txtThumbnailsOff + '</span>');
+                settings.showThumbnails = true;
+            }
+            ShowThumbnails();
+            return false;
+        });
+        jQuery('#gallerylightbox-jquery-lightbox-toolbox-slideshowstatus').click(function() {
+            if (settings.slideShowOn == true) {
+                jQuery('#gallerylightbox-jquery-lightbox-toolbox-slideshowstatus').html('<span>' + settings.txtSlideShowTurnOn + '</span>');
+                settings.slideShowOn = false;
+                StopSlideShow();
+            }
+            else {
+                jQuery('#gallerylightbox-jquery-lightbox-toolbox-slideshowstatus').html('<span>' + settings.txtSlideShowTurnOff + '</span>');
+                settings.slideShowOn = true;
+                StartSlideShow();
+            }
+            return false;
+        });
+    }
+
+    function mycarousel_getItemHTML(i) {
+        var html = "<img class=\"gallerylightbox-jquery-lightbox-thumbnails-image\" id=\"gallerylightbox-jquery-lightbox-thumbnails-image-" + i + "\" style=\"visibility: visible\" src=\"" + settings.imageArray[i].ThumbnailUrl + "\" />";
+        return html;
+    }
+
+    function SetThumbnailLinks() {
+        if (settings.imageArray != null && settings.imageArray.length > 0) {
+            for (var i = 0; i < settings.imageArray.length; i++) {
+                var selector = '#gallerylightbox-jquery-lightbox-thumbnails-image-' + i;
+                jQuery(selector).data('index', i);
+                jQuery(selector).unbind()
+                .bind('click', function(i) {
+                    LoadImageByIndex(jQuery(this).data('index'));
+                    return false;
+                })
+            }
+        }
+    }
+
+    function mycarousel_itemLoadCallback(carousel, state) {
+        for (var i = carousel.first; i <= carousel.last; i++) {
+            if (carousel.has(i)) {
+                continue;
+            }
+
+            if (i > settings.imageArray.length) {
+                break;
+            }
+
+            carousel.add(i, mycarousel_getItemHTML(i - 1));
+        }
+        SetThumbnailLinks();
+        _carousel = carousel;
+        MarkActiveThumbnail();
+    }
+
+    function initCarousel(carousel, state) {
+        jQuery('.jcarousel-clip-horizontal', jQuery('#gallerylightbox-jquery-lightbox')).css({ width: parseInt(settings.width) - 50 - 50 });
+        carousel.next();
+        _carousel = carousel;
+    }
+
+    function StartCarousel() {
+        jQuery('#gallerylightbox-jquery-lightbox-thumbnails').jcarousel({
+            scroll: GetCarouselScrollSize(),
+            initCallback: initCarousel,
+            size: settings.imageArray.length,
+            itemLoadCallback: mycarousel_itemLoadCallback
+        });
+    }
+
+    function ShowThumbnails() {
+        if (settings.imageArray.length > 1 && settings.showThumbnails == true) {
+            jQuery('#gallerylightbox-jquery-lightbox-thumbnails-box').html('<ul id="gallerylightbox-jquery-lightbox-thumbnails" class="jcarousel-skin-ie7"></ul>');
+
+            /*
+            for (var i = 0; i < settings.imageArray.length; i++) {
+            jQuery('#gallerylightbox-jquery-lightbox-thumbnails').html(jQuery('#gallerylightbox-jquery-lightbox-thumbnails').html() + "<li><img class=\"gallerylightbox-jquery-lightbox-thumbnails-image\" id=\"gallerylightbox-jquery-lightbox-thumbnails-image-" + i + "\" src=\"" + settings.imageArray[i].ThumbnailUrl + "\" /></li>");
+            } 
+            */
+
+            jQuery('#gallerylightbox-jquery-lightbox-thumbnails-box').css({ width: parseInt(settings.width) });
+            jQuery('#gallerylightbox-jquery-lightbox-thumbnails').css({ width: parseInt(settings.width) });
+
+            StartCarousel();
+            SetThumbnailLinks();
+            MarkActiveThumbnail();
+            /*
+            for (var i = 0; i < settings.imageArray.length; i++) {
+            var selector = '#gallerylightbox-jquery-lightbox-thumbnails-image-' + i;
+            jQuery(selector).data('index', i);
+            jQuery(selector).unbind()
+            .bind('click', function(i) {
+            LoadImageByIndex(jQuery(this).data('index'));
+            return false;
+            })
+            }
+            */
+
+            jQuery('.jcarousel-next', jQuery('#gallerylightbox-jquery-lightbox')).unbind().bind('click', function() { return false; });
+            jQuery('.jcarousel-prev', jQuery('#gallerylightbox-jquery-lightbox')).unbind().bind('click', function() { return false; });
+            jQuery('#gallerylightbox-jquery-lightbox-thumbnails-box').unbind().bind('click', function() { return false; });
+        }
+        else {
+            jQuery('#gallerylightbox-jquery-lightbox-thumbnails-box').html('');
+        }
+    }
+
+    function GetCarouselScrollSize() {
+        var thumbnailWidth = 75;
+        if (settings.thumbnailWidth >= 0) {
+            thumbnailWidth = parseInt(settings.thumbnailWidth);
+        }
+        var size = parseInt((parseInt(settings.width) - 50 - 50) / (thumbnailWidth + 7));
+        return size;
+    }
+
+    //        function LoadThumbnail(i) {
+    //            if (i < settings.imageArray.length) {
+    //                var objImagePreloader = document.createElement('img');
+    //                jQuery(objImagePreloader).load(function() {
+    //                    jQuery('#gallerylightbox-jquery-lightbox-thumbnails').html(jQuery('#gallerylightbox-jquery-lightbox-thumbnails').html() + "<img class=\"gallerylightbox-jquery-lightbox-thumbnails-image\" style=\"visibility: visible\" id=\"gallerylightbox-jquery-lightbox-thumbnails-image-" + i + "\" src=\"" + settings.imageArray[i].ThumbnailUrl + "\" />");
+    //                    LoadThumbnail(i + 1);
+    //                    objImagePreloader.onload = function() { };
+    //                });
+    //                objImagePreloader.src = settings.imageArray[i].ThumbnailUrl;
+    //            }
+    //            else {
+    //                for (var i = 0; i < settings.imageArray.length; i++) {
+    //                    var selector = '#gallerylightbox-jquery-lightbox-thumbnails-image-' + i;
+    //                    jQuery(selector).data('index', i);
+    //                    jQuery(selector).unbind()
+    //                        .bind('click', function(i) {
+    //                            LoadImageByIndex(jQuery(this).data('index'));
+    //                            return false;
+    //                        })
+    //                }
+    //            }
+    //        }
+
+    function LoadImage() {
+        jQuery('#gallerylightbox-lightbox-loading').show();
+        /*jQuery('#gallerylightbox-lightbox-image').hide();*/
+
+        if (settings.useIframeLoader == true) {
+            jQuery('#divIframe').html('<IFRAME id="iframePreloader" width="0" height="0" src="" border="0" />');
+            jQuery('#gallerylightbox-lightbox-container-image').html('<img id="gallerylightbox-lightbox-image" src="" style="display: none" />');
+
+            jQuery('iframe#iframePreloader').onload = function() { };
+            jQuery('iframe#iframePreloader').load(function() {
+                jQuery('#gallerylightbox-lightbox-image').onload = function() { };
+                jQuery('#gallerylightbox-lightbox-image').load(function() {
+                    ResizeContainerImagebox(jQuery('#gallerylightbox-lightbox-image').width(), jQuery('#gallerylightbox-lightbox-image').height());
+                    if (_isFirstImageLoaded == false) {
+                        ShowThumbnails();
+                        _isFirstImageLoaded = true;
+                    }
+
+                    jQuery('#gallerylightbox-lightbox-image').onload = function() { };
+                });
+
+                jQuery('#gallerylightbox-lightbox-image').attr('src', jQuery("iframe#iframePreloader").contents().find('#imageId').attr('href'));
+
+                jQuery('iframe#iframePreloader').onload = function() { };
+
+            });
+            jQuery('iframe#iframePreloader').attr('src', settings.imageArray[settings.activeImage].ImageUrl);
+        }
+        else {
+            jQuery('#gallerylightbox-lightbox-container-image').html('<img id="gallerylightbox-lightbox-image" src="" style="display: none" />');
+            jQuery('#gallerylightbox-lightbox-image').onload = function() { };
+            jQuery('#gallerylightbox-lightbox-image').load(function() {
+                ResizeContainerImagebox(jQuery('#gallerylightbox-lightbox-image').width(), jQuery('#gallerylightbox-lightbox-image').height());
+                if (_isFirstImageLoaded == false) {
+                    ShowThumbnails();
+                    _isFirstImageLoaded = true;
+                }
+
+                jQuery('#gallerylightbox-lightbox-image').onload = function() { };
+            });
+            jQuery('#gallerylightbox-lightbox-image').attr('src', settings.imageArray[settings.activeImage].ImageUrl);
+        }
+        if (settings.showThumbnails == true) {
+            BindThumbnailsActiveImage();
+        }
+        if (settings.slideShowOn == true) {
+            StartSlideShow();
+        }
+    };
+
+    function StartSlideShow() {
+        clearInterval(_slideShowInterval);
+        _slideShowInterval = setInterval(LoadNextImage, settings.slideShowDelay * 1000);
+    }
+
+    function StopSlideShow() {
+        clearInterval(_slideShowInterval);
+    }
+
+    function fixPng(png) {
+        var badBrowser = (/MSIE ((5\.5)|6)/.test(navigator.userAgent) && navigator.platform == "Win32");
+        if (badBrowser) {
+            var blank = new Image();
+            blank.src = settings.imageBlank;
+            // get src
+            var src = png.src;
+            // set width and height
+            if (!png.style.width) { png.style.width = $(png).width(); }
+            if (!png.style.height) { png.style.height = $(png).height(); }
+            // replace by blank image
+            png.onload = function() { };
+            png.src = blank.src;
+            // set filter (display original image)
+            png.runtimeStyle.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + src + "',sizingMethod='scale')";
+        }
+    }
+
+    function fixPngs() {
+        var badBrowser = (/MSIE ((5\.5)|6)/.test(navigator.userAgent) && navigator.platform == "Win32");
+        if (badBrowser) {
+            $('img[src$=.png]').each(function() {
+                if (!this.complete) {
+                    this.onload = function() { fixPng(this) };
+                } else {
+                    fixPng(this);
+                }
+            });
+            $('#gallerylightbox-lightbox-nav-btnPrev').each(function() {
+                if (!this.complete) {
+                    this.onload = function() { fixPng(this) };
+                } else {
+                    fixPng(this);
+                }
+            });
+        }
+    }
+
+    function MoveCarousel() {
+        if ((_carousel.first - 1) > settings.activeImage) {
+            _carousel.prev();
+            setTimeout(MoveCarousel, 100);
+        } else
+            if (_carousel.first + GetCarouselScrollSize() <= settings.activeImage + 1) {
+            _carousel.next();
+            setTimeout(MoveCarousel, 100);
+        }
+    }
+
+    function MarkActiveThumbnail() {
+        jQuery('.jcarousel-item', jQuery('#gallerylightbox-jquery-lightbox')).removeClass("jcarousel-itemselected");
+        jQuery('#gallerylightbox-jquery-lightbox-thumbnails-image-' + settings.activeImage).parent().addClass("jcarousel-itemselected");
+    }
+
+    function BindThumbnailsActiveImage() {
+        if (_carousel) {
+            MoveCarousel();
+        }
+        MarkActiveThumbnail();
+    }
+
+    function ResizeContainerImagebox(intImageWidth, intImageHeight) {
+        var intWidth = intImageWidth + (settings.containerBorderSize * 2); // Plus the image´s width and the left and right padding value
+        var intHeight = intImageHeight + (settings.containerBorderSize * 2); // Plus the image´s height and the left and right padding value            
+
+        jQuery('#gallerylightbox-gallerylightbox-lightbox-container-image-box').css({ width: intWidth, height: intHeight });
+        jQuery('#gallerylightbox-lightbox-container-image').css({ width: intWidth, 'top': ((jQuery('#gallerylightbox-lightbox-container-box').height() / 2) - (intImageHeight / 2)) });
+
+        ShowImage();
+    };
+
+    function ShowImage() {
+        jQuery('#gallerylightbox-lightbox-loading').hide();
+        jQuery('#gallerylightbox-lightbox-image').show();
+        SetNavigation();
+        ShowImageData();
+        ShowVoting();
+        fixPngs();
+        if (settings.useIframeLoader != true) {
+            PreloadNearbyImages();
+        }
+    };
+
+    function ShowImageData() {
+        if (settings.showImageInfo == true) {
+            jQuery('#gallerylightbox-lightbox-container-image-data-box').html('<div id="gallerylightbox-lightbox-container-image-data"><div id="gallerylightbox-lightbox-image-details" class="gallerylightbox-lightbox-image-details"><div id="gallerylightbox-lightbox-image-details-title"></div><div id="gallerylightbox-lightbox-image-details-description"></div></div><div id="gallerylightbox-lightbox-image-details2" class="gallerylightbox-lightbox-image-details"><div id="gallerylightbox-lightbox-image-details-author"></div><div id="gallerylightbox-lightbox-image-details-currentNumber"></div></div></div>');
+            jQuery('#gallerylightbox-lightbox-image-details-title').html(settings.imageArray[settings.activeImage].Title);
+            jQuery('#gallerylightbox-lightbox-image-details-description').html(settings.imageArray[settings.activeImage].Description);
+
+            jQuery('#gallerylightbox-lightbox-container-image-data-box').show();
+            jQuery('#gallerylightbox-lightbox-container-image-data-box').unbind().bind('click', function() { LoadNextImage(); return false; });
+
+            var author = '-';
+            if (settings.imageArray[settings.activeImage].Author != null && settings.imageArray[settings.activeImage].Author.length > 0) {
+                author = settings.imageArray[settings.activeImage].Author;
+            }
+            var origin = '-';
+            if (settings.imageArray[settings.activeImage].Origin != null && settings.imageArray[settings.activeImage].Origin.length > 0) {
+                origin = settings.imageArray[settings.activeImage].Origin;
+            }
+			var txt = 'Desni klik, otvori originalnu sliku u novom prozoru kako bi preuzeli fotografiju';			
+			if(settings.textAuthorLabel.startsWith('Auth')) {
+				txt = 'Right click, open in new window to save the photo';
+			}
+            jQuery('#gallerylightbox-lightbox-image-details-author').html('<span class="gallerylightbox-lightbox-image-details-author-label">' + settings.textAuthorLabel + ': </span>' + author + '&nbsp;&nbsp;|&nbsp;&nbsp;<span class="gallerylightbox-lightbox-image-details-author-label">' + settings.textOriginLabel + ': </span>' + origin + '&nbsp;&nbsp;|&nbsp;&nbsp;' + '<a href="' + settings.imageArray[settings.activeImage].ImageUrl+'">'+txt+'</a>');
+
+            if (settings.imageArray.length > 1) {
+                jQuery('#gallerylightbox-lightbox-image-details-currentNumber').html(settings.txtImage + ' ' + (settings.activeImage + 1) + settings.txtImageOf + settings.imageArray.length).show();
+            }
+        }
+        else {
+            jQuery('#gallerylightbox-lightbox-container-image-data-box').html('<div id="gallerylightbox-lightbox-container-image-data"><div id="gallerylightbox-lightbox-image-details2" class="gallerylightbox-lightbox-image-details"><div id="gallerylightbox-lightbox-image-details-author"></div><div id="gallerylightbox-lightbox-image-details-currentNumber"></div></div></div>');
+            jQuery('#gallerylightbox-lightbox-container-image-data-box').hide();
+        }
+    }
+
+    function ShowVoting() {
+        if (settings.showVoting == true && settings.imageArray[settings.activeImage].Id != null && parseInt(settings.imageArray[settings.activeImage].Id) > 0) {
+            var htmlStars = '';
+            for (var i = 1; i <= 5; i++) {
+                var imageStar = (settings.imageArray[settings.activeImage].Rating >= i) ? settings.imageStar : settings.imageStarInactive;
+                htmlStars = htmlStars + '<img id="gallerylightbox-lightbox-image-details-voting-star_' + i + '" src=\'' + imageStar + '\' class="gallerylightbox-lightbox-image-details-voting-star" style="visibility: visible" align="absmiddle" />';
+            }
+            jQuery('#gallerylightbox-lightbox-image-details-voting').html(settings.txtVoteForImage + ' ' + htmlStars + ' (' + settings.imageArray[settings.activeImage].VoteCount + ' ' + settings.txtVotes + ')');
+
+            if (settings.imageArray[settings.activeImage].IsVoted != true) {
+                jQuery('.gallerylightbox-lightbox-image-details-voting-star').hover(function() {
+                    var $this = jQuery(this);
+                    var starId = parseInt($this[0].id.substring(51));
+                    for (var i = 1; i <= 5; i++) {
+                        if (i <= starId) {
+                            jQuery('#gallerylightbox-lightbox-image-details-voting-star_' + i).attr('src', settings.imageStarHover);
+                        }
+                        else {
+                            var imageStar = (settings.imageArray[settings.activeImage].Rating >= i) ? settings.imageStar : settings.imageStarInactive;
+                            jQuery('#gallerylightbox-lightbox-image-details-voting-star_' + i).attr('src', imageStar);
+                        }
+                        fixPngs();
+                    }
+
+                }, function() {
+                    var $this = jQuery(this);
+                    var starId = parseInt($this[0].id.substring(51));
+                    for (var i = 1; i <= 5; i++) {
+                        var imageStar = (settings.imageArray[settings.activeImage].Rating >= i) ? settings.imageStar : settings.imageStarInactive;
+                        jQuery('#gallerylightbox-lightbox-image-details-voting-star_' + i).attr('src', imageStar);
+                        fixPngs();
+                    }
+
+                });
+                jQuery('.gallerylightbox-lightbox-image-details-voting-star').click(function() {
+                    var $this = jQuery(this);
+                    var grade = parseInt($this[0].id.substring(51));
+                    VoteForImage(settings.imageArray[settings.activeImage].Id, grade);
+                    fixPngs();
+                    return false;
+                });
+            }
+        }
+    }
+
+    function VoteForImage(imageId, grade) {
+        SnT.Cms2.Modules.Core.GalleryService.VoteForImage(imageId, grade, settings.activeImage, onVoteForImageComplete, onVoteForImageError, onVoteForImageTimeout);
+        return false;
+    }
+
+    function onVoteForImageComplete(arg) {
+        if (arg && arg.IsSaved == true) {
+            settings.imageArray[arg.FileIndex].VoteCount++;
+            settings.imageArray[arg.FileIndex].VoteSum = settings.imageArray[arg.FileIndex].VoteSum + arg.Grade;
+            settings.imageArray[arg.FileIndex].Rating = parseInt(settings.imageArray[arg.FileIndex].VoteSum / settings.imageArray[arg.FileIndex].VoteCount);
+            settings.imageArray[arg.FileIndex].IsVoted = true;
+            ShowVoting();
+            fixPngs();
+            return false;
+        }
+    }
+
+    function onVoteForImageError(arg) {
+        return false;
+    }
+
+    function onVoteForImageTimeout(arg) {
+        return false;
+    }
+
+    function SetNavigation() {
+        if (settings.imageArray.length > 1) {
+            jQuery('#gallerylightbox-lightbox-nav').unbind().bind('click', function() {
+                LoadNextImage();
+                return false;
+            }).show().hoverIntent(NavigationWrapperHoverConfig);
+            NavigationWrapperOn();
+        }
+        else {
+            jQuery('#gallerylightbox-lightbox-nav').hide();
+        }
+        EnableKeyboardNavigation();
+    }
+
+    function LoadImageByIndex(i) {
+        if (settings.activeImage != i) {
+            settings.activeImage = i;
+            LoadImage();
+        }
+    }
+
+    function LoadPreviousImage() {
+        settings.activeImage = settings.activeImage - 1;
+        if (settings.activeImage < 0) {
+            settings.activeImage = settings.imageArray.length - 1;
+        }
+        LoadImage();
+    }
+
+    function LoadNextImage() {
+        settings.activeImage = settings.activeImage + 1;
+        if (settings.activeImage > (settings.imageArray.length - 1)) {
+            settings.activeImage = 0;
+        }
+        LoadImage();
+    }
+
+    function EnableKeyboardNavigation() {
+        jQuery(document).unbind().keydown(function(e) {
+            KeybardAction(e);
+        });
+    }
+
+    function DisableKeyboardNavigation() {
+        jQuery(document).unbind().keydown(function(e) {
+            var keycode = e.keyCode;
+            var key = String.fromCharCode(keycode).toLowerCase();
+            if ((key == settings.keyToClose) || (key == 'x') || (keycode == 27)) {
+                Finish();
+            }
+        });
+    }
+
+    function KeybardAction(e) {
+
+        var keycode = e.keyCode;
+        var key = String.fromCharCode(keycode).toLowerCase();
+        if ((key == settings.keyToClose) || (key == 'x') || (keycode == 27)) { //27=Escape
+            Finish();
+        }
+
+        if (settings.imageArray.length > 1) {
+            if ((key == settings.keyToPrev) || (keycode == 37)) {
+                LoadPreviousImage();
+                DisableKeyboardNavigation();
+            }
+            if ((key == settings.keyToNext) || (keycode == 39)) {
+                LoadNextImage();
+                DisableKeyboardNavigation();
+            }
+        }
+    }
+
+    function PreloadNearbyImages() {
+        if ((settings.imageArray.length - 1) > settings.activeImage) {
+            objNext = new Image();
+            objNext.src = settings.imageArray[settings.activeImage + 1].ImageUrl;
+        }
+        if (settings.activeImage > 0) {
+            objPrev = new Image();
+            objPrev.src = settings.imageArray[settings.activeImage - 1].ImageUrl;
+        }
+    }
+
+    function Finish() {
+        if (!settings.isInsideDiv) {
+            StopSlideShow();
+            jQuery('#gallerylightbox-jquery-lightbox').remove();
+            jQuery('#gallerylightbox-jquery-overlay').fadeOut(function() { jQuery('#gallerylightbox-jquery-overlay').remove(); });
+            // Display Flash again
+            $('embed, object, select, iframe, div[id^=banner], span[id^=banner]').css({ 'visibility': 'visible' });
+            jQuery(document).onkeydown = function() { };
+        }
+    }
+
+    function GetPageSize() {
+        var xScroll, yScroll;
+        if (window.innerHeight && window.scrollMaxY) {
+            xScroll = window.innerWidth + window.scrollMaxX;
+            yScroll = window.innerHeight + window.scrollMaxY;
+        } else if (document.body.scrollHeight > document.body.offsetHeight) {
+            xScroll = document.body.scrollWidth;
+            yScroll = document.body.scrollHeight;
+        } else {
+            xScroll = document.body.offsetWidth;
+            yScroll = document.body.offsetHeight;
+        }
+        var windowWidth, windowHeight;
+        if (self.innerHeight) {
+            if (document.documentElement.clientWidth) {
+                windowWidth = document.documentElement.clientWidth;
+            } else {
+                windowWidth = self.innerWidth;
+            }
+            windowHeight = self.innerHeight;
+
+        } else if (document.documentElement && document.documentElement.clientHeight) {
+            windowWidth = document.documentElement.clientWidth;
+            windowHeight = document.documentElement.clientHeight;
+        } else if (document.body) {
+            windowWidth = document.body.clientWidth;
+            windowHeight = document.body.clientHeight;
+        }
+        if (yScroll < windowHeight) {
+            pageHeight = windowHeight;
+        } else {
+            pageHeight = yScroll;
+        }
+        if (xScroll < windowWidth) {
+            pageWidth = xScroll;
+        } else {
+            pageWidth = windowWidth;
+        }
+        arrayPageSize = new Array(pageWidth, pageHeight, windowWidth, windowHeight);
+        return arrayPageSize;
+    };
+
+    function GetPageScroll() {
+        var xScroll, yScroll;
+        if (self.pageYOffset) {
+            yScroll = self.pageYOffset;
+            xScroll = self.pageXOffset;
+        } else if (document.documentElement && document.documentElement.scrollTop) {
+            yScroll = document.documentElement.scrollTop;
+            xScroll = document.documentElement.scrollLeft;
+        } else if (document.body) {// all other Explorers
+            yScroll = document.body.scrollTop;
+            xScroll = document.body.scrollLeft;
+        }
+        arrayPageScroll = new Array(xScroll, yScroll);
+        return arrayPageScroll;
+    };
+
+    function Pause(ms) {
+        var date = new Date();
+        curDate = null;
+        do { var curDate = new Date(); }
+        while (curDate - date < ms);
+    };
+
+    ShowGallery();
+}
+
+function ShowLightboxFromImages(imageArray, galleryInfo, settings) {
+    var _settings = jQuery.extend({
+        galleryInfo: galleryInfo,
+        imageArray: imageArray
+    }, settings);
+
+    var isDocumentReady = false;
+
+    jQuery(document).ready(function() {
+        isDocumentReady = true;
+    });
+
+    if (isDocumentReady == true) {
+        var lightbox = new Lightbox(_settings);
+    }
+};
+
+function ShowLightboxFromGalleryId(galleryId, settings) {
+    var _settings = jQuery.extend({
+        galleryInfo: GalleryInfo,
+        activeImage: 0,
+        imageFormatId: galleryLightboxDefaults.ImageFormatId,
+        thumbnailFormatId: galleryLightboxDefaults.ThumbnailFormatId,
+        imageWidth: galleryLightboxDefaults.ImageWidth,
+        imageHeight: galleryLightboxDefaults.ImageHeight,
+        thumbnailPageUrl: galleryLightboxDefaults.ThumbnailPageUrl,
+        thumbnailWidth: galleryLightboxDefaults.ThumbnailWidth,
+        thumbnailHeight: galleryLightboxDefaults.ThumbnailHeight,
+        useIframeLoader: galleryLightboxDefaults.useIframeLoader,
+        imageLoaderPage: galleryLightboxDefaults.ImageLoaderPage,
+        languageId: galleryLightboxDefaults.LanguageId
+    }, settings);
+
+    GetDataFromGalleryId(galleryId, _settings.languageId);
+
+    function GetDataFromGalleryId(galleryId, languageId) {
+        SnT.Cms2.Modules.Core.GalleryService.GetList(galleryId, languageId, onGetDataFromGalleryIdComplete, onGetDataFromGalleryIdError, onGetDataFromGalleryIdTimeOut);
+    }
+
+    function onGetDataFromGalleryIdComplete(arg) {
+        var response = arg;
+        if (response) {
+            var galleryInfo = new GalleryInfo();
+            galleryInfo.Id = response["Id"];
+            galleryInfo.Title = response["Title"];
+            galleryInfo.Description = response["Description"];
+            _settings.galleryInfo = galleryInfo;
+
+            var imageArray = new Array();
+            if (response["Items"] != null && response["Items"].length > 0) {
+                for (var i = 0; i < response["Items"].length; i++) {
+                    var image = new ImageInfo();
+                    image.Id = response["Items"][i]["Id"];
+                    image.Title = response["Items"][i].Title;
+                    image.Description = response["Items"][i]["Description"];
+                    image.Author = response["Items"][i]["Author"];
+                    image.Origin = response["Items"][i]["Origin"];
+                    image.Rating = response["Items"][i]["Rating"];
+                    image.VoteCount = response["Items"][i]["VoteCount"];
+                    image.VoteSum = response["Items"][i]["VoteSum"];
+
+                    var imageUrl = _settings.thumbnailPageUrl;
+                    var thumbnailUrl = _settings.thumbnailPageUrl;
+
+                    if (_settings.useIframeLoader == true) {
+                        imageUrl = _settings.imageLoaderPage;
+                    }
+
+                    imageUrl = imageUrl.replace('{0}', response["Items"][i]["ResourceId"]);
+                    imageUrl = imageUrl.replace('{1}', _settings.imageFormatId);
+                    if (_settings.imageWidth > 0) {
+                        imageUrl += '&width=' + _settings.imageWidth;
+                    }
+                    if (_settings.imageHeight > 0) {
+                        imageUrl += '&height=' + _settings.imageHeight;
+                    }
+                    image.ImageUrl = imageUrl;
+
+                    thumbnailUrl = thumbnailUrl.replace('{0}', response["Items"][i]["ResourceId"]);
+                    thumbnailUrl = thumbnailUrl.replace('{1}', _settings.thumbnailFormatId);
+                    if (_settings.thumbnailWidth > 0) {
+                        thumbnailUrl += '&width=' + _settings.thumbnailWidth;
+                    }
+                    if (_settings.thumbnailHeight > 0) {
+                        thumbnailUrl += '&height=' + _settings.thumbnailHeight;
+                    }
+                    image.ThumbnailUrl = thumbnailUrl;
+
+                    imageArray[i] = image;
+                }
+                _settings.imageArray = imageArray;
+
+                var isDocumentReady = false;
+
+                jQuery(document).ready(function() {
+                    isDocumentReady = true;
+                });
+
+                if (isDocumentReady == true) {
+                    var lightbox = new Lightbox(_settings);
+                }
+            }
+        }
+    }
+
+    function onGetDataFromGalleryIdError(arg) {
+        return false;
+    }
+
+    function onGetDataFromGalleryIdTimeOut(arg) {
+        return false;
+    }
+}
+/*
+function ShowLightboxByKeywords(keywords, rowCount, settings) {
+var _settings = jQuery.extend({
+galleryInfo: GalleryInfo,
+activeImage: 0,
+imageFormatId: galleryLightboxDefaults.ImageFormatId,
+thumbnailFormatId: galleryLightboxDefaults.ThumbnailFormatId,
+imageWidth: galleryLightboxDefaults.ImageWidth,
+imageHeight: galleryLightboxDefaults.ImageHeight,
+thumbnailPageUrl: galleryLightboxDefaults.ThumbnailPageUrl,
+thumbnailWidth: galleryLightboxDefaults.ThumbnailWidth,
+thumbnailHeight: galleryLightboxDefaults.ThumbnailHeight,
+useIframeLoader: galleryLightboxDefaults.useIframeLoader,
+imageLoaderPage: galleryLightboxDefaults.ImageLoaderPage
+}, settings);
+
+GetDataByKeywords(keywords, rowCount);    
+
+function GetDataByKeywords(keywords, rowCount) {
+SnT.Cms2.Modules.Core.GalleryService.GetListByKeywords(keywords, rowCount, onGetDataByKeywordsComplete, onGetDataByKeywordsError, onGetDataByKeywordsTimeOut);
+}
+
+function onGetDataByKeywordsComplete(arg) {
+var response = arg;
+if (response) {
+var galleryInfo = new GalleryInfo();
+galleryInfo.Title = response["Title"];
+_settings.galleryInfo = galleryInfo;
+
+var imageArray = new Array();
+if (response["Items"] != null && response["Items"].length > 0) {
+for (var i = 0; i < response["Items"].length; i++) {
+var image = new ImageInfo();
+image.Id = response["Items"][i]["Id"];
+image.Title = response["Items"][i].Title;
+image.Description = response["Items"][i]["Description"];
+image.Author = response["Items"][i]["Author"];
+image.Origin = response["Items"][i]["Origin"];
+image.Rating = response["Items"][i]["Rating"];
+image.VoteCount = response["Items"][i]["VoteCount"];
+image.VoteSum = response["Items"][i]["VoteSum"];
+                    
+var imageUrl = _settings.thumbnailPageUrl;
+var thumbnailUrl = _settings.thumbnailPageUrl;
+
+if (_settings.useIframeLoader == true) {
+imageUrl = _settings.imageLoaderPage;
+}
+                    
+imageUrl = imageUrl.replace('{0}', response["Items"][i]["ResourceId"]);
+imageUrl = imageUrl.replace('{1}', _settings.imageFormatId);
+if (_settings.imageWidth > 0) {
+imageUrl += '&width=' + _settings.imageWidth;
+}
+if (_settings.imageHeight > 0) {
+imageUrl += '&height=' + _settings.imageHeight;
+}
+image.ImageUrl = imageUrl;
+                    
+thumbnailUrl = thumbnailUrl.replace('{0}', response["Items"][i]["ResourceId"]);
+thumbnailUrl = thumbnailUrl.replace('{1}', _settings.thumbnailFormatId);
+if (_settings.thumbnailWidth > 0) {
+thumbnailUrl += '&width=' + _settings.thumbnailWidth;
+}
+if (_settings.thumbnailHeight > 0) {
+thumbnailUrl += '&height=' + _settings.thumbnailHeight;
+}
+image.ThumbnailUrl = thumbnailUrl;
+
+imageArray[i] = image;
+}
+_settings.imageArray = imageArray;
+var lightbox = new Lightbox(_settings);
+}
+}
+}
+function onGetDataByKeywordsError(arg) {
+return false;
+}
+
+function onGetDataByKeywordsTimeOut(arg) {
+return false;
+}    
+}
+*/

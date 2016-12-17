@@ -1,0 +1,251 @@
+//  Function to return the value of the cookie specified by "name".
+//    name - String object containing the cookie name.
+//    returns - String object containing the cookie value, or null if
+//      the cookie does not exist.
+function GetCookie(name) {
+	var cookieVal = GetNoEscapeCookie(name);
+	if(cookieVal!=null)
+	{
+		cookieVal=unescape(cookieVal);
+	}
+	return cookieVal;
+}
+
+//  Function to return the value of the cookie specified by "name".
+//    name - String object containing the cookie name.
+//    returns - String object containing the cookie value, or null if
+//      the cookie does not exist.
+function GetNoEscapeCookie(name) {
+	var dc = document.cookie;
+	var prefix = name + "=";
+	var begin = dc.indexOf("; " + prefix);
+	if (begin == -1) 
+	{
+		begin = dc.indexOf(prefix);
+		if (begin != 0) return null;
+	} 
+	else
+		begin += 2;
+		
+	var end = document.cookie.indexOf(";", begin);
+	if (end == -1) end = dc.length;
+	return dc.substring(begin + prefix.length, end);
+}
+
+
+//returns value of a given subkey
+function GetSubkey(name,subkey)
+{
+	var cookie = GetCookie(name);	
+	if(cookie==null)
+		return "";
+	var begin = cookie.indexOf(subkey + "=") 
+	if (begin == -1)
+		return null;
+	begin = begin + subkey.length + 1;
+	var end = cookie.substring(begin, cookie.length).indexOf("&"); //look for multipe vals
+	if (end == -1) end = cookie.length;
+	return cookie.substring(begin, begin + end);
+}
+
+//
+//  Function to create or update a cookie.
+//    name - String object containing the cookie name.
+//    value - String object containing the cookie value.  May contain
+//      any valid string characters.
+//    [expires] - Date object containing the expiration data of the cookie.  If
+//      omitted or null, expires the cookie at the end of the current session.
+//    [path] - String object indicating the path for which the cookie is valid.
+//      If omitted or null, uses the path of the calling document.
+//    [domain] - String object indicating the domain for which the cookie is
+//      valid.  If omitted or null, uses the domain of the calling document.
+//    [secure] - Boolean (true/false) value indicating whether cookie transmission
+//      requires a secure channel (HTTPS).  
+//
+//  The first two parameters are required.  The others, if supplied, must
+//  be passed in the order listed above.  To omit an unused optional field,
+//  use null as a place holder.  For example, to call SetCookie using name,
+//  value and path, you would code:
+//
+//      SetCookie ("myCookieName", "myCookieValue", null, "/");
+//
+//  Note that trailing omitted parameters do not require a placeholder.
+//
+//  To set a secure cookie for path "/myPath", that expires after the
+//  current session, you might code:
+//
+//      SetCookie (myCookieVar, cookieValueVar, null, "/myPath", null, true);
+//
+function SetCookie(name,value,expires,path,domain,secure) {
+	if (domain != null)
+		ClearCookieDomains(name, domain);
+
+	if(path==null)
+	{
+            path="/";
+	}
+
+	document.cookie = name + "=" + escape(value) +
+    ((expires) ? "; expires=" + expires.toGMTString() : "") +
+    ((path) ? "; path=" + path : "") +
+    ((domain) ? "; domain=" + domain : "") +
+    ((secure) ? "; secure" : "");
+}
+
+// This function is identical to SetCookie only it does not escape characters in the 
+// value parameter.  This is important if you intend to use .Net to read the cookie this 
+// function creates, particularly if you want it to see it as a multi-keyed cookie.  Cookies 
+// containing escaped = and & characters will not be seen as multi-key.
+function SetNoEscapeCookie(name,value,expires,path,domain,secure) {
+if (domain != null)
+	ClearCookieDomains(name, domain);
+
+
+	if(path==null)
+	{
+            path="/";
+	}
+
+	document.cookie = name + "=" + value +
+    ((expires) ? "; expires=" + expires.toGMTString() : "") +
+    ((path) ? "; path=" + path : "") +
+    ((domain) ? "; domain=" + domain : "") +
+    ((secure) ? "; secure" : "");
+}
+
+function ClearCookieDomains(cookieName, newDomain){
+	var domains = newDomain.split(".");
+	var curDomain;
+	
+	try{
+		curDomain = "." + domains[domains.length-1];
+	}
+	catch(e){return;}
+
+	for(i=domains.length-2;i>1;i--){
+		curDomain =  "." + domains[i] + curDomain;
+		DeleteCookie(cookieName, "/", curDomain);
+	}
+}
+
+function SetNoEscapeSubkey(name,subkey,value,expires,path,domain,secure)
+{
+   var cookie = GetNoEscapeCookie(name) ;   
+   
+   if (cookie == null) //no existing cookie
+   {
+            SetNoEscapeCookie(name,subkey + "=" + value,expires,path,domain,secure);    
+            return;
+   }
+
+   var begin =  cookie.indexOf(subkey + "="); 
+   var end = cookie.substring(begin, cookie.length).indexOf("&"); //look for multipe vals
+   if (end == -1) end = cookie.length;
+  
+   if (begin == -1)  //this entry is not here. do not replace
+   {
+         if(cookie.length > 0)  //there are other entries, add ours to end
+         {
+            value = cookie + "&" + subkey + "=" + value;
+         }
+         else //this cookie's empty
+         {
+            value = subkey + "=" + value;
+         }
+   }
+   else //we already have an entry for this subkey, let's replace our val
+   {
+         var replacethis = cookie.substring(begin, begin + end);
+         value = cookie.replace(replacethis,subkey + "=" + value);      
+   }
+   
+   SetNoEscapeCookie(name,value,expires,path,domain,secure);
+}
+
+// This function takes in a Cookie name and a serious of subkey=value pairs in an array and sets the entire cookie.
+//	If there were other subkeys in the cookie they will be lost if they are not passed in.
+function SetNoEscapeFullSubKeyCookie(name, subCookieKeys, subCookieValues, expires, path, domain,secure)
+{
+	var newCookieValue = "";
+	
+	if(subCookieKeys.length != subCookieValues.length)
+		throw "Keys and Values array's length don't match."
+		
+	
+	for(i = 0; i < subCookieKeys.length; i++)
+	{
+		newCookieValue += subCookieKeys[i] + "=" + subCookieValues[i];
+		if((i+1) < subCookieKeys.length)
+		{
+			newCookieValue += "&";
+		}
+	}
+   SetNoEscapeCookie(name,newCookieValue,expires,path,domain,secure);
+}
+
+// This is shared so must be rigid to avoid issues
+function SetZMiscPermSubkey(subkey, value)
+{
+    var expires=new Date();
+    expires.setFullYear(expires.getFullYear() + 10);
+    SetNoEscapeSubkey("ZMiscPerm",subkey,value,expires,"/",window.top.g_CookieDomain, false)
+}
+
+
+//  Function to delete a cookie. (Sets expiration date to start of epoch)
+//    sName -   String object containing the cookie name
+//    sPath -   String object containing the path of the cookie to delete.  This MUST
+//             be the same as the path used to create the cookie, or null/omitted if
+//             no path was specified when creating the cookie.
+//    sDomain - String object containing the domain of the cookie to delete.  This MUST
+//             be the same as the domain used to create the cookie, or null/omitted if
+//             no domain was specified when creating the cookie.
+//
+function DeleteCookie(sName, sPath, sDomain)
+{
+  if(GetNoEscapeCookie(sName)!=null)
+  {
+	  date = new Date();
+	  if(sPath==null)
+  	  {
+            sPath="/";
+          }
+
+	  document.cookie = sName + "= Blank " + ((sPath) ? "; path=" + sPath : "") + ((sDomain) ? "; domain=" + sDomain : "") + "; expires=" + date.toGMTString();
+  }
+}
+
+
+function DeleteSubkey(name,subkey,expires,path,domain)
+{
+
+	var cookie = GetNoEscapeCookie(name);	
+	
+	if (cookie == null) //no existing cookie
+		return;
+
+	var begin =  cookie.indexOf(subkey + "=");
+	
+	if (begin == -1)  //this entry is not here. do not replace
+		return;
+
+	var end = cookie.substring(begin, cookie.length).indexOf("&"); //look for multipe vals
+
+	if (begin==0 && end==-1) //this is the only value, delete cookie
+	{
+		DeleteCookie(name, path, domain);
+		return;		
+	}
+
+	if (end == -1) 
+		end = cookie.length;
+		if (begin!=0)
+			begin = begin - 1 //remove trailing ampersand
+	else
+		end = end + 1; //remove ampersand if necessary
+
+	var value = cookie.substring(0,begin) + cookie.substring(begin + end,cookie.length);
+
+	SetNoEscapeCookie(name,value,expires,path,domain);
+
+}

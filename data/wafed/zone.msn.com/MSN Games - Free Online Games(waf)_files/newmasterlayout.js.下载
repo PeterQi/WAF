@@ -1,0 +1,337 @@
+function BuildNetworkMenu() {
+    if (g_SearchMkt == "en-ca") {
+        BuildNetworkMenuEnCa();
+    }
+    else {
+        BuildNetworkMenuEnUs();
+    }
+}
+
+function BuildMainNavigation() {
+    if (g_SearchMkt == "en-ca") {
+        BuildMainNavigationEnCa();
+    }
+    else {
+        BuildMainNavigationEnUs();
+    }
+}
+
+function BuildFooter() {
+    if (g_SearchMkt == "en-ca") {
+        BuildFooterEnCa();
+    }
+    else {
+        BuildFooterEnUs();
+    }
+}
+
+function CreateXNavList(rssFeed) {
+    var xmlDoc = null;
+
+    try //Internet Explorer
+    {
+        xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+        xmlDoc.async = "false";
+        xmlDoc.loadXML(rssFeed);
+    }
+    catch (e) {
+        try //Firefox, Mozilla, Opera, etc.
+        {
+            var parser = new DOMParser();
+            xmlDoc = parser.parseFromString(rssFeed, "text/xml");
+        }
+        catch (e) {
+            // alert(e.message);
+        }
+    }
+
+    var root = xmlDoc.getElementsByTagName("rss")[0];
+
+    var list = "<!-- Start dynamically created list -->";
+    list += "<ul id='xnav' class='noscript'>";
+
+    var menuItemNodes = root.selectNodes("/rss/channel/msncp:gtl/msncp:menubar/msncp:menuitemlist/msncp:menuitem");
+    for (var i = 1; i <= menuItemNodes.length; i++) {
+        var listItemClass = "c" + i.toString();
+        if (i == menuItemNodes.length) {
+            listItemClass += " last";
+        }
+
+        list += CreateXNavListItem(listItemClass, menuItemNodes[i - 1]);
+    }
+
+    list += "</ul>";
+    list += "<!-- End dynamically created list -->";
+
+    return list;
+}
+
+function CreateXNavListItem(listItemClass, menuItem) {
+    var listItem = "<li class='" + listItemClass.toString() + "'>";
+    // localize the MSN Nav urls    
+    var tUrl = menuItem.selectSingleNode("msncp:optionallink/msncp:url").firstChild.nodeValue;
+    var url = tUrl.replace(/xxx/, g_SearchMkt);
+    //alert("MasterLayout.js CreateXNavListItem. url: " + url);
+    var menuItemName = HtmlEncode(menuItem.selectSingleNode("msncp:optionallink/msncp:text").firstChild.nodeValue);
+    var subMenuItemList = menuItem.selectNodes("msncp:submenuitemlist/msncp:submenuitem");
+    var treatmentNode = menuItem.selectSingleNode("msncp:submenuitemlist/msncp:treatment");
+    var numSections = 1;
+    if (treatmentNode != null) {
+        if (treatmentNode.firstChild.nodeValue == "mod3") {
+            numSections = 3;
+        }
+    }
+
+    listItem += "<a href='" + url + "'>" + menuItemName + "</a>";
+    listItem += "</li>";
+
+    return listItem;
+}
+
+function BuildNetworkMenuEnUs() {
+    document.writeln(CreateXNavList(g_RSSFeed));
+    document.writeln("<span class='blogo'>");
+    document.writeln("<a href='http://www.bing.com/search?FORM=" + g_MHFormValue + "&amp;mkt=en-US'> | Bing</a>");
+    document.writeln("</span>");
+	//document.writeln("</li></ul>");	
+}
+function BuildNetworkMenuEnCa() {
+    //document.writeln(CreateXNavList(g_RSSFeed));
+    document.writeln('<ul>');
+    var msnLinkObj;
+    var commonStyleList = "NwType1Norm LnkType1Norm hdnvc";
+    var finalLink = "";
+    for (var i = 0; i < g_MSNLnks_Left.length; i++) {
+        msnLinkObj = g_MSNLnks_Left[i];
+        msnLinkObj.addStyleToMsnLink(commonStyleList);
+        finalLink = msnLinkObj.getMsnLink();
+        document.writeln('<li>' + finalLink + '</li>');
+    }
+
+    if (displayMoreLink) {
+        document.writeln("<li><a class='NwType1Norm LnkType1Norm hdnvc' href='" + "javascript:MoreButtonClick();" + "' id='more_link'>more<img id='moreButton_arrow' src='http://entimg.msn.com/i/je/arrow_down_white.gif' /></a></li>");
+    }
+    document.writeln('</ul>');
+    document.writeln("<span class='blogo'>");
+    document.writeln("<a href='http://www.bing.com/search?FORM=" + g_MHFormValue + "&amp;mkt=en-ca'> | Bing</a>");
+    document.writeln("</span>");
+    //document.writeln("</li></ul>");
+}
+
+function bingSearchContainer() {
+    var mkt = "en-us";
+    if (g_SearchMkt == "en-ca") {
+        mkt = "en-ca";
+    }
+	document.writeln("<ul id='big3' class='linklist9 pull-right'>");
+	document.writeln("<li class='rightbing'><a href='http://www.bing.com/search?FORM=" + g_MHFormValue + "&amp;mkt=" + mkt + "'> Bing  | </a></li>");
+	document.writeln("<li class='first'><a href='http://outlook.com'>Outlook.com | </a></li>");
+    document.writeln("<li class='last'>");
+	
+	
+	
+    var oscarab = document.getElementById("thePassportScarab");
+    if (oscarab != null) {
+        oscarab.removeAttribute("className");
+        oscarab.removeAttribute("class");
+        document.writeln("<span id='MSNHdrSignInSpn'></span>");
+        document.getElementById("MSNHdrSignInSpn").appendChild(oscarab);
+    }  
+}
+
+
+
+function BuildMainNavigationEnUs() {
+
+    var stripedPath = window.location.pathname;
+    var qs = window.location.search;
+
+    var dotLoc;
+    if (stripedPath != null) {
+        dotLoc = stripedPath.indexOf(".");
+        if (dotLoc > 0) {
+            stripedPath = stripedPath.substring(0, stripedPath.length - (stripedPath.length - dotLoc));
+            stripedPath += qs.replace("?", "", "g");
+        }
+    }
+
+    if (g_aryZHNav != null) {
+        document.writeln("<ul>");
+        for (var i = 0; i < g_aryZHNav.length; i++) {
+            var isZHNavHot = GetRegExMatch(g_aryZHNav[i].HotUrl, stripedPath);
+            document.writeln("<li><a");
+            document.writeln("' href='" + g_aryZHNav[i].Lnk + "' title=\"" + g_aryZHNav[i].Alt + "\">" + g_aryZHNav[i].Txt + "</a></li>");
+        }
+   //     document.writeln("<li>" + g_ZonePlayerPop + g_UsrMsgR);
+    //    document.writeln("&nbsp;|&nbsp;&nbsp;&nbsp;<a id='hplink' href='http://www.myhomemsn.com/' style='color:red;'>Make msn.com your home page</a></li>");
+    }
+}
+function BuildMainNavigationEnCa() {
+
+    var stripedPath = window.location.pathname;
+    var qs = window.location.search;
+
+    var dotLoc;
+    if (stripedPath != null) {
+        dotLoc = stripedPath.indexOf(".");
+        if (dotLoc > 0) {
+            stripedPath = stripedPath.substring(0, stripedPath.length - (stripedPath.length - dotLoc));
+            stripedPath += qs.replace("?", "", "g");
+        }
+    }
+
+    if (g_aryZHNav != null) {
+        document.writeln("<ul>");
+        for (var i = 0; i < g_aryZHNav.length; i++) {
+            var isZHNavHot = GetRegExMatch(g_aryZHNav[i].HotUrl, stripedPath);
+            document.writeln("<li><a");
+            document.writeln("' href='" + g_aryZHNav[i].Lnk + "' title=\"" + g_aryZHNav[i].Alt + "\">" + g_aryZHNav[i].Txt + "</a></li>");
+        }
+        //     document.writeln("<li>" + g_ZonePlayerPop + g_UsrMsgR);
+        //    document.writeln("&nbsp;|&nbsp;&nbsp;&nbsp;<a id='hplink' href='http://www.myhomemsn.com/' style='color:red;'>Make msn.com your home page</a></li>");
+    }
+}
+
+function GetRegExMatch(str1, str2) {
+    str1 = str1.toLowerCase();
+    str2 = str2.toLowerCase();
+    var pos = str1.lastIndexOf("/");
+    var part1 = str1.slice(0, pos + 1);
+    var part2 = str1.slice(pos + 1, str1.length);
+    var regexString = part1 + ".*" + part2;
+
+    var matchStr = str2.match(regexString);
+
+    if (matchStr == null) {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+
+function BuildFooterEnUs() {
+    var d = new Date();
+    var y = d.getFullYear();
+    document.writeln('<div class="container-fluid">');
+    document.writeln('<div class="row footerfirstrow">');
+    document.writeln('<div class="col-lg-6 col-md-6 col-sm-6">');
+    document.writeln('<div class="photosensitive">');
+    document.writeln('<a href="http://zone.msn.com/en/general/article/generalphotoseizurewarning.htm">Photosensitive Seizure Warning</a>');
+    document.writeln('</div>');
+    document.writeln('</div>');
+    document.writeln('<div class="col-lg-6 col-md-6 col-sm-6 ffr">');
+    document.writeln('<ul class="footerCopyright">');
+    document.writeln('<li>&copy; ' + y + ' Microsoft </li>');
+    document.writeln('<li>| </li>');
+    document.writeln('</ul>');
+    document.writeln('<div class="footerLogoNew">');
+    document.writeln('<img src="https://zone.msn.com/images/v12/en-us/Theme1/msft_logo_131x48.png" alt="Microsoft">');
+    document.writeln('</div>');
+    document.writeln('</div>');
+    document.writeln('</div>');
+    document.writeln('<div class="row footersecondrow ">');
+    document.writeln('<div class="col-lg-6 col-md-6 col-sm-6 footernewcol">');
+    document.writeln('<nav>');
+    document.writeln('<ul class="left">');
+    document.writeln('<li><a href="http://go.microsoft.com/fwlink/?LinkId=521839">Privacy &amp; Cookies</a> </li>');
+    document.writeln('<li>');
+    document.writeln('<a href="http://windows.microsoft.com/en-us/windows/microsoft-services-agreement">Terms of Use</a></li>');
+    document.writeln('<li><a href="http://www.microsoft.com/trademarks">Trademarks</a></li>');
+    document.writeln('<li><a href="http://choice.microsoft.com">About Our Ads</a></li>');
+    document.writeln('<li class="leftfooter"><a href="http://zone.msn.com/en/support/article/supporthome.htm">Support</a></li>');
+    document.writeln('<li class="leftfooter"><a href="mailto:zmaster@microsoft.com?subject=MSN%20Games%20Support">Feedback</a></li>');
+    document.writeln('<li class="leftfooter"><a href="http://zone.msn.com/en/developer/">For Developers</a></li>');
+    document.writeln('</ul>');
+    document.writeln('</nav>');
+    document.writeln('</div>');
+    document.writeln('<div class="col-lg-6 col-md-6 col-sm-6 fsr">');
+    document.writeln('<ul class="right">');
+    document.writeln('<li class="rightfooter"><a href="http://zone.msn.com/en/support/article/supporthome.htm">Support</a></li>');
+    document.writeln('<li class="rightfooter"><a href="mailto:zmaster@microsoft.com?subject=MSN%20Games%20Support">Feedback</a></li>');
+    document.writeln('<li class="rightfooter"><a href="http://zone.msn.com/en/developer/">For Developers</a></li>');
+    document.writeln('<li class="line">|</li>');
+    document.writeln('<li class="rightus"><a href="http://zone.msn.com/en/locale">United States</a></li>');
+    document.writeln('</ul>');
+    document.writeln('</div>');
+    document.writeln('</div>');
+    document.writeln('<div class="row footerthirdrow">');
+    document.writeln('<div class="col-xs-6">');
+    document.writeln('<div class="localizationus"><a href="http://zone.msn.com/en/locale">United States</a></div>');
+    document.writeln('</div>');
+    document.writeln('<div class="col-xs-6">');
+    document.writeln('<div class="footerLogo">');
+    document.writeln('<img src="https://zone.msn.com/images/v12/en-us/Theme1/msft_logo_131x48.png" alt="Microsoft">');
+    document.writeln('</div>');
+    document.writeln('<div class="footerCopyright">&copy; Copyright ' + y + ' </div>');
+    document.writeln('</div>');
+    document.writeln('</div>');
+    document.writeln('</div>');
+
+}
+
+function BuildFooterEnCa() {
+    var d = new Date();
+    var y = d.getFullYear();
+    document.writeln('<div class="container-fluid">');
+    document.writeln('<div class="row footerfirstrow">');
+    document.writeln('<div class="col-lg-6 col-md-6 col-sm-6">');
+    document.writeln('<div class="photosensitive">');
+    document.writeln('<a href="http://zone.msn.com/en/general/article/generalphotoseizurewarning.htm">Photosensitive Seizure Warning</a>');
+    document.writeln('</div>');
+    document.writeln('</div>');
+    document.writeln('<div class="col-lg-6 col-md-6 col-sm-6 ffr">');
+    document.writeln('<ul class="footerCopyright">');
+    document.writeln('<li>&copy; ' + y + ' Microsoft </li>');
+    document.writeln('<li>| </li>');
+    document.writeln('</ul>');
+    document.writeln('<div class="footerLogoNew">');
+    document.writeln('<img src="https://zone.msn.com/images/v12/en-us/Theme1/msft_logo_131x48.png" alt="Microsoft">');
+    document.writeln('</div>');
+    document.writeln('</div>');
+    document.writeln('</div>');
+    document.writeln('<div class="row footersecondrow ">');
+    document.writeln('<div class="col-lg-6 col-md-6 col-sm-6 footernewcol">');
+    document.writeln('<nav>');
+    document.writeln('<ul class="left">');
+    document.writeln('<li><a href="http://go.microsoft.com/fwlink/?LinkId=521839">Privacy &amp; Cookies</a> </li>');
+    document.writeln('<li>');
+    document.writeln('<a href="http://www.microsoft.com/en-ca/sites/legal/">Terms of Use</a></li>');
+    document.writeln('<li><a href="http://www.microsoft.com/trademarks">Trademarks</a></li>');
+    document.writeln('<li><a href="http://choice.microsoft.com">About Our Ads</a></li>');
+    document.writeln('<li class="leftfooter"><a href="http://zone.msn.com/en/support/article/supporthome.htm">Support</a></li>');
+    document.writeln('<li class="leftfooter"><a href="mailto:zmaster@microsoft.com?subject=MSN%20Games%20Support">Feedback</a></li>');
+    document.writeln('<li class="leftfooter"><a href="http://zone.msn.com/en/developer/">For Developers</a></li>');
+    document.writeln('</ul>');
+    document.writeln('</nav>');
+    document.writeln('</div>');
+    document.writeln('<div class="col-lg-6 col-md-6 col-sm-6 fsr">');
+    document.writeln('<ul class="right">');
+    document.writeln('<li class="rightfooter"><a href="http://zone.msn.com/en/support/article/supporthome.htm">Support</a></li>');
+    document.writeln('<li class="rightfooter"><a href="mailto:zmaster@microsoft.com?subject=MSN%20Games%20Support">Feedback</a></li>');
+    document.writeln('<li class="rightfooter"><a href="http://zone.msn.com/en/developer/">For Developers</a></li>');
+    document.writeln('<li class="line">|</li>');
+    document.writeln('<li class="rightus"><a href="http://zone.msn.com/en/locale">Canada</a></li>');
+    document.writeln('</ul>');
+    document.writeln('</div>');
+    document.writeln('</div>');
+    document.writeln('<div class="row footerthirdrow">');
+    document.writeln('<div class="col-xs-6">');
+    document.writeln('<div class="localizationus"><a href="http://zone.msn.com/en/locale">Canada</a></div>');
+    document.writeln('</div>');
+    document.writeln('<div class="col-xs-6">');
+    document.writeln('<div class="footerLogo">');
+    document.writeln('<img src="https://zone.msn.com/images/v12/en-us/Theme1/msft_logo_131x48.png" alt="Microsoft">');
+    document.writeln('</div>');
+    document.writeln('<div class="footerCopyright">&copy; Copyright ' + y + ' </div>');
+    document.writeln('</div>');
+    document.writeln('</div>');
+    document.writeln('</div>');
+
+}
+
+
+
+
+
+

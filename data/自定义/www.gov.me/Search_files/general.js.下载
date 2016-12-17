@@ -1,0 +1,17 @@
+﻿function replaceQueryString(param, value) {
+        var newUrl;
+        var url = window.location.search;
+        var re = new RegExp("([?|&])" + param + "=.*?(&|$)", "i");
+        if (url.match(re)) {
+            newUrl = url.replace(re, '$1' + param + "=" + value + '$2');
+        }
+        else {
+            newUrl = url + '&' + param + "=" + value;
+        }
+
+        if (url.indexOf("?") == -1) {
+            newUrl = url + '?' + param + "=" + value;
+        }
+       
+        window.location = newUrl;             
+    }

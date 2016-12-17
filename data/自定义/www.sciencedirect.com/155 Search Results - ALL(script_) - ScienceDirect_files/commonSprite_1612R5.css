@@ -1,0 +1,155 @@
+.S_C_aboutElsevier {
+  background-image: url('/sd/img/commonSpriteVert_1612R5.png');
+  background-position: left -0px;
+  background-repeat: no-repeat;
+  display:inline-block;
+  height:15px;
+  width:100px;
+  vertical-align:top;
+}
+#header .quicksearch input[type="submit"] {
+  background-image: url('/sd/img/commonSpriteVert_1612R5.png');
+  background-position: left -20px;
+  border: 0;
+}
+#header .quicksearch input[type="submit"]:hover {
+  background-image: url('/sd/img/commonSpriteVert_1612R5.png');
+  background-position: left -49px;
+  border: 0;
+}
+
+#header .quicksearch.prd_red input[type="submit"] {
+  background-image: url('/sd/img/commonSpriteVert_1612R5.png');
+  background-position: left -78px;
+  border: 0;
+}
+#header .quicksearch.prd_red input[type="submit"]:hover {
+  background-image: url('/sd/img/commonSpriteVert_1612R5.png');
+  background-position: left -107px;
+  border: 0;
+}
+#header .quicksearch.prd_green input[type="submit"] {
+  background-image: url('/sd/img/commonSpriteVert_1612R5.png');
+  background-position: left -136px;
+  border: 0;
+}
+#header .quicksearch.prd_green input[type="submit"]:hover {
+  background-image: url('/sd/img/commonSpriteVert_1612R5.png');
+  background-position: left -165px;
+  border: 0;
+}
+#header .quicksearch.prd_blue input[type="submit"] {
+  background-image: url('/sd/img/commonSpriteVert_1612R5.png');
+  background-position: left -194px;
+  border: 0;
+}
+#header .quicksearch.prd_blue input[type="submit"]:hover {
+  background-image: url('/sd/img/commonSpriteVert_1612R5.png');
+  background-position: left -223px;
+  border: 0;
+}
+#header .quicksearch.prd_grey input[type="submit"] {
+  background-image: url('/sd/img/commonSpriteVert_1612R5.png');
+  background-position: left -252px;
+  border: 0;
+}
+#header .quicksearch.prd_grey input[type="submit"]:hover {
+  background-image: url('/sd/img/commonSpriteVert_1612R5.png');
+  background-position: left -281px;
+  border: 0;
+}
+#header .quicksearch.prd_orange input[type="submit"] {
+  background-image: url('/sd/img/commonSpriteVert_1612R5.png');
+  background-position: left -310px;
+  border: 0;
+}
+#header .quicksearch.prd_orange input[type="submit"]:hover {
+  background-image: url('/sd/img/commonSpriteVert_1612R5.png');
+  background-position: left -339px;
+  border: 0;
+}
+#sdSystemMsg .closeBt,
+#outlineContainer .closeBt,
+#MigratedStatus .closeBt,
+.js_workspace_content .closeBt,
+.adText .closeBt
+{
+  background-image: url('/sd/img/commonSpriteVert_1612R5.png');
+  background-position: left -368px;
+  background-repeat:no-repeat;
+  display: block;
+  line-height:normal;
+  position: absolute;
+  right: 5px;
+  top: 3px;
+  width: 8px;
+  cursor:pointer;
+  text-align:right;
+  font-family:courier new;
+  font-weight:700;
+  text-decoration:none;
+  height:8px;
+}
+#login ul li a.plus,#logout ul li span a.userPlus {
+  background-image: url('/sd/img/commonSpriteVert_1612R5.png');
+  background-position: left -380px;
+background-repeat: no-repeat;
+padding:1px 10px 1px 12px;
+position:relative;
+border:0;
+right:1px;outline:none;
+}
+#login ul li a.minus, #logout ul li span a.userMinus {
+  background-image: url('/sd/img/commonSpriteVert_1612R5.png');
+  background-position: left -398px;
+background-repeat: no-repeat;
+color:#000;
+padding:1px 4px 1px 14px;
+border:1px solid #ccd1d6;
+position:relative;
+right:1px;
+z-index:4;
+outline:none;
+font-size:14px;
+border-bottom:0;
+}
+.icon.filter_a{  
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  height:16px;
+  width:16px;
+  display: inline-block;
+  *display: inline;
+  zoom:1;
+  background-image: url('/sd/img/commonSpriteVert_1612R5.png');
+  background-position: left -417px;
+}
+.button:hover .icon.filter_a, .button:focus .icon.filter_a{    
+  background-image: url('/sd/img/commonSpriteVert_1612R5.png');
+  background-position: left -436px;
+}
+.icon.arrow-down{
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  height:6px;
+  width:15px;
+  display: inline-block;
+  *display: inline;
+  zoom:1;
+  background-image: url('/sd/img/commonSpriteVert_1612R5.png');
+  background-position: left -455px;
+}
+.homeBullet , .latestArticles{
+  background-image: url('/sd/img/commonSpriteVert_1612R5.png');
+  background-position: left -465px;
+  background-repeat: no-repeat;
+  list-style-type: none;
+}
+.homeBullet{
+  margin-left: -3.5em;
+  padding: 0 0 0 20px;
+}
+.latestArticles{  
+  margin: 0 10px 5px;
+  padding-left: 20px;
+}

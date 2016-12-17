@@ -1,0 +1,1059 @@
+
+
+/******************************************************** Error Page ********************************************************/
+.container-fluid.errorPage {
+    background: #fff none repeat scroll 0 0;
+    height: 548px;
+    margin-bottom: -14px;
+}
+
+.errorPage h1, .errorPage h6 {
+    padding: 10px;
+}
+
+.SuperBannerTVMain {
+    margin: 20px auto 10px;
+    width: 728px;
+    height: 90px;
+}
+
+.gameOver h1 {
+    padding: 40px;
+    text-align: center;
+    font-family: "Segoe UI";
+    font-size: 100px;
+    font-weight: normal;
+    padding: 50px;
+}
+
+@media (max-width: 767px) {
+    .gameOver h1 {
+        padding: 0;
+    }
+
+    .container-fluid.errorPage .articleWOut {
+        padding: 16px;
+    }
+
+    .SuperBannerTVMain {
+        display: none;
+    }
+
+    .container-fluid.errorPage {
+        height: auto;
+    }
+
+    .errorPage h6 {
+        font-family: "Segoe UI";
+        font-size: 13px;
+        line-height: 22px;
+    }
+}
+
+/******************************************************** Support Page ********************************************************/
+.container-fluid.sectioncontainer {
+    padding-left: 10px;
+    padding-right: 10px;
+    background: #fff;
+}
+
+    .container-fluid.sectioncontainer ul {
+        margin-bottom: 10px;
+        margin-top: 0;
+        padding: 20px;
+    }
+
+        .container-fluid.sectioncontainer ul li {
+            list-style: none;
+        }
+
+            .container-fluid.sectioncontainer ul li:before {
+                content: " \2605  ";
+            }
+
+.row.contactus p {
+    padding: 7px;
+}
+
+.SecondContainer ul li {
+    line-height: 35px;
+    list-style: outside none none;
+    padding-left: 12px;
+}
+
+.container-fluid.sectioncontainer h4 {
+    color: green;
+}
+
+.container-fluid.sectioncontainer .boxsup {
+    padding: 7px;
+}
+
+.col-inside {
+    border: 1px solid #000000;
+    padding: 0 8px;
+}
+
+.MenuSlider {
+    border: 1px solid #006ec8;
+    width: 200px;
+}
+
+.sidebar {
+    width: 221px;
+}
+
+.container-fluid.sectioncontainer .MenuSlider ul li:before {
+    content: "";
+}
+
+.container-fluid.sectioncontainer .MenuSlider ol li {
+    margin-left: -22px;
+}
+
+.container-fluid.sectioncontainer {
+    margin-bottom: -14px;
+}
+
+.mainContainer {
+    line-height: 30px;
+}
+
+
+#moreGamesBtn {
+    cursor: pointer;
+}
+/******************************************************** Download Page ********************************************************/
+
+.row.ContainerRow {
+    height: 465px;
+}
+
+@media (max-width: 767px) {
+    .row.ContainerRow {
+        height: auto;
+    }
+}
+
+/******************************************************** Single Player Load Help Page ******************************************/
+.SinglePlayer h3 {
+    background: #dbe5f1;
+    padding: 5px;
+}
+
+.SinglePlayer ol {
+    line-height: 35px;
+}
+
+.MembershipHelp p {
+    line-height: 30px;
+    padding: 5px;
+}
+
+.row.MembershipHelp {
+    padding-bottom: 156px;
+}
+/***************************************************** MultiPlayer Page ********************************************************/
+.multiplayer {
+    border: 1px solid #ccc;
+    margin: 16px;
+    padding-left: 7px;
+}
+
+    .multiplayer > ul {
+        padding-left: 30px;
+    }
+
+    .multiplayer img {
+        width: 100%;
+    }
+
+.VerticalBannerTV {
+    background: #fff none repeat scroll 0 0;
+    width:160px;
+    margin:auto;
+    transform:translateX(-5px);
+}
+
+/******************************************************** MPGDefault *******************************************************/
+#ContentWrapper {
+    /*background: #fff none repeat scroll 0 0;*/
+}
+
+    #ContentWrapper #thePassportScarab {
+        display: none;
+    }
+
+#BodyContainer.container-fluid {
+    background: #fff none repeat scroll 0 0;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 20px;
+}
+
+.SPGSuperBlipHot1 {
+    top: 205px;
+    position: relative;
+    left: 76px;
+    width: 56px;
+    font-size: 11pt;
+}
+
+/******************************************************** My Account Page ********************************************************/
+
+.newClass {
+    background: #fff none repeat scroll 0 0;
+    padding: 10px;
+}
+
+/******************************************************** Game Details Page *****************************************************/
+#taboola-160x600-game-details-page {
+    padding: 10px 20px 0 20px;
+}
+
+.game-details-panel {
+    padding: 0;
+}
+
+.game-details-main-img {
+    width: 100%;
+    max-height:341px;
+}
+
+.gameTitle {
+    margin: 15px 10px 10px 15px;
+}
+
+    .gameTitle h1 {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 30px;
+        float: left;
+        vertical-align: top;
+        margin-top: 0;
+    }
+
+.gameRatingBlock {
+    margin: 10px 20px 20px 0;
+    width: 230px;
+    float: right;
+    text-align: right;
+}
+
+.gameRatingText {
+    float: right;
+}
+
+.gameRatingBlock > .gameRatingText > .listText {
+    float: left;
+    margin-left: 10px;
+    text-align: left;
+}
+
+.gameRatingBlock > .gameRatingText > .listText > p {
+	font-size:14px;	
+}
+
+.gameRatingBlock > .gameRatingText > .listText > p > strong {
+	font-weight:600;
+}
+
+.gameRatingBlock > .gameRatingText > .listText a {
+    color:rgb(0, 0, 139);
+    text-decoration:underline;
+    font-weight:500;
+}
+
+.gameRatingBlock > .gameRatingText > .listText a:hover {
+    font-weight:600;
+    color:#1392FD;
+}
+
+.gameplayButtons {
+    margin: 10px 0 0 15px;
+    float: left;
+}
+
+    .gameplayButtons a {
+        margin: 0 0 30px 15px;
+        text-decoration: none;
+    }
+    .gameplayButtons a:first-child {
+        margin: 0 0 30px 0;
+    }
+	
+.gameDetails {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: black;
+    padding: 15px;
+}
+
+    .gameDetails .row {
+        margin: 0 -10px;
+    }
+
+    .gameDetails .col-xs-12,
+    .gameDetails .col-sm-4,
+    .gameDetails .col-sm-5,
+    .gameDetails .col-sm-7,
+    .gameDetails .col-sm-8,
+    .gameDetails .col-md-3,
+    .gameDetails .col-md-9 {
+        padding: 0 10px;
+    }
+
+.gameIntro {
+    margin-bottom: 40px;
+}
+
+.introImage > img {
+    display: block;
+    width: 380px;
+    max-width: 100%;
+    margin: 0 auto 20px auto;
+}
+
+.introText > h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 5px 0;
+}
+
+.introText > p {
+    font-size: 15px;
+    font-weight: 400;
+    margin: 0 0 20px 0;
+}
+
+.listImage {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    float: right;
+}
+
+    .listImage > img {
+        width: 300px;
+        max-width: 100%;
+        margin: auto;
+    }
+
+.listText {
+    margin-bottom: 20px;
+    float: right;
+}
+
+    .listText > h4 {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0 0 5px 0;
+    }
+
+    .listText > p {
+        font-size: 15px;
+        font-weight: 400;
+        margin: 0 0 0 0;
+    }
+
+.recommendations-Block {
+    margin:0 -10px 0 5px;
+}
+
+.recommendations-Block .col-xs-12, .recommendations-Block .col-sm-6, .recommendations-Block .col-md-3 {
+	padding: 0 10px 0 10px;
+}
+
+.recommendations {
+    margin: 10px 0 10px 0;
+}
+
+    .recommendations h3 {
+        float: left;
+        margin: 10px 15px;
+    }
+
+    .recommendations .ymalRule {
+        float: left;
+        height: 27px;
+        width: calc(100% - 226px);
+        border-bottom: 1px solid rgb(150, 150, 150);
+    }
+
+.recommendedGameBlock {
+    margin: 0 0 20px 0;
+}
+
+    .recommendedGameBlock .recommendedImage {
+        display:inline-block;
+        width: 100px;
+        max-width: 40%;
+        margin-right: 10px;
+		vertical-align:top;
+    }
+
+    .recommendedGameBlock .recommendedInfo {
+        width: calc(60% - 10px);
+		display:inline-block;
+    }
+
+        .recommendedGameBlock .recommendedInfo p.recommendedTitle {
+            color: black;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 5px 5px 0;
+        }
+
+        .recommendedGameBlock .recommendedInfo p.recommendedGenre {
+            color: rgb(50, 50, 50);
+            font-size: 14px;
+            margin: 0 0 5px 0;
+        }
+
+        .recommendedGameBlock .recommendedInfo img.downloadIcon {
+            width: 24px;
+            margin-right: 6px;
+        }
+
+        .recommendedGameBlock .recommendedInfo img.ratingStar {
+            width: 24px;
+        }
+
+@media (min-width:768px) {
+    .introImage > img {
+        margin-left: 0;
+    }
+}
+
+
+@media (max-width:536px) {
+    .gameplayButtons {
+        float: none;
+        display: block;
+        width: 230px;
+        margin: 10px auto 0 auto;
+    }
+	.gameplayButtons > a {
+		margin:0;
+	}
+	.gameplayButtons > a > img {
+		margin-bottom:10px;		
+	}
+	.gameRatingBlock {
+		float:left;
+	}
+}
+
+/************************************************************ Home Page *********************************************************/
+body {
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.container-fluid {
+    margin: 0 auto;
+    max-width: 100%;
+    width: 1320px;
+    padding: 0;
+}
+
+ul {
+    margin: 0;
+    padding: 0;
+}
+
+header ul li {
+    display: inline;
+    list-style: outside none none;
+}
+
+    header ul li a {
+        color: #fff;
+        margin: 0;
+    }
+
+        header ul li a:hover {
+            color: #fff;
+            text-decoration: none;
+        }
+
+header#wireframeHeader {
+    background: rgba(0, 0, 0, 0) url("http://zone.msn.com/images/v12/en-us/msnlanding2014/bg_body_blue.png") repeat-x scroll 0 0;
+}
+
+ul#msnMenu, ul#big3 {
+    font-size: 14px;
+    font-family: "Segoe UI";
+}
+
+#xnav li.c4 {
+    display: none;
+}
+
+ul#big3 .rightbing {
+    display: none;
+}
+
+ul#msnMenu ul {
+    display: inline;
+}
+
+span.blogo a {
+    color: #fff;
+}
+
+ul#msnMenu ul li:not(:first-child) {
+    margin-left: 8px;
+}
+
+.superbanner {
+    margin: 20px auto 10px;
+    width: 728px;
+    height: 90px;
+    /* 	border:1px solid red; */
+}
+
+#wireframeHeader .logoMenuSearch {
+    background-color: rgba(0, 110, 200, .4);
+}
+
+#wireframeHeader .logoMenuSearch .logo img {
+    width: 44px;
+    margin-top: 5px;
+}
+
+.logo > div {
+    color: white;
+    display: inline-block;
+    font-size: 30px;
+    margin: 0;
+    vertical-align: middle;
+}
+
+    .logo > div a {
+        color: white;
+        text-decoration: none;
+    }
+
+        .logo > div a:hover {
+            color: white;
+            text-decoration: none;
+        }
+
+.newzoneMenu {
+    display: none;
+}
+
+.zoneMenu {
+    padding-top: 17px;
+}
+
+    .zoneMenu ul li:not(:first-child) {
+        padding-left: 11px;
+    }
+
+    .zoneMenu ul li a {
+        font-weight: bold;
+        color: #fff;
+        font-size: 16px;
+        text-transform: uppercase;
+        font-family: "Segoe UI";
+    }
+
+form#search {
+    background: #fff;
+    margin-top: 15px;
+    width: 100%;
+}
+
+form input#q {
+    border: 0 none;
+    color: #6d6d6d;
+    font-family: "Segoe UI","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+    height: 30px;
+    padding: 0 0 0 8px;
+    border-radius: 0;
+}
+
+button#searchbutton {
+    background-color: #fff;
+    border: 0 none;
+}
+
+.search.input-group-addon {
+    padding: 0 5px 0 0;
+    background-color: #fff;
+    border-radius: 0;
+    border: none;
+}
+
+header .logoMenuSearch {
+    background-color:rgba(0, 110, 200, 0.3);
+    position: relative;
+    top: 0;
+    height: 57px;
+}
+
+
+
+
+footer .container-fluid {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 15px;
+    background-color: rgba(0, 110, 200, 0.9);
+}
+
+footer .photosensitive {
+    color: #fff;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+    footer .photosensitive a {
+        color: #fff;
+    }
+
+footer nav ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+footer ul li {
+    color: #ffffff;
+    display: inline;
+    margin-right: 10px;
+}
+
+    footer ul li a, footer ul li a:hover {
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: normal;
+        color: #ffffff;
+    }
+
+footer .footerCopyright, .footerLogoNew {
+    font-weight: bold;
+    font-size: 12px;
+    display: inline-block;
+}
+
+footer .footerLogo img {
+    width: 131px;
+    display: block;
+}
+
+footer .ffr, footer .fsr {
+    text-align: right;
+}
+
+footer .row.footerthirdrow {
+    display: none;
+}
+
+
+
+@media (min-width: 1400px) {
+    header#wireframeHeader {
+        border-left: 1px solid #fff;
+        border-right: 1px solid #fff;
+    }
+
+    .row.menucontainer {
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-top: 8px;
+    }
+
+    header .logoMenuSearch {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    footer .container-fluid {
+        padding: 22px 30px;
+    }
+
+    footer .leftfooter {
+        display: none;
+    }
+}
+
+@media (min-width: 1200px) and (max-width: 1399px) {
+    .row.menucontainer {
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-top: 8px;
+    }
+
+    header .logoMenuSearch {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    footer .container-fluid {
+        padding: 21px 30px;
+    }
+
+    footer .leftfooter {
+        display: none;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+    .row.menucontainer {
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-top: 8px;
+    }
+
+    header .logoMenuSearch {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    footer .container-fluid {
+        padding: 14px 24px 21px;
+    }
+
+    footer .leftfooter {
+        display: none;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .row.menucontainer {
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-top: 8px;
+    }
+
+    header .logoMenuSearch {
+        padding-left: 10px;
+        padding-right: 10px;
+        height: auto;
+    }
+
+    .zoneMenu {
+        display: none;
+    }
+
+    .newzoneMenu {
+        display: block;
+        padding-top: 13px;
+        padding-bottom: 16px;
+        text-align: center;
+    }
+
+        .newzoneMenu,
+        .newzoneMenu ul {
+            margin: 0 auto;
+        }
+
+            .newzoneMenu ul li {
+                display: inline;
+                width: 10px;
+                padding: 5px;
+            }
+
+                .newzoneMenu ul li a {
+                    font-size: 1.28em;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                }
+
+    footer .container-fluid {
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-top: 9px;
+    }
+
+    footer .row.footerthirdrow {
+        display: block;
+        padding-top: 14px;
+    }
+
+    footer .fsr, footer .ffr {
+        display: none;
+    }
+
+    footer .footernewcol {
+        width: 100%;
+        padding-top: 14px;
+    }
+
+    footer .localizationus a {
+        display: block;
+        font-size: 14px;
+        color: #ffffff;
+        padding-top: 10px;
+    }
+
+    footer .footerLogo {
+        text-align: right;
+    }
+
+        footer .footerLogo img {
+            display: inline;
+        }
+
+    footer .footerCopyright {
+        display: block;
+        font-size: 12px;
+        color: #ffffff;
+        text-align: right;
+        padding-bottom: 15px;
+        margin: 0 14px 0 0;
+    }
+}
+
+
+
+
+
+
+@media (min-width: 521px) and (max-width: 767px) {
+    .row.menucontainer {
+        padding: 8px 10px 10px;
+    }
+
+    header .logoMenuSearch {
+        height: auto;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .superbanner, .zoneMenu {
+        display: none;
+    }
+
+    .logo {
+        margin-top: 10px;
+    }
+
+    form#search {
+        margin-top: 27px;
+    }
+
+    .newzoneMenu {
+        display: block;
+        padding-top: 70px;
+        padding-bottom: 12px;
+        text-align: center;
+    }
+
+        .newzoneMenu,
+        .newzoneMenu ul {
+            margin: 0 auto;
+        }
+
+            .newzoneMenu ul li {
+                display: inline;
+                width: 10px;
+                padding: 5px;
+            }
+
+                .newzoneMenu ul li a {
+                    font-size: 1.28em;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                }
+
+    footer .container-fluid {
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-top: 8px;
+    }
+
+    footer ul li {
+        display: block;
+    }
+
+    footer .row.footerthirdrow {
+        display: block;
+    }
+
+    footer .fsr, footer .ffr {
+        display: none;
+    }
+
+    footer .footernewcol {
+        width: 100%;
+        padding-top: 12px;
+        line-height: 27px;
+    }
+
+    footer .localizationus a {
+        display: block;
+        font-size: 14px;
+        color: #ffffff;
+        padding-top: 13px;
+    }
+
+    footer .footerLogo {
+        text-align: right;
+    }
+
+        footer .footerLogo img {
+            display: inline;
+        }
+
+    footer .footerCopyright {
+        display: block;
+        font-size: 12px;
+        color: #ffffff;
+        text-align: right;
+        padding-bottom: 15px;
+        margin: 0 14px 0 0;
+    }
+}
+
+
+@media (max-width: 520px) {
+    .newcol {
+        width: 100%;
+    }
+
+    .row.menucontainer {
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-top: 10px;
+    }
+
+    ul#big3 li a {
+        padding-left: 4px;
+        padding-right: 4px;
+    }
+
+    ul#msnMenu, ul#big3 {
+        font-size: 12px;
+        padding-top: 0;
+    }
+
+        ul#msnMenu ul {
+            margin-left: 10px;
+        }
+
+    span.blogo a {
+        display: none;
+    }
+
+    ul#big3 .rightbing {
+        display: inline;
+    }
+
+    .logoMenuSearch, #MainContent {
+        position: relative;
+    }
+
+    .logo {
+        margin-top: 11px;
+    }
+
+    header .logoMenuSearch {
+        height: auto;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .superbanner, .zoneMenu {
+        display: none;
+    }
+
+    .newzoneMenu {
+        display: block;
+        padding-top: 24px;
+        padding-bottom: 17px;
+    }
+
+        .newzoneMenu ul li a {
+            font-size: 0.75em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+    form#search {
+        max-width: 100%;
+        margin-top: 4px;
+    }
+
+    #msnMenuToggle {
+        background-color: #0a3c87;
+        box-sizing: border-box;
+        cursor: pointer;
+        display: block;
+        float: left;
+        height: 24px;
+        margin: 0 0 10px;
+        width: 24px;
+    }
+
+    .toggleButtonLines {
+        margin: 5px 0 0 0;
+        width: 24px;
+        height: 1px;
+        background-color: lightgray;
+        border: none;
+    }
+
+    #msnMenuContainer {
+        display: none;
+        position: absolute;
+        top: 40px;
+        left: -255px;
+        width: 551px;
+    }
+
+    #wireframeHeader .logoMenuSearch .logo img {
+        width: 34px;
+    }
+
+    footer .container-fluid {
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-top: 8px;
+    }
+
+    footer ul li {
+        display: block;
+    }
+
+    footer .row.footerthirdrow {
+        display: block;
+    }
+
+    footer .fsr, footer .ffr {
+        display: none;
+    }
+
+    footer .footernewcol {
+        width: 100%;
+        padding-top: 16px;
+        line-height: 26px;
+    }
+
+    footer .localizationus a {
+        display: block;
+        font-size: 14px;
+        color: #ffffff;
+        padding-top: 10px;
+    }
+
+    footer .footerLogo {
+        text-align: right;
+    }
+
+        footer .footerLogo img {
+            display: inline;
+        }
+
+    footer .footerCopyright {
+        display: block;
+        font-size: 12px;
+        color: #ffffff;
+        text-align: right;
+        padding-bottom: 15px;
+        margin: 0 14px 0 0;
+    }
+}

@@ -1,0 +1,32 @@
+Type.registerNamespace('SnT.Cms2.Modules.Core');
+SnT.Cms2.Modules.Core.SurveyService=function() {
+SnT.Cms2.Modules.Core.SurveyService.initializeBase(this);
+this._timeout = 0;
+this._userContext = null;
+this._succeeded = null;
+this._failed = null;
+}
+SnT.Cms2.Modules.Core.SurveyService.prototype={
+_get_path:function() {
+ var p = this.get_path();
+ if (p) return p;
+ else return SnT.Cms2.Modules.Core.SurveyService._staticInstance.get_path();},
+Load:function(surveyId,languageId,succeededCallback, failedCallback, userContext) {
+return this._invoke(this._get_path(), 'Load',false,{surveyId:surveyId,languageId:languageId},succeededCallback,failedCallback,userContext); },
+Save:function(surveyId,answerId,languageId,succeededCallback, failedCallback, userContext) {
+return this._invoke(this._get_path(), 'Save',false,{surveyId:surveyId,answerId:answerId,languageId:languageId},succeededCallback,failedCallback,userContext); }}
+SnT.Cms2.Modules.Core.SurveyService.registerClass('SnT.Cms2.Modules.Core.SurveyService',Sys.Net.WebServiceProxy);
+SnT.Cms2.Modules.Core.SurveyService._staticInstance = new SnT.Cms2.Modules.Core.SurveyService();
+SnT.Cms2.Modules.Core.SurveyService.set_path = function(value) { SnT.Cms2.Modules.Core.SurveyService._staticInstance.set_path(value); }
+SnT.Cms2.Modules.Core.SurveyService.get_path = function() { return SnT.Cms2.Modules.Core.SurveyService._staticInstance.get_path(); }
+SnT.Cms2.Modules.Core.SurveyService.set_timeout = function(value) { SnT.Cms2.Modules.Core.SurveyService._staticInstance.set_timeout(value); }
+SnT.Cms2.Modules.Core.SurveyService.get_timeout = function() { return SnT.Cms2.Modules.Core.SurveyService._staticInstance.get_timeout(); }
+SnT.Cms2.Modules.Core.SurveyService.set_defaultUserContext = function(value) { SnT.Cms2.Modules.Core.SurveyService._staticInstance.set_defaultUserContext(value); }
+SnT.Cms2.Modules.Core.SurveyService.get_defaultUserContext = function() { return SnT.Cms2.Modules.Core.SurveyService._staticInstance.get_defaultUserContext(); }
+SnT.Cms2.Modules.Core.SurveyService.set_defaultSucceededCallback = function(value) { SnT.Cms2.Modules.Core.SurveyService._staticInstance.set_defaultSucceededCallback(value); }
+SnT.Cms2.Modules.Core.SurveyService.get_defaultSucceededCallback = function() { return SnT.Cms2.Modules.Core.SurveyService._staticInstance.get_defaultSucceededCallback(); }
+SnT.Cms2.Modules.Core.SurveyService.set_defaultFailedCallback = function(value) { SnT.Cms2.Modules.Core.SurveyService._staticInstance.set_defaultFailedCallback(value); }
+SnT.Cms2.Modules.Core.SurveyService.get_defaultFailedCallback = function() { return SnT.Cms2.Modules.Core.SurveyService._staticInstance.get_defaultFailedCallback(); }
+SnT.Cms2.Modules.Core.SurveyService.set_path("/App_Modules__SnT.Cms2.Modules.Core.Pck__SnT.Cms2.Modules.Core.Survey.SurveyService.asmx");
+SnT.Cms2.Modules.Core.SurveyService.Load= function(surveyId,languageId,onSuccess,onFailed,userContext) {SnT.Cms2.Modules.Core.SurveyService._staticInstance.Load(surveyId,languageId,onSuccess,onFailed,userContext); }
+SnT.Cms2.Modules.Core.SurveyService.Save= function(surveyId,answerId,languageId,onSuccess,onFailed,userContext) {SnT.Cms2.Modules.Core.SurveyService._staticInstance.Save(surveyId,answerId,languageId,onSuccess,onFailed,userContext); }

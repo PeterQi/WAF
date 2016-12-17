@@ -1,0 +1,805 @@
+function dv_rolloutManager(handlersDefsArray, baseHandler) {
+    this.handle = function () {
+        var errorsArr = [];
+
+        var handler = chooseEvaluationHandler(handlersDefsArray);
+        if (handler) {
+            var errorObj = handleSpecificHandler(handler);
+            if (errorObj === null)
+                return errorsArr;
+            else {
+                var debugInfo = handler.onFailure();
+                if (debugInfo) {
+                    for (var key in debugInfo) {
+                        if (debugInfo.hasOwnProperty(key)) {
+                            if (debugInfo[key] !== undefined || debugInfo[key] !== null) {
+                                errorObj[key] = encodeURIComponent(debugInfo[key]);
+                            }
+                        }
+                    }
+                }
+                errorsArr.push(errorObj);
+            }
+        }
+
+        var errorObjHandler = handleSpecificHandler(baseHandler);
+        if (errorObjHandler) {
+            errorObjHandler['dvp_isLostImp'] = 1;
+            errorsArr.push(errorObjHandler);
+        }
+        return errorsArr;
+    }
+
+    function handleSpecificHandler(handler) {
+        var url;
+        var errorObj = null;
+
+        try {
+            url = handler.createRequest();
+            if (url) {
+                if (!handler.sendRequest(url))
+                    errorObj = createAndGetError('sendRequest failed.',
+                        url,
+                        handler.getVersion(),
+                        handler.getVersionParamName(),
+                        handler.dv_script);
+            } else
+                errorObj = createAndGetError('createRequest failed.',
+                    url,
+                    handler.getVersion(),
+                    handler.getVersionParamName(),
+                    handler.dv_script,
+                    handler.dvScripts,
+                    handler.dvStep,
+                    handler.dvOther
+                    );
+        }
+        catch (e) {
+            errorObj = createAndGetError(e.name + ': ' + e.message, url, handler.getVersion(), handler.getVersionParamName(), (handler ? handler.dv_script : null));
+        }
+
+        return errorObj;
+    }
+
+    function createAndGetError(error, url, ver, versionParamName, dv_script, dvScripts, dvStep, dvOther) {
+        var errorObj = {};
+        errorObj[versionParamName] = ver;
+        errorObj['dvp_jsErrMsg'] = encodeURIComponent(error);
+        if (dv_script && dv_script.parentElement && dv_script.parentElement.tagName && dv_script.parentElement.tagName == 'HEAD')
+            errorObj['dvp_isOnHead'] = '1';
+        if (url)
+            errorObj['dvp_jsErrUrl'] = url;
+        if (dvScripts) {
+            var dvScriptsResult = '';
+            for (var id in dvScripts) {
+                if (dvScripts[id] && dvScripts[id].src) {
+                    dvScriptsResult += encodeURIComponent(dvScripts[id].src) + ":" + dvScripts[id].isContain + ",";
+                }
+            }
+            
+           
+           
+        }
+        return errorObj;
+    }
+
+    function chooseEvaluationHandler(handlersArray) {
+        var config = window._dv_win.dv_config;
+        var index = 0;
+        var isEvaluationVersionChosen = false;
+        if (config.handlerVersionSpecific) {
+            for (var i = 0; i < handlersArray.length; i++) {
+                if (handlersArray[i].handler.getVersion() == config.handlerVersionSpecific) {
+                    isEvaluationVersionChosen = true;
+                    index = i;
+                    break;
+                }
+            }
+        }
+        else if (config.handlerVersionByTimeIntervalMinutes) {
+            var date = config.handlerVersionByTimeInputDate || new Date();
+            var hour = date.getUTCHours();
+            var minutes = date.getUTCMinutes();
+            index = Math.floor(((hour * 60) + minutes) / config.handlerVersionByTimeIntervalMinutes) % (handlersArray.length + 1);
+            if (index != handlersArray.length) 
+                isEvaluationVersionChosen = true;
+        }
+        else {
+            var rand = config.handlerVersionRandom || (Math.random() * 100);
+            for (var i = 0; i < handlersArray.length; i++) {
+                if (rand >= handlersArray[i].minRate && rand < handlersArray[i].maxRate) {
+                    isEvaluationVersionChosen = true;
+                    index = i;
+                    break;
+                }
+            }
+        }
+
+        if (isEvaluationVersionChosen == true && handlersArray[index].handler.isApplicable())
+            return handlersArray[index].handler;
+        else
+            return null;
+    }    
+}
+
+function getCurrentTime() {
+    "use strict";
+    if (Date.now) {
+        return Date.now();
+    }
+    return (new Date()).getTime();
+}
+
+function doesBrowserSupportHTML5Push() {
+    "use strict";
+    return typeof window.parent.postMessage === 'function' && window.JSON;
+}
+
+function dv_GetParam(url, name) {
+    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+    var regexS = "[\\?&]" + name + "=([^&#]*)";
+    var regex = new RegExp(regexS, 'i');
+    var results = regex.exec(url);
+    if (results == null)
+        return null;
+    else
+        return results[1];
+}
+
+function dv_GetKeyValue(url) {
+    var keyReg = new RegExp(".*=");
+    var keyRet = url.match(keyReg)[0];
+    keyRet = keyRet.replace("=", "");
+
+    var valReg = new RegExp("=.*");
+    var valRet = url.match(valReg)[0];
+    valRet = valRet.replace("=", "");
+
+    return { key: keyRet, value: valRet };
+}
+
+function dv_Contains(array, obj) {
+    var i = array.length;
+    while (i--) {
+        if (array[i] === obj) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function dv_GetDynamicParams(url, prefix) {
+    try {
+        prefix = (prefix != undefined && prefix != null) ? prefix : 'dvp';
+        var regex = new RegExp("[\\?&](" + prefix + "_[^&]*=[^&#]*)", "gi");
+        var dvParams = regex.exec(url);
+
+        var results = [];
+        while (dvParams != null) {
+            results.push(dvParams[1]);
+            dvParams = regex.exec(url);
+        }
+        return results;
+    }
+    catch (e) {
+        return [];
+    }
+}
+
+function dv_createIframe() {
+    var iframe;
+    if (document.createElement && (iframe = document.createElement('iframe'))) {
+        iframe.name = iframe.id = 'iframe_' + Math.floor((Math.random() + "") * 1000000000000);
+        iframe.width = 0;
+        iframe.height = 0;
+        iframe.style.display = 'none';
+        iframe.src = 'about:blank';
+    }
+
+    return iframe;
+}
+
+function dv_GetRnd() {
+    return ((new Date()).getTime() + "" + Math.floor(Math.random() * 1000000)).substr(0, 16);
+}
+
+function dv_SendErrorImp(serverUrl, errorsArr) {
+
+    for (var j = 0; j < errorsArr.length; j++) {
+        var errorObj = errorsArr[j];
+        var errorImp = dv_CreateAndGetErrorImp(serverUrl, errorObj);
+        dv_sendImgImp(errorImp);
+    }
+}
+
+function dv_CreateAndGetErrorImp(serverUrl, errorObj) {
+    var errorQueryString = '';
+    for (var key in errorObj) {
+        if (errorObj.hasOwnProperty(key)) {
+            if (key.indexOf('dvp_jsErrUrl') == -1) {
+                errorQueryString += '&' + key + '=' + errorObj[key];
+            } else {
+                var params = ['ctx', 'cmp', 'plc', 'sid'];
+                for (var i = 0; i < params.length; i++) {
+                    var pvalue = dv_GetParam(errorObj[key], params[i]);
+                    if (pvalue) {
+                        errorQueryString += '&dvp_js' + params[i] + '=' + pvalue;
+                    }
+                }
+            }
+        }
+    }
+
+    var windowProtocol = 'http:';
+    var sslFlag = '&ssl=0';
+    if (window._dv_win.location.protocol === 'https:') {
+        windowProtocol = 'https:';
+        sslFlag = '&ssl=1';
+    }
+
+    var errorImp = windowProtocol + '//' + serverUrl + sslFlag + errorQueryString;
+    return errorImp;
+}
+
+function dv_sendImgImp(url) {
+    (new Image()).src = url;
+}
+
+function dv_getPropSafe(obj, propName) {
+    try {
+        if (obj)
+            return obj[propName];
+    } catch (e) {
+    }
+}
+
+function dvType() {
+    var that = this;
+    var eventsForDispatch = {};
+    this.t2tEventDataZombie = {};
+
+    this.processT2TEvent = function (data, tag) {
+        try {
+            if (tag.ServerPublicDns) {
+                var tpsServerUrl = tag.dv_protocol + '//' + tag.ServerPublicDns + '/event.gif?impid=' + tag.uid;
+
+                if (!tag.uniquePageViewId) {
+                    tag.uniquePageViewId = data.uniquePageViewId;
+                }
+
+                tpsServerUrl += '&upvid=' + tag.uniquePageViewId;
+                $dv.domUtilities.addImage(tpsServerUrl, tag.tagElement.parentElement);
+            }
+        } catch (e) {
+            try {
+                dv_SendErrorImp(window._dv_win.dv_config.tpsErrAddress + '/visit.jpg?ctx=818052&cmp=1619415&dvtagver=6.1.src&jsver=0&dvp_ist2tProcess=1', {dvp_jsErrMsg: encodeURIComponent(e)});
+            } catch (ex) {
+            }
+        }
+    };
+
+    this.processTagToTagCollision = function (collision, tag) {
+        var i;
+        for (i = 0; i < collision.eventsToFire.length; i++) {
+            this.pubSub.publish(collision.eventsToFire[i], tag.uid);
+        }
+        var tpsServerUrl = tag.dv_protocol + '//' + tag.ServerPublicDns + '/event.gif?impid=' + tag.uid;
+        tpsServerUrl += '&colltid=' + collision.allReasonsForTagBitFlag;
+
+        for (i = 0; i < collision.reasons.length; i++) {
+            var reason = collision.reasons[i];
+            tpsServerUrl += '&' + reason.name + "ms=" + reason.milliseconds;
+        }
+
+        if (collision.thisTag) {
+            tpsServerUrl += '&tlts=' + collision.thisTag.t2tLoadTime;
+        }
+        if (tag.uniquePageViewId) {
+            tpsServerUrl += '&upvid=' + tag.uniquePageViewId;
+        }
+        $dv.domUtilities.addImage(tpsServerUrl, tag.tagElement.parentElement);
+    };
+
+    this.processBSIdFound = function (bsID, tag) {
+        var tpsServerUrl = tag.dv_protocol + '//' + tag.ServerPublicDns + '/event.gif?impid=' + tag.uid;
+        tpsServerUrl += '&bsimpid=' + bsID;
+        if (tag.uniquePageViewId) {
+            tpsServerUrl += '&upvid=' + tag.uniquePageViewId;
+        }
+        $dv.domUtilities.addImage(tpsServerUrl, tag.tagElement.parentElement);
+    };
+
+    this.processBABSVerbose = function (verboseReportingValues, tag) {
+        var queryString = "";
+        
+
+
+        var dvpPrepend = "&dvp_BABS_";
+        queryString += dvpPrepend + 'NumBS=' + verboseReportingValues.bsTags.length;
+
+        for (var i = 0; i < verboseReportingValues.bsTags.length; i++) {
+            var thisFrame = verboseReportingValues.bsTags[i];
+
+            queryString += dvpPrepend + 'GotCB' + i + '=' + thisFrame.callbackReceived;
+            queryString += dvpPrepend + 'Depth' + i + '=' + thisFrame.depth;
+
+            if (thisFrame.callbackReceived) {
+                if (thisFrame.bsAdEntityInfo && thisFrame.bsAdEntityInfo.comparisonItems) {
+                    for (var itemIndex = 0; itemIndex < thisFrame.bsAdEntityInfo.comparisonItems.length; itemIndex++) {
+                        var compItem = thisFrame.bsAdEntityInfo.comparisonItems[itemIndex];
+                        queryString += dvpPrepend + "tag" + i + "_" + compItem.name + '=' + compItem.value;
+                    }
+                }
+            }
+        }
+
+        if (queryString.length > 0) {
+            var tpsServerUrl = '';
+            if (tag) {
+                var tpsServerUrl = tag.dv_protocol + '//' + tag.ServerPublicDns + '/event.gif?impid=' + tag.uid;
+            }
+            var requestString = tpsServerUrl + queryString;
+            $dv.domUtilities.addImage(requestString, tag.tagElement.parentElement);
+        }
+    };
+
+    var messageEventListener = function (event) {
+        try {
+            var timeCalled = getCurrentTime();
+            var data = window.JSON.parse(event.data);
+            if (!data.action) {
+                data = window.JSON.parse(data);
+            }
+            var myUID;
+            var visitJSHasBeenCalledForThisTag = false;
+            if ($dv.tags) {
+                for (var uid in $dv.tags) {
+                    if ($dv.tags.hasOwnProperty(uid) && $dv.tags[uid] && $dv.tags[uid].t2tIframeId === data.iFrameId) {
+                        myUID = uid;
+                        visitJSHasBeenCalledForThisTag = true;
+                        break;
+                    }
+                }
+            }
+
+            var tag;
+            switch (data.action) {
+                case 'uniquePageViewIdDetermination':
+                    if (visitJSHasBeenCalledForThisTag) {
+                        $dv.processT2TEvent(data, $dv.tags[myUID]);
+                        $dv.t2tEventDataZombie[data.iFrameId] = undefined;
+                    }
+                    else {
+                        data.wasZombie = 1;
+                        $dv.t2tEventDataZombie[data.iFrameId] = data;
+                    }
+                    break;
+                case 'maColl':
+                    tag = $dv.tags[myUID];
+                    if (!tag.uniquePageViewId) {
+                        tag.uniquePageViewId = data.uniquePageViewId;
+                    }
+                    data.collision.commonRecievedTS = timeCalled;
+                    $dv.processTagToTagCollision(data.collision, tag);
+                    break;
+                case 'bsIdFound':
+                    tag = $dv.tags[myUID];
+                    if (!tag.uniquePageViewId) {
+                        tag.uniquePageViewId = data.uniquePageViewId;
+                    }
+                    $dv.processBSIdFound(data.id, tag);
+                    break;
+                case 'babsVerbose':
+                    try {
+                        tag = $dv.tags[myUID];
+                        $dv.processBABSVerbose(data, tag);
+                    } catch (err) {
+                    }
+                    break;
+            }
+
+        } catch (e) {
+            try {
+                dv_SendErrorImp(window._dv_win.dv_config.tpsErrAddress + '/visit.jpg?ctx=818052&cmp=1619415&dvtagver=6.1.src&jsver=0&dvp_ist2tListener=1', {dvp_jsErrMsg: encodeURIComponent(e)});
+            } catch (ex) {
+            }
+        }
+    };
+
+    if (window.addEventListener)
+        addEventListener("message", messageEventListener, false);
+    else
+        attachEvent("onmessage", messageEventListener);
+
+    this.pubSub = new function () {
+        var subscribers = [];
+        var prerenderHistory={};
+
+        var publishRtnEvent = function(eventName,uid){
+            var actionsResults = [];
+            try{
+                if (subscribers[eventName + uid] instanceof Array)
+                    for (var i = 0; i < subscribers[eventName + uid].length; i++) {
+                        var funcObject = subscribers[eventName + uid][i];
+                        if (funcObject && funcObject.Func && typeof funcObject.Func == "function" && funcObject.ActionName) {
+                            var isSucceeded = runSafely(function () {
+                                return funcObject.Func(uid);
+                            });
+                            actionsResults.push(encodeURIComponent(funcObject.ActionName) + '=' + (isSucceeded ? '1' : '0'));
+                        }
+                    }
+            }
+           catch(e){}
+            return actionsResults;
+        }
+
+        this.publishHistoryRtnEvent = function (uid) {
+            var actionsResults = [];
+
+            if (prerenderHistory && prerenderHistory[uid]){
+                for (var key in prerenderHistory[uid]){
+                    if (prerenderHistory[uid][key])
+                        actionsResults.push.apply(actionsResults,publishRtnEvent(prerenderHistory[uid][key],uid));
+                }
+                prerenderHistory[uid]=[];
+            }
+
+            return actionsResults;
+        };
+
+        this.subscribe = function (eventName, uid, actionName, func) {
+            if (!subscribers[eventName + uid])
+                subscribers[eventName + uid] = [];
+            subscribers[eventName + uid].push({Func: func, ActionName: actionName});
+        };
+
+        this.publish = function (eventName, uid) {
+            var actionsResults = [];
+            try {
+                if (eventName && uid) {
+                    if (that.isEval == undefined) {
+                        actionsResults = publishRtnEvent(eventName, uid);
+                    }
+                    else {
+                        if ($dv && $dv.tags[uid] && $dv.tags[uid].prndr) {
+                            prerenderHistory[uid] = prerenderHistory[uid] || [];
+                            prerenderHistory[uid].push(eventName);
+                        }
+                        else {
+                            actionsResults.push.apply(actionsResults, this.publishHistoryRtnEvent(uid));
+                            actionsResults.push.apply(actionsResults, publishRtnEvent(eventName, uid));
+                        }
+                    }
+                }
+            } catch(e){}
+            return actionsResults.join('&');
+        };
+    };
+
+    this.domUtilities = new function () {
+        function getDefaultParent() {
+            return document.body || document.head || document.documentElement;
+        }
+
+        this.addImage = function (url, parentElement, useGET ) {
+            if (!useGET && navigator.sendBeacon) {
+                var message = appendCacheBuster(url);
+                navigator.sendBeacon(message, {});
+            } else {
+                parentElement = parentElement || getDefaultParent();
+                var image = parentElement.ownerDocument.createElement("img");
+                image.width = 0;
+                image.height = 0;
+                image.style.display = 'none';
+                image.src = appendCacheBuster(url);
+                parentElement.insertBefore(image, parentElement.firstChild);
+            }
+        };
+
+        this.addScriptResource = function (url, parentElement) {
+            parentElement = parentElement || getDefaultParent();
+            var scriptElem = parentElement.ownerDocument.createElement("script");
+            scriptElem.type = 'text/javascript';
+            scriptElem.src = appendCacheBuster(url);
+            parentElement.insertBefore(scriptElem, parentElement.firstChild);
+        };
+
+        this.addScriptCode = function (srcCode, parentElement) {
+            parentElement = parentElement || getDefaultParent();
+            var scriptElem = parentElement.ownerDocument.createElement("script");
+            scriptElem.type = 'text/javascript';
+            scriptElem.innerHTML = srcCode;
+            parentElement.insertBefore(scriptElem, parentElement.firstChild);
+        };
+
+        this.addHtml = function (srcHtml, parentElement) {
+            parentElement = parentElement || getDefaultParent();
+            var divElem = parentElement.ownerDocument.createElement("div");
+            divElem.style = "display: inline";
+            divElem.innerHTML = srcHtml;
+            parentElement.insertBefore(divElem, parentElement.firstChild);
+        }
+    };
+
+    this.resolveMacros = function (str, tag) {
+        var viewabilityData = tag.getViewabilityData();
+        var viewabilityBuckets = viewabilityData && viewabilityData.buckets ? viewabilityData.buckets : {};
+        var upperCaseObj = objectsToUpperCase(tag, viewabilityData, viewabilityBuckets);
+        var newStr = str.replace('[DV_PROTOCOL]', upperCaseObj.DV_PROTOCOL);
+        newStr = newStr.replace('[PROTOCOL]', upperCaseObj.PROTOCOL);
+        newStr = newStr.replace(/\[(.*?)\]/g, function (match, p1) {
+            var value = upperCaseObj[p1];
+            if (value === undefined || value === null)
+                value = '[' + p1 + ']';
+            return encodeURIComponent(value);
+        });
+        return newStr;
+    };
+
+    this.settings = new function () {
+    };
+
+    this.tagsType = function () {
+    };
+
+    this.tagsPrototype = function () {
+        this.add = function (tagKey, obj) {
+            if (!that.tags[tagKey])
+                that.tags[tagKey] = new that.tag();
+            for (var key in obj)
+                that.tags[tagKey][key] = obj[key];
+        }
+    };
+
+    this.tagsType.prototype = new this.tagsPrototype();
+    this.tagsType.prototype.constructor = this.tags;
+    this.tags = new this.tagsType();
+
+    this.tag = function () {
+    }
+    this.tagPrototype = function () {
+        this.set = function (obj) {
+            for (var key in obj)
+                this[key] = obj[key];
+        };
+
+        this.getViewabilityData = function () {
+        };
+    };
+
+    this.tag.prototype = new this.tagPrototype();
+    this.tag.prototype.constructor = this.tag;
+
+    this.registerEventCall = function (impressionId, eventObject, timeoutMs, isRegisterEnabled) {
+        if (typeof isRegisterEnabled !== 'undefined' && isRegisterEnabled === true) {
+            addEventCallForDispatch(impressionId, eventObject);
+
+            if (typeof timeoutMs === 'undefined' || timeoutMs == 0 || isNaN(timeoutMs))
+                dispatchEventCallsNow(impressionId, eventObject);
+            else {
+                if (timeoutMs > 2000)
+                    timeoutMs = 2000;
+
+                var that = this;
+                setTimeout(
+                    function () {
+                        that.dispatchEventCalls(impressionId);
+                    }, timeoutMs);
+            }
+
+        } else {
+            var url = this.tags[impressionId].protocol + '//' + this.tags[impressionId].ServerPublicDns + "/event.gif?impid=" + impressionId + '&' + createQueryStringParams(eventObject);
+            this.domUtilities.addImage(url, this.tags[impressionId].tagElement.parentNode);
+        }
+    };
+    var mraidObjectCache;
+    this.getMraid = function () {
+        var context = window._dv_win || window;
+        var iterationCounter = 0;
+        var maxIterations = 20;
+
+        function getMraidRec (context) {
+            iterationCounter++;
+            var isTopWindow = context.parent == context;
+            if (context.mraid || isTopWindow) {
+                return context.mraid;
+            } else {
+                return ( iterationCounter <= maxIterations ) && getMraidRec(context.parent);
+            }
+        }
+
+        try {
+            return mraidObjectCache = mraidObjectCache || getMraidRec(context);
+        } catch (e) {
+        }
+    };
+
+    var dispatchEventCallsNow = function (impressionId, eventObject) {
+        addEventCallForDispatch(impressionId, eventObject);
+        dispatchEventCalls(impressionId);
+    };
+
+    var addEventCallForDispatch = function (impressionId, eventObject) {
+        for (var key in eventObject) {
+            if (typeof eventObject[key] !== 'function' && eventObject.hasOwnProperty(key)) {
+                if (!eventsForDispatch[impressionId])
+                    eventsForDispatch[impressionId] = {};
+                eventsForDispatch[impressionId][key] = eventObject[key];
+            }
+        }
+    };
+
+    this.dispatchRegisteredEventsFromAllTags = function () {
+        for (var impressionId in this.tags) {
+            if (typeof this.tags[impressionId] !== 'function' && typeof this.tags[impressionId] !== 'undefined')
+                this.dispatchEventCalls(impressionId);
+        }
+    };
+
+    this.dispatchEventCalls = function (impressionId) {
+        if (typeof eventsForDispatch[impressionId] !== 'undefined' && eventsForDispatch[impressionId] != null) {
+            var url = this.tags[impressionId].protocol + '//' + this.tags[impressionId].ServerPublicDns + "/event.gif?impid=" + impressionId + '&' + createQueryStringParams(eventsForDispatch[impressionId]);
+            this.domUtilities.addImage(url, this.tags[impressionId].tagElement.parentElement);
+            eventsForDispatch[impressionId] = null;
+        }
+    };
+
+
+    if (window.addEventListener) {
+        window.addEventListener('unload', function () {
+            that.dispatchRegisteredEventsFromAllTags();
+        }, false);
+        window.addEventListener('beforeunload', function () {
+            that.dispatchRegisteredEventsFromAllTags();
+        }, false);
+    }
+    else if (window.attachEvent) {
+        window.attachEvent('onunload', function () {
+            that.dispatchRegisteredEventsFromAllTags();
+        }, false);
+        window.attachEvent('onbeforeunload', function () {
+            that.dispatchRegisteredEventsFromAllTags();
+        }, false);
+    }
+    else {
+        window.document.body.onunload = function () {
+            that.dispatchRegisteredEventsFromAllTags();
+        };
+        window.document.body.onbeforeunload = function () {
+            that.dispatchRegisteredEventsFromAllTags();
+        };
+    }
+
+    var createQueryStringParams = function (values) {
+        var params = '';
+        for (var key in values) {
+            if (typeof values[key] !== 'function') {
+                var value = encodeURIComponent(values[key]);
+                if (params === '')
+                    params += key + '=' + value;
+                else
+                    params += '&' + key + '=' + value;
+            }
+        }
+
+        return params;
+    };
+
+    this.Enums = {
+        BrowserId: {Others: 0, IE: 1, Firefox: 2, Chrome: 3, Opera: 4, Safari: 5},
+        TrafficScenario: {OnPage: 1, SameDomain: 2, CrossDomain: 128}
+    };
+
+    this.CommonData = {};
+
+    var runSafely = function (action) {
+        try {
+            var ret = action();
+            return ret !== undefined ? ret : true;
+        } catch (e) {
+            return false;
+        }
+    };
+
+    var objectsToUpperCase = function () {
+        var upperCaseObj = {};
+        for (var i = 0; i < arguments.length; i++) {
+            var obj = arguments[i];
+            for (var key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    upperCaseObj[key.toUpperCase()] = obj[key];
+                }
+            }
+        }
+        return upperCaseObj;
+    };
+
+    var appendCacheBuster = function (url) {
+        if (url !== undefined && url !== null && url.match("^http") == "http") {
+            if (url.indexOf('?') !== -1) {
+                if (url.slice(-1) == '&')
+                    url += 'cbust=' + dv_GetRnd();
+                else
+                    url += '&cbust=' + dv_GetRnd();
+            }
+            else
+                url += '?cbust=' + dv_GetRnd();
+        }
+        return url;
+    };
+}
+
+function dv_baseHandler(){function fb(){try{return{vdcv:15,vdcd:eval(function(a,d,e,i,m,D){m=function(a){return(a<d?"":m(parseInt(a/d)))+(35<(a%=d)?String.fromCharCode(a+29):a.toString(36))};if(!"".replace(/^/,String)){for(;e--;)D[m(e)]=i[e]||m(e);i=[function(a){return D[a]}];m=function(){return"\\w+"};e=1}for(;e--;)i[e]&&(a=a.replace(RegExp("\\b"+m(e)+"\\b","g"),i[e]));return a}("(y(){1b{1b{2r('1')}12(e){b[-47]}n X=[1p];1b{n G=1p;48(G!=G.21&&G.1A.46.45){X.1z(G.1A);G=G.1A}}12(e){}y 1w(V){1b{1d(n i=0;i<X.1u;i++){1c(V(X[i]))b X[i]==1p.21?-1:1}b 0}12(e){b 1y}}y 2o(W){b 1w(y(H){b H[W]!=1y})}y 2j(H,2e,V){1d(n W 40 H){1c(W.1W(2e)>-1&&(!V||V(H[W])))b 49}b 4a}y g(s){n h=\"\",t=\"4h.;j&4i}4g/0:4e'4b=B(4c-4d!,3Z)5r\\\\{ >3Y+3M\\\"3N<\";1d(i=0;i<s.1u;i++)f=s.24(i),e=t.1W(f),0<=e&&(f=t.24((e+41)%3L)),h+=f;b h}n c=['3K\"1x-3G\"3I\"3J','p','l','60&p','p','{','\\\\}3P-3Q<\"3W\\\\}3X<Z?\"4','e','3V','-5,!u<}\"3U}\"','p','J','-3R}\"<3S','p','=o','\\\\}1V\"2f\"10\\\\}1V\"2f\"3T}2\"<,u\"<5}?\"4','e','J=',':<4j}T}<\"','p','h','\\\\}7-2}\"E(d\"O}9?\\\\}7-2}\"E(d\"22<N\"[1s*1t\\\\\\\\23-4k<1L\"26\"4J]1a}C\"Q','e','4K','\"16\\\\}4I\"I<-4H\"1U\"5\"4E}1X<}4F\"16\\\\}1g}1k>1o-1l}2}\"1U\"5\"4G}1X<}4L','e','=J','1q}U\"<5}4M\"v}F\\\\}Z[4S}4T:4R]k}8\\\\}Z[t:29\"4Q]k}8\\\\}Z[4N})5-u<}t]k}8\\\\}Z[4O]k}8\\\\}Z[4P}4D]k}4C','e','4q',':4r}<\"w-1R/2M','p','4s','\\\\}K<U/15}8\\\\}K<U/!k}9','e','=l','\\\\}1Y!4p\\\\}1Y!4o)p?\"4','e','4l','-}\"4m','p','x{','\\\\}m<1n\"16\\\\}m<1G}U\"<5}14\\\\}1T-2.42-2}\"10\\\\}1T-2.42-2}\"4n\"4t:4u\\\\4A<1E}t?\"4','e','4B','4z:,','p','3F','\\\\}4v\\\\}1S\"1N\\\\}1S\"1O,T}1P+++++14\\\\}4w\\\\}1M\"1N\\\\}1M\"1O,T}1P+++++t','e','3s','\\\\}2O\"1R\"2P}8\\\\}6\\\\2Q<M?\"4','e','2N','1q}U\"<5}1m:2L\\\\}7-2}\"2I\".42-2}\"2J-2K<N\"2R<2S<2Y}C\"3H<2Z<2X[<]E\"27\"1x}\"2}\"2W[<]E\"27\"1x}\"2}\"E<}13&2U\"1\\\\}1Q\\\\2H\\\\}1Q\\\\30}1k>1o-1l}2}\"z<2C-2}\"2v\"2.42-2}\"2x=2w\"v}2G\"v}P=2E','e','x','2F)','p','+','\\\\}1Z:2y<5}2B\\\\}1Z\"2z?\"4','e','2A','L!!2V.3E.w 3r','p','x=','\\\\}20\"31\\\\}20\"3t--3q<\"2f?\"4','e','x+','\\\\}2b)u\"3p\\\\}2b)u\"3m?\"4','e','3n','\\\\}2a}s<3o\\\\}2a}s<3u\" 3v-3B?\"4','e','3C','\\\\}7-2}\"E(d\"O}9?\\\\}7-2}\"E(d\"3D<:[\\\\3A}}2M][\\\\3z,5}2]3w}C\"Q','e','3x','1v\\\\}3y}3l\\\\}3k$37','e','38',':39<Z','p','36','\\\\}6-35\\\\}6-32}33\\\\}6-34<3a?\"4','e','4V','\\\\}6\"2m\\\\}6\"2l-3h?\"4','e','3i','1v\\\\}3j:,3g}U\"<5}3f\"v}3c<3d<2g}3e','e','4y','\\\\}K<U/5p&2c\"E/2d\\\\}K<U/6s}C\"2i\\\\}K<U/f[&2c\"E/2d\\\\}K<U/6r[S]]6q\"6n}9?\"4','e','6o','6p}6u}6v>2s','p','6A','\\\\}19:<1i}s<6B}8\\\\}19:<1i}s<6z<}f\"u}2h\\\\}28\\\\}19:<1i}s<C[S]E:29\"15}9','e','l{','6x\\'<}1r\\\\T}6m','p','==','\\\\}m<1n\\\\}m<1K\\\\<Z\"1C\\\\}m<1H<1F\"?\"4','e','6l','\\\\}6\"2f\"6b\\\\}6c<6a?\"4','e','o{','\\\\}6:69}<\"w<66\\\\}6:67\\\\}6:68}27\"w\"<2M?\"4','e','{S','\\\\}1h}\"11}6D\"-6d\"2f\"q\\\\}D\"<5}6e?\"4','e','o+',' &w)&6j','p','6k','\\\\}6.:2}\"c\"<6i}8\\\\}6h}8\\\\}6f<}f\"u}2h\\\\}28\\\\}1g:}\"k}9','e','6S','6R\"5-\\'6T:2M','p','J{','\\\\}7-2}\"E(d\"O}9?\\\\}7-2}\"E(d\"22<N\"[1s*1t\\\\\\\\23-1L\"26/6I<6E]1a}C\"Q','e','6H',')6U!6Q}s<C','p','6P','\\\\}25.L>g;w\\'T)Y.6F\\\\}25.L>g;6M&&6N>w\\'T)Y.I?\"4','e','l=','w:<Z<:5','p','64','\\\\}2g\\\\}6\"5k\\\\}D\"<5}2n\"2p}/14\\\\}7-2}\"2u<}13&5i\\\\}D\"<5}18\"}u-5h=?1q}U\"<5}1m\"2q\"v}5f\\\\}1h}\"1f\"<5}5g\"2k\"v}F\"5l','e','5m','\\\\}1j-U\\\\10\\\\}1j-5s\\\\}1j-\\\\<}?\"4','e','5q','65-N:5n','p','5o','\\\\}1e\"5d\\\\}1e\"5c\"<5}51\\\\}1e\"50||\\\\}4Z?\"4','e','h+','4W<u-4X/','p','{=','\\\\}D\"<5}18\"}u-4Y\\\\}1g}1k>1o-1l}2}\"q\\\\}D\"<5}18\"}u-2D','e','=S','\\\\}m<1n\\\\}m<1K\\\\<Z\"1C\\\\}m<1H<1F\"10\"16\\\\}m<1G}U\"<5}t?\"4','e','J+','c>A','p','=','\\\\}58\"55:56^[57,][5u+]5v\\'<}1r\\\\5T\"2f\"q\\\\<}1r\\\\E}u-2D?\"4','e','5S','5R}5O','p','5P','\\\\}7-2}\"E(d\"O}9?\\\\}7-2}\"E(d\"1I<:[<Z*1t:Z,1J]F:<5Q[<Z*5V]1a}C\"Q','e','h=','5W-2}\"1f\"<5}k}9','e','62','\\\\}7-2}\"E(d\"O}9?\\\\}7-2}\"E(d\"1I<:[<Z*5X}1J]R<-C[1s*5L]1a}C\"Q','e','5C','1v\\\\}1B\"\\\\5z\\\\}1B\"\\\\5w','e','5x','\\\\}1D\"10\\\\}1D\"5D:5E<1E}?\"4','e','{e','\\\\}5J}Z<}5K}8\\\\}5I<f\"k}8\\\\}5H/<}C!!5F<\"42.42-2}\"15}8\\\\}5G\"<5}k}9?\"4','e','3b','T>;5y\"<4f','p','h{','\\\\}5A<u-5B\\\\5N}8\\\\}19<}5Y}9?\"4','e','5Z','\\\\}61\\\\}63}<(5U?\"4','e','59','\\\\}6\"2m\\\\}6\"2l-5b}U\"<5}1m\"2q\"v}F\\\\}1h}\"1f\"<5}18\"E<}13&5a}54=53\"2k\"v}F\"52?\"4','e','5t','\\\\}5e<5j a}6O}8\\\\}6}6J\"6L 6K- 15}9','e','6G','6C\\\\}D\"<5}6w}6y\"5M&M<C<}6t}C\"2i\\\\}D\"<5}2n\"2p}/14\\\\}7-2}\"2T\\\\}7-2}\"2u<}13&4U[S]4x=?\"4','e','l+'];n 17=[];1d(n j=0;j<c.1u;j+=3){n r=c[j+1]=='p'?2o(g(c[j])):1w(y(H){b 2r(2j.3O()+g(c[j]))});1c(r>0||r<0)17.1z(r*2t(g(c[j+2])));44 1c(r==1y)17.1z(-43*2t(g(c[j+2])))}b 17}12(e){b[-6g]}})();",
+62,429,"    Ma2vsu4f2  ZE ZEZ5Ua a44OO a44  return  a2MQ0242U       P1  ZE3 var        aM _  function     ZE45Uu   tmpWnd wnd   ZEBM    5ML44P1  3RSvsu4f2     func prop wndz   OO  catch Z27 tOO fP1 QN25sF results E35f ZE_ WDE42 try if for ZEuZ E45Uu ZE2 ZENuM2 ZU5 ZEuf U5Z2c N5 qD8 M5OO Tg5 window qsa Z5 fMU  length U5q ch g5 null push parent Zzt__ 3OO ZEfaNN_uZf_35f ZZ2 C3 M511tsa M5E32 5ML44qWZ _t M5E kN7 ZEuZ_lEf Q42OO Q42E Z2711t Zz5 uM ZEuZ_hEf ZEsMu ENM5 ZEf35M indexOf Z2s ZE_Y ZE27 ZEU top 5ML44qWfUM BuZfEU5 charAt ZEcIT_0 MuU  ZELMMuQOO uf ZELZg5 ZEufB BV2U 2Qfq str  ZP1 U25sF 3RSOO co U3q2D8M2 UT UIuCTZOO E3M2sP1tuB5a ex vB4u MQ8M2 eval  parseInt EM2s2MM2ME EUM2u DM2 tDRm 2Mf IQN2 xJ _V5V5OO 1Z5Ua  HnDqD Ld0 PSHM2 E2fUuN2z21 EC2 fbQIuCpu 2qtfUM uMF21  xo ZEf aM4P1 2BfM2Z tDHs5Mq 1SH EM2s2MM2MOO sqt _ALb OO2 sq2 i2E42 99D E2 7__OO 2MUaMQEU5 sOO 2MUaMQE 2MUaMQOO hJ _tD Jl u_faB NLZZM2ff lo F5ENaB4 f32M_faB a44nD q5D8M2 tzsa NTZ oJ Zzt_M Zzt_ f_tDOOU5q ujuM oo COO u_Z2U5Z2OO MU0 cAA_cg xl 7__E2U CEC2 Mu tDE42 eS Zzt__uZ_M Um UmBu 2cM4 JJ 5ML44qtZ A_pLr he Na  2Z0 Q42 C2 82 lkSvfxWX 1bqyJIma toString ZENaBf_uZ_uZ 5Zu4 fgM2Z2 u4f r5 g5a xh QOO ZENaBf_uZ_faB NhCZ LnG in   100 else href location 99 while true false Kt Q6T uic2EHVO s7  YDoMw8FRp3gd94 Ue PzA ZBu kUM lS M__ Ef AEBuf2g AOO ee u_a ho Q42E5 2Ms45 ZEuZ_hOO ZEuZ_lOO D11m lJ _M 11t3 xx a44nDqD LMMt QN211ta 2ZtOO QN2P1ta 25a ZEf2 EVft eo 2Zt qD8M2 tUZ tUBt tB r5Z2t 24t tf5a ZA2 squ Je _NM _uZB45U 2P1 ZE35aMfUuND CfE35aMfUuN OOq Ma2HnnDqD HnUu uNfQftD11m uC_ uMfOOk um ZENM5U2ff_ ol sqtfQ NTZOOqsa CfEf2U CfOO ZEUuU FN1 E3M2szsu4f2nUu 2DRm sq 4Zf 5NOO Ma2nnDqDvsu4f2 oS _ZBf le fOO JS  M2sOO Jx Sm 8lzn B_UB_tD lh _c B__tDOOU5q ZENM bM5 oe _5 2MM gI ZEu445Uu ZENuM ZEf2A ZE4u CcM4P1 1tNk4CEN3Nt  f2MP1 7K xS Z25 B24 xe kE a2TZ 1tfMmN4uQ2Mt Z5Ua 1tB2uU5 N4uU2_faUU2ffP1 Jo  ZE_NUCOO eh ZE_NUCEYp_c hh ___U ZOO u_aM4OO u_ u_UaMM_a u4buf2Jl fNNOO ZE0N2U 4kE E3M2sD ZErF 999 ZErP1 4P1 rLTp hl Jh s5 aNP1 ox M2 Ef2 fD fDE42 fzuOOuE42 5IMu fY45 Eu UufUuZ2 U2f CF hx CP1 u1 a44OOkuZwkwZ8ezhn7wZ8ezhnwE3 fN4uQLZfEVft IOO lx eJ kZ _f M5 5M2f _I AbL UP1 oh 4Qg5 gaf ll ALZ02M 2u4".split(" "),
+0,{}))}}catch(d){return{vdcv:15,vdcd:"0"}}}function ha(d){if(window._dv_win.document.body)return window._dv_win.document.body.insertBefore(d,window._dv_win.document.body.firstChild),!0;var a=0,c=function(){if(window._dv_win.document.body)try{window._dv_win.document.body.insertBefore(d,window._dv_win.document.body.firstChild)}catch(e){}else a++,150>a&&setTimeout(c,20)};setTimeout(c,20);return!1}function ia(d){var a;if(document.createElement&&(a=document.createElement("iframe")))a.name=a.id=window._dv_win.dv_config.emptyIframeID||
+"iframe_"+Math.floor(1E12*(Math.random()+"")),a.width=0,a.height=0,a.style.display="none",a.src=d;return a}function Ba(d){var a={};try{for(var c=RegExp("[\\?&]([^&]*)=([^&#]*)","gi"),e=c.exec(d);null!=e;)"eparams"!==e[1]&&(a[e[1]]=e[2]),e=c.exec(d);return a}catch(i){return a}}function gb(d){try{if(1>=d.depth)return{url:"",depth:""};var a,c=[];c.push({win:window._dv_win.top,depth:0});for(var e,i=1,m=0;0<i&&100>m;){try{if(m++,e=c.shift(),i--,0<e.win.location.toString().length&&e.win!=d)return 0==e.win.document.referrer.length||
+0==e.depth?{url:e.win.location,depth:e.depth}:{url:e.win.document.referrer,depth:e.depth-1}}catch(D){}a=e.win.frames.length;for(var s=0;s<a;s++)c.push({win:e.win.frames[s],depth:e.depth+1}),i++}return{url:"",depth:""}}catch(g){return{url:"",depth:""}}}function ja(d){var a=String(),c,e,i;for(c=0;c<d.length;c++)i=d.charAt(c),e="!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~".indexOf(i),0<=e&&(i="!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~".charAt((e+
+47)%94)),a+=i;return a}function hb(){try{if("function"===typeof window.callPhantom)return 99;try{if("function"===typeof window.top.callPhantom)return 99}catch(d){}if(void 0!=window.opera&&void 0!=window.history.navigationMode||void 0!=window.opr&&void 0!=window.opr.addons&&"function"==typeof window.opr.addons.installExtension)return 4;if(void 0!=window.chrome&&"function"==typeof window.chrome.csi&&"function"==typeof window.chrome.loadTimes&&void 0!=document.webkitHidden&&(!0==document.webkitHidden||
+!1==document.webkitHidden))return 3;if(void 0!=document.isConnected&&void 0!=document.webkitHidden&&(!0==document.webkitHidden||!1==document.webkitHidden))return 6;if(void 0!=window.mozInnerScreenY&&"number"==typeof window.mozInnerScreenY&&void 0!=window.mozPaintCount&&0<=window.mozPaintCount&&void 0!=window.InstallTrigger&&void 0!=window.InstallTrigger.install)return 2;if(void 0!=document.uniqueID&&"string"==typeof document.uniqueID&&(void 0!=document.documentMode&&0<=document.documentMode||void 0!=
+document.all&&"object"==typeof document.all||void 0!=window.ActiveXObject&&"function"==typeof window.ActiveXObject)||window.document&&window.document.updateSettings&&"function"==typeof window.document.updateSettings)return 1;var a=!1;try{var c=document.createElement("p");c.innerText=".";c.style="text-shadow: rgb(99, 116, 171) 20px -12px 2px";a=void 0!=c.style.textShadow}catch(e){}return(0<Object.prototype.toString.call(window.HTMLElement).indexOf("Constructor")||window.webkitAudioPannerNode&&window.webkitConvertPointFromNodeToPage)&&
+a&&void 0!=window.innerWidth&&void 0!=window.innerHeight?5:0}catch(i){return 0}}this.createRequest=function(){var d,a,c;window._dv_win.$dv.isEval=1;window._dv_win.$dv.DebugInfo={};var e=!1,i=!1,m,D,s=!1,g=window._dv_win,Ca=0,Da=!1,Ea=getCurrentTime();window._dv_win.t2tTimestampData=[{dvTagCreated:Ea}];var P;try{for(P=0;10>=P;P++)if(null!=g.parent&&g.parent!=g)if(0<g.parent.location.toString().length)g=g.parent,Ca++,s=!0;else{s=!1;break}else{0==P&&(s=!0);break}}catch(wb){s=!1}var I;0==g.document.referrer.length?
+I=g.location:s?I=g.location:(I=g.document.referrer,Da=!0);var Fa="",ka=null,la=null;try{window._dv_win.external&&(ka=void 0!=window._dv_win.external.QueuePageID?window._dv_win.external.QueuePageID:null,la=void 0!=window._dv_win.external.CrawlerUrl?window._dv_win.external.CrawlerUrl:null)}catch(xb){Fa="&dvp_extErr=1"}if(!window._dv_win._dvScriptsInternal||!window._dv_win.dvProcessed||0==window._dv_win._dvScriptsInternal.length)return null;var Q=window._dv_win._dvScriptsInternal.pop(),E=Q.script;this.dv_script_obj=
+Q;this.dv_script=E;window._dv_win.t2tTimestampData[0].dvWrapperLoadTime=Q.loadtime;window._dv_win.dvProcessed.push(Q);var b=E.src;if(void 0!=window._dv_win.$dv.CommonData.BrowserId&&void 0!=window._dv_win.$dv.CommonData.BrowserVersion&&void 0!=window._dv_win.$dv.CommonData.BrowserIdFromUserAgent)d=window._dv_win.$dv.CommonData.BrowserId,a=window._dv_win.$dv.CommonData.BrowserVersion,c=window._dv_win.$dv.CommonData.BrowserIdFromUserAgent;else{for(var Ga=dv_GetParam(b,"useragent"),Ha=Ga?decodeURIComponent(Ga):
+navigator.userAgent,F=[{id:4,brRegex:"OPR|Opera",verRegex:"(OPR/|Version/)"},{id:1,brRegex:"MSIE|Trident/7.*rv:11|rv:11.*Trident/7|Edge/",verRegex:"(MSIE |rv:| Edge/)"},{id:2,brRegex:"Firefox",verRegex:"Firefox/"},{id:0,brRegex:"Mozilla.*Android.*AppleWebKit(?!.*Chrome.*)|Linux.*Android.*AppleWebKit.* Version/.*Chrome",verRegex:null},{id:0,brRegex:"AOL/.*AOLBuild/|AOLBuild/.*AOL/|Puffin|Maxthon|Valve|Silk|PLAYSTATION|PlayStation|Nintendo|wOSBrowser",verRegex:null},{id:3,brRegex:"Chrome",verRegex:"Chrome/"},
+{id:5,brRegex:"Safari|(OS |OS X )[0-9].*AppleWebKit",verRegex:"Version/"}],ma=0,Ia="",x=0;x<F.length;x++)if(null!=Ha.match(RegExp(F[x].brRegex))){ma=F[x].id;if(null==F[x].verRegex)break;var na=Ha.match(RegExp(F[x].verRegex+"[0-9]*"));if(null!=na)var ib=na[0].match(RegExp(F[x].verRegex)),Ia=na[0].replace(ib[0],"");break}var Ja=hb();d=Ja;a=Ja===ma?Ia:"";c=ma;window._dv_win.$dv.CommonData.BrowserId=d;window._dv_win.$dv.CommonData.BrowserVersion=a;window._dv_win.$dv.CommonData.BrowserIdFromUserAgent=
+c}var y,jb="https:"===window._dv_win.location.protocol?"https:":"http:",oa=!0,pa=window.parent.postMessage&&window.JSON,Ka=!1;if("0"==dv_GetParam(b,"t2te")||window._dv_win.dv_config&&!0===window._dv_win.dv_config.supressT2T)Ka=!0;if(pa&&!1===Ka&&5!=window._dv_win.$dv.CommonData.BrowserId)try{var qa=window._dv_win.dv_config.t2turl||"https://cdn3.doubleverify.com/t2tv7.html";y=ia(qa);oa=ha(y)}catch(yb){}window._dv_win.$dv.DebugInfo.dvp_HTML5=pa?"1":"0";var R=dv_GetParam(b,"region")||"",S="http:",La=
+"0";"https"==b.match("^https")&&"https"==window._dv_win.location.toString().match("^https")&&(S="https:",La="1");try{for(var kb=g,ra=g,sa=0;10>sa&&ra!=window._dv_win.top;)sa++,ra=ra.parent;kb.depth=sa;var Ma=gb(g);dv_aUrlParam="&aUrl="+encodeURIComponent(Ma.url);dv_aUrlDepth="&aUrlD="+Ma.depth;dv_referrerDepth=g.depth+Ca;Da&&g.depth--}catch(zb){dv_aUrlDepth=dv_aUrlParam=dv_referrerDepth=g.depth=""}for(var Na=dv_GetDynamicParams(b,"dvp"),T=dv_GetDynamicParams(b,"dvpx"),U=0;U<T.length;U++){var Oa=dv_GetKeyValue(T[U]);
+T[U]=Oa.key+"="+encodeURIComponent(Oa.value)}"41"==R&&(R=50>100*Math.random()?"41":"8",Na.push("dvp_region="+R));var Pa=Na.join("&"),Qa=T.join("&"),lb=window._dv_win.dv_config.tpsAddress||"tps"+R+".doubleverify.com",J="visit.js";switch(dv_GetParam(b,"dvapi")){case "1":J="dvvisit.js";break;case "5":J="query.js";break;default:J="visit.js"}window._dv_win.$dv.DebugInfo.dvp_API=J;for(var V="ctx cmp ipos sid plc adid crt btreg btadsrv adsrv advid num pid crtname unit chnl uid scusrid tagtype sr dt dup app sup dvvidver".split(" "),
+t=[],p=0;p<V.length;p++){var ta=dv_GetParam(b,V[p])||"";t.push(V[p]+"="+ta);""!==ta&&(window._dv_win.$dv.DebugInfo["dvp_"+V[p]]=ta)}var Ra=dv_GetParam(b,"isdvvid")||"";Ra&&t.push("isdvvid=1");var Sa=dv_GetParam(b,"tagtype")||"",u=window._dv_win.$dv.getMraid(),ua;a:{try{if("object"==typeof window.$ovv||"object"==typeof window.parent.$ovv){ua=!0;break a}}catch(Ab){}ua=!1}if(1!=Ra&&!u&&("video"==Sa||"1"==Sa)){var Ta=dv_GetParam(b,"adid")||"";"function"===typeof _dv_win[Ta]&&(t.push("prplyd=1"),t.push("DVP_GVACB="+
+Ta),t.push("isdvvid=1"));var Ua="AICB_"+(window._dv_win.dv_config&&window._dv_win.dv_config.dv_GetRnd?window._dv_win.dv_config.dv_GetRnd():dv_GetRnd());window._dv_win[Ua]=function(b){e=!0;m=b;window._dv_win.$dv&&!0==i&&window._dv_win.$dv.registerEventCall(D,{prplyd:0,dvvidver:b})};t.push("AICB="+Ua);var mb=t.join("&"),Va=window._dv_win.document.createElement("script"),qa=S+"//cdn.doubleverify.com/dvvid_src.js?"+mb;Va.src=qa;window._dv_win.document.body.appendChild(Va)}for(var va="turl icall dv_callback useragent xff timecheck".split(" "),
+p=0;p<va.length;p++){var Wa=dv_GetParam(b,va[p]);null!=Wa&&t.push(va[p]+"="+(Wa||""))}var nb=t.join("&"),z;var ob=function(){try{return!!window.sessionStorage}catch(b){return!0}},pb=function(){try{return!!window.localStorage}catch(b){return!0}},qb=function(){var b=document.createElement("canvas");if(b.getContext&&b.getContext("2d")){var a=b.getContext("2d");a.textBaseline="top";a.font="14px 'Arial'";a.textBaseline="alphabetic";a.fillStyle="#f60";a.fillRect(0,0,62,20);a.fillStyle="#069";a.fillText("!image!",
+2,15);a.fillStyle="rgba(102, 204, 0, 0.7)";a.fillText("!image!",4,17);return b.toDataURL()}return null};try{var q=[];q.push(["lang",navigator.language||navigator.browserLanguage]);q.push(["tz",(new Date).getTimezoneOffset()]);q.push(["hss",ob()?"1":"0"]);q.push(["hls",pb()?"1":"0"]);q.push(["odb",typeof window.openDatabase||""]);q.push(["cpu",navigator.cpuClass||""]);q.push(["pf",navigator.platform||""]);q.push(["dnt",navigator.doNotTrack||""]);q.push(["canv",qb()]);var k=q.join("=!!!=");if(null==
+k||""==k)z="";else{for(var K=function(b){for(var a="",d,e=7;0<=e;e--)d=b>>>4*e&15,a+=d.toString(16);return a},rb=[1518500249,1859775393,2400959708,3395469782],k=k+String.fromCharCode(128),A=Math.ceil((k.length/4+2)/16),B=Array(A),h=0;h<A;h++){B[h]=Array(16);for(var C=0;16>C;C++)B[h][C]=k.charCodeAt(64*h+4*C)<<24|k.charCodeAt(64*h+4*C+1)<<16|k.charCodeAt(64*h+4*C+2)<<8|k.charCodeAt(64*h+4*C+3)}B[A-1][14]=8*(k.length-1)/Math.pow(2,32);B[A-1][14]=Math.floor(B[A-1][14]);B[A-1][15]=8*(k.length-1)&4294967295;
+for(var W=1732584193,X=4023233417,Y=2562383102,Z=271733878,$=3285377520,l=Array(80),G,n,v,w,aa,h=0;h<A;h++){for(var f=0;16>f;f++)l[f]=B[h][f];for(f=16;80>f;f++)l[f]=(l[f-3]^l[f-8]^l[f-14]^l[f-16])<<1|(l[f-3]^l[f-8]^l[f-14]^l[f-16])>>>31;G=W;n=X;v=Y;w=Z;aa=$;for(f=0;80>f;f++){var Xa=Math.floor(f/20),sb=G<<5|G>>>27,H;c:{switch(Xa){case 0:H=n&v^~n&w;break c;case 1:H=n^v^w;break c;case 2:H=n&v^n&w^v&w;break c;case 3:H=n^v^w;break c}H=void 0}var tb=sb+H+aa+rb[Xa]+l[f]&4294967295;aa=w;w=v;v=n<<30|n>>>2;
+n=G;G=tb}W=W+G&4294967295;X=X+n&4294967295;Y=Y+v&4294967295;Z=Z+w&4294967295;$=$+aa&4294967295}z=K(W)+K(X)+K(Y)+K(Z)+K($)}}catch(Bb){z=null}z=null!=z?"&aadid="+z:"";var Ya=b,b=(window._dv_win.dv_config.visitJSURL||S+"//"+lb+"/"+J)+"?"+nb+"&dvtagver=6.1.src&srcurlD="+g.depth+"&curl="+(null==la?"":encodeURIComponent(la))+"&qpgid="+(null==ka?"":ka)+"&ssl="+La+"&refD="+dv_referrerDepth+"&htmlmsging="+(pa?"1":"0")+z+Fa;(u=window._dv_win.$dv.getMraid())&&(b+="&ismraid=1");ua&&(b+="&isovv=1");var ub=b,j=
+"";try{var r=window._dv_win,j=j+("&chro="+(void 0===r.chrome?"0":"1")),j=j+("&hist="+(r.history?r.history.length:"")),j=j+("&winh="+r.innerHeight),j=j+("&winw="+r.innerWidth),j=j+("&wouh="+r.outerHeight),j=j+("&wouw="+r.outerWidth);r.screen&&(j+="&scah="+r.screen.availHeight,j+="&scaw="+r.screen.availWidth)}catch(Cb){}b=ub+(j||"");"http:"==b.match("^http:")&&"https"==window._dv_win.location.toString().match("^https")&&(b+="&dvp_diffSSL=1");var Za=E&&E.parentElement&&E.parentElement.tagName&&"HEAD"===
+E.parentElement.tagName;if(!1===oa||Za)b+="&dvp_isBodyExistOnLoad="+(oa?"1":"0"),b+="&dvp_isOnHead="+(Za?"1":"0");Pa&&(b+="&"+Pa);Qa&&(b+="&"+Qa);var L="srcurl="+encodeURIComponent(I);window._dv_win.$dv.DebugInfo.srcurl=I;var ba;var ca=window._dv_win[ja("=@42E:@?")][ja("2?46DE@C~C:8:?D")];if(ca&&0<ca.length){var wa=[];wa[0]=window._dv_win.location.protocol+"//"+window._dv_win.location.hostname;for(var da=0;da<ca.length;da++)wa[da+1]=ca[da];ba=wa.reverse().join(",")}else ba=null;ba&&(L+="&ancChain="+
+encodeURIComponent(ba));var M=dv_GetParam(b,"uid");null==M?(M=dv_GetRnd(),b+="&uid="+M):(M=dv_GetRnd(),b=b.replace(/([?&]uid=)(?:[^&])*/i,"$1"+M));var xa=4E3;/MSIE (\d+\.\d+);/.test(navigator.userAgent)&&7>=new Number(RegExp.$1)&&(xa=2E3);var $a=navigator.userAgent.toLowerCase();if(-1<$a.indexOf("webkit")||-1<$a.indexOf("chrome")){var ab="&referrer="+encodeURIComponent(window._dv_win.location);b.length+ab.length<=xa&&(b+=ab)}dv_aUrlParam.length+dv_aUrlDepth.length+b.length<=xa&&(b+=dv_aUrlDepth,L+=
+dv_aUrlParam);var bb=fb(),b=b+("&vavbkt="+bb.vdcd),b=b+("&lvvn="+bb.vdcv),b=b+("&"+this.getVersionParamName()+"="+this.getVersion()),b=b+("&eparams="+encodeURIComponent(ja(L))),b=b+("&brid="+d+"&brver="+a+"&bridua="+c);window._dv_win.$dv.DebugInfo.dvp_BRID=d;window._dv_win.$dv.DebugInfo.dvp_BRVR=a;window._dv_win.$dv.DebugInfo.dvp_BRIDUA=c;var N;void 0!=window._dv_win.$dv.CommonData.Scenario?N=window._dv_win.$dv.CommonData.Scenario:(N=this.getTrafficScenarioType(window._dv_win),window._dv_win.$dv.CommonData.Scenario=
+N);b+="&tstype="+N;window._dv_win.$dv.DebugInfo.dvp_TS=N;var ea="";try{window.top==window?ea="1":window.top.location.host==window.location.host&&(ea="2")}catch(Db){ea="3"}var fa=window._dv_win.document.visibilityState,cb=function(){var a=!1;try{a=u&&"function"===typeof u.getState&&"loading"===u.getState()}catch(d){b+="&dvp_mrgsf=1"}return a},ya=cb();if("prerender"===fa||ya)b+="&prndr=1",ya&&(b+="&dvp_mrprndr=1");var db="dvCallback_"+(window._dv_win.dv_config&&window._dv_win.dv_config.dv_GetRnd?window._dv_win.dv_config.dv_GetRnd():
+dv_GetRnd()),vb=this.dv_script;window._dv_win[db]=function(a,d,c,f){var g=getCurrentTime();i=!0;D=c;d.$uid=c;d=Ba(Ya);a.tags.add(c,d);d=Ba(b);a.tags[c].set(d);a.tags[c].beginVisitCallbackTS=g;a.tags[c].set({tagElement:vb,dv_protocol:S,protocol:jb,uid:c});a.tags[c].ImpressionServedTime=getCurrentTime();a.tags[c].getTimeDiff=function(){return(new Date).getTime()-this.ImpressionServedTime};try{"undefined"!=typeof f&&null!==f&&(a.tags[c].ServerPublicDns=f),a.tags[c].adServingScenario=ea,a.tags[c].t2tIframeCreationTime=
+Ea,a.tags[c].t2tProcessed=!1,a.tags[c].t2tIframeId=y.id,a.tags[c].t2tIframeWindow=y.contentWindow,$dv.t2tEventDataZombie[y.id]&&(a.tags[c].uniquePageViewId=$dv.t2tEventDataZombie[y.id].uniquePageViewId,$dv.processT2TEvent($dv.t2tEventDataZombie[y.id],a.tags[c]))}catch(j){}!0==e&&a.registerEventCall(c,{prplyd:0,dvvidver:m});if("prerender"===fa)if(f=window._dv_win.document.visibilityState,"prerender"!==f&&"unloaded"!==f)a.tags[c].set({prndr:0}),a.registerEventCall(c,{prndr:0}),a&&a.pubSub&&a.pubSub.publishHistoryRtnEvent(c);
+else{var h;"undefined"!==typeof window._dv_win.document.hidden?h="visibilitychange":"undefined"!==typeof window._dv_win.document.mozHidden?h="mozvisibilitychange":"undefined"!==typeof window._dv_win.document.msHidden?h="msvisibilitychange":"undefined"!==typeof window._dv_win.document.webkitHidden&&(h="webkitvisibilitychange");var k=function(){var b=window._dv_win.document.visibilityState;"prerender"===fa&&("prerender"!==b&&"unloaded"!==b)&&(fa=b,a.tags[c].set({prndr:0}),a.registerEventCall(c,{prndr:0}),
+a&&a.pubSub&&a.pubSub.publishHistoryRtnEvent(c),window._dv_win.document.removeEventListener(h,k))};window._dv_win.document.addEventListener(h,k,!1)}else if(ya){var l=function(){"function"===typeof u.removeEventListener&&u.removeEventListener("ready",l);a.tags[c].set({prndr:0});a.registerEventCall(c,{prndr:0});a&&a.pubSub&&a.pubSub.publishHistoryRtnEvent(c)};cb()?"function"===typeof u.addEventListener&&u.addEventListener("ready",l):(a.tags[c].set({prndr:0}),a.registerEventCall(c,{prndr:0}),a&&a.pubSub&&
+a.pubSub.publishHistoryRtnEvent(c))}};for(var eb,ga="auctionid vermemid source buymemid anadvid ioid cpgid cpid sellerid pubid advcode iocode cpgcode cpcode pubcode prcpaid auip auua".split(" "),za=[],O=0;O<ga.length;O++){var Aa=dv_GetParam(Ya,ga[O]);null!=Aa&&(za.push("dvp_"+ga[O]+"="+Aa),za.push(ga[O]+"="+Aa))}(eb=za.join("&"))&&(b+="&"+eb);return b+"&jsCallback="+db};this.sendRequest=function(d){var a;a=this.getVersionParamName();var c=this.getVersion(),e={};e[a]=c;e.dvp_jsErrUrl=d;e.dvp_jsErrMsg=
+encodeURIComponent("Error loading visit.js");window._dv_win.dv_config=window._dv_win.dv_config||{};window._dv_win.dv_config.tpsErrAddress=window._dv_win.dv_config.tpsAddress||"tps30.doubleverify.com";a='try{ script.onerror = function(){ try{(new Image()).src = "'+dv_CreateAndGetErrorImp(window._dv_win.dv_config.tpsErrAddress+"/visit.jpg?ctx=818052&cmp=1619415&dvtagver=6.1.src&dvp_isLostImp=1",e)+'";}catch(e){}}}catch(e){}';a='<html><head></head><body><script id="TPSCall" type="text/javascript" src="'+
+d+'"><\/script><script type="text/javascript">var script = document.getElementById("TPSCall"); if (script && script.readyState) { script.onreadystatechange = function() { if (script.readyState == "complete") document.close(); }; if(script.readyState == "complete") document.close(); } else document.close(); '+a+"<\/script></body></html>";c=ia("about:blank");this.dv_script.id=c.id.replace("iframe","script");dv_GetParam(d,"uid");ha(c);d=dv_getPropSafe(c,"contentDocument")||dv_getPropSafe(dv_getPropSafe(c,
+"contentWindow"),"document")||dv_getPropSafe(window._dv_win.frames[c.name],"document");window._dv_win.t2tTimestampData.push({beforeVisitCall:getCurrentTime()});if(d){d.open();if(c=c.contentWindow||window._dv_win.frames[c.name])c.$dv=window._dv_win.$dv;d.write(a)}else d=a.replace(/'/g,"\\'"),d='javascript: (function(){document.open(); document.domain="'+window.document.domain+"\"; window.$dv = window.parent.$dv; document.write('"+encodeURIComponent(d)+"');})()",c=ia(d),this.dv_script.id=c.id.replace("iframe",
+"script"),ha(c);return!0};this.isApplicable=function(){return!0};this.onFailure=function(){window._dv_win._dvScriptsInternal.unshift(this.dv_script_obj);var d=window._dv_win.dvProcessed,a=this.dv_script_obj;null!=d&&(void 0!=d&&a)&&(a=d.indexOf(a),-1!=a&&d.splice(a,1));return window._dv_win.$dv.DebugInfo};this.getTrafficScenarioType=function(d){var d=d||window,a=d._dv_win.$dv.Enums.TrafficScenario;try{if(d.top==d)return a.OnPage;for(var c=0;d.parent!=d&&1E3>c;){if(d.parent.document.domain!=d.document.domain)return a.CrossDomain;
+d=d.parent;c++}return a.SameDomain}catch(e){}return a.CrossDomain};this.getVersionParamName=function(){return"jsver"};this.getVersion=function(){return"96"}};
+
+
+function dv_src_main(dv_baseHandlerIns, dv_handlersDefs) {
+
+    this.baseHandlerIns = dv_baseHandlerIns;
+    this.handlersDefs = dv_handlersDefs;
+
+    this.exec = function () {
+        try {
+            window._dv_win = (window._dv_win || window);
+            window._dv_win.$dv = (window._dv_win.$dv || new dvType());
+
+            window._dv_win.dv_config = window._dv_win.dv_config || {};
+            window._dv_win.dv_config.tpsErrAddress = window._dv_win.dv_config.tpsAddress || 'tps30.doubleverify.com';
+
+            var errorsArr = (new dv_rolloutManager(this.handlersDefs, this.baseHandlerIns)).handle();
+            if (errorsArr && errorsArr.length > 0)
+                dv_SendErrorImp(window._dv_win.dv_config.tpsErrAddress + '/visit.jpg?ctx=818052&cmp=1619415&dvtagver=6.1.src', errorsArr);
+        }
+        catch (e) {
+            try {
+                dv_SendErrorImp(window._dv_win.dv_config.tpsErrAddress + '/visit.jpg?ctx=818052&cmp=1619415&dvtagver=6.1.src&jsver=0&dvp_isLostImp=1', { dvp_jsErrMsg: encodeURIComponent(e) });
+            } catch (e) { }
+        }
+    }
+}
+
+try {
+    window._dv_win = window._dv_win || window;
+    var dv_baseHandlerIns = new dv_baseHandler();
+	
+
+    var dv_handlersDefs = [];
+    (new dv_src_main(dv_baseHandlerIns, dv_handlersDefs)).exec();
+} catch (e) { }
+

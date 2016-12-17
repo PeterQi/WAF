@@ -1,0 +1,957 @@
+
+var timeoutHandlerFlag = false;
+
+// The click tracking timer, when the timer expires after a set time, refresh both the Ads on first click
+InitializeTimer();
+
+// default pagesize
+var defaultPageSize = 25;
+// bool for if the View All is clicked
+var IsViewAllMode = 0;
+
+// script level counter vars for the GameBrowser Tracking
+// play mode
+var _PlayModeCount = 0;
+
+// genre
+var _GenreCount = 0;
+
+// GB paging
+var _TopNavCount = 0;
+var _TopNumCount = 0;
+var _BotNavCount = 0;
+var _BotNumCount = 0;
+
+// GB sorting (count the number of times users sort on Game Name and Population)
+var _SortColumnCounts = new Array(0, 0);
+
+// GB Click Sequence Tracking
+// Each activity in the Game Browser (filtering, paging, sorting, etc) is assigned a
+// unique letter which is appended to the ClickPath when the user performs that action.
+// This allows us to track the user's actions (sequence of events) in the Game Browser.
+//   A = Clicked Next/Prev Page from top of list
+//   B = Clicked Next/Prev Page from bottom of list
+//   N = Clicked a specific page number from the top of the list
+//   M = Clicked a specific page number from the bottom of the list
+//   P = Clicked on a Play Mode
+//   G = Clicked on a Genre
+//   Q = Clicked to sort on Game Name (ascending)
+//   R = Clicked to sort on Game Name (descending)
+//   S = Clicked to sort on Population (ascending)
+//   T = Clicked to sort on Population (descending)
+//   Y = Clicked View All Top
+//   Z = Clicked View All Bottom
+//   X = User is leaving the Game Browser page
+var _ClickPath = "";
+var _SortingClickPaths = new Array(new Array("Q", "R"), new Array("S", "T"));
+
+
+function restorePriorState() {
+    try {
+        // because of caching we need to increment the GB Hit Counter here
+        // increment the GB View counter
+        var GBCount = GetSubkey("ZMisc", "GameBrowserCount");
+        _ClickPath = GetSubkey("ZMisc", "GBClickPath");
+        if ((GBCount != null) && (GBCount.length > 0))
+            GBCount++;
+        else
+            GBCount = 1;
+
+        // add to cookie
+        SetNoEscapeSubkey("ZMisc", "GameBrowserCount", GBCount.toString(), null, null, g_CookieDomain, false)
+
+        var prevState = document.location.hash;
+        if ((prevState != null) && (prevState.length > 4)) {
+            var stateParts = prevState.substr(1).split("_");
+            GameBrowser1Obj.playMode = parseInt(stateParts[0]);
+            GameBrowser1Obj.genre = parseInt(stateParts[1]);
+            GameBrowser1Obj.startIndex = parseInt(stateParts[2]);
+            GameBrowser1Obj.sortColumn = parseInt(stateParts[3]);
+            GameBrowser1Obj.sortOrder = (parseInt(stateParts[4]) != 0);
+            IsViewAllMode = parseInt(stateParts[5]);
+            // get the total games count for the pageSize
+            if (IsViewAllMode == 1) {
+                GameBrowser1Obj.pageSize = parseInt(stateParts[6]);
+            }
+            else {
+                GameBrowser1Obj.pageSize = defaultPageSize;
+            }
+
+        }
+
+        // init the _ClickPath
+        if ((_ClickPath == null) || _ClickPath.length == 0)
+            _ClickPath = GameBrowser1Obj.playMode + '|' + GameBrowser1Obj.genre;
+
+        updateFilterSelection(GameBrowser1Obj.playMode, GameBrowser1Obj.genre);
+        updateGenreGameCounts(gameCounts[GameBrowser1Obj.playMode]);
+        updatePageTitle();
+
+        genreFilterClick(document.getElementById("G" + GameBrowser1Obj.genre));
+
+        //commented below code and used above func call to fix bug #213397
+        /*if ((prevState != null) && (prevState.length > 4)) {
+            GameBrowser1Obj.refresh();
+        }*/
+    }
+    catch (e)
+    { }
+}
+
+function GameBrowserList(outputDiv, pageSize) {
+    var sectionSize = 10;
+    this.outputDiv = document.getElementById(outputDiv);
+    this.pageSize = pageSize;
+    this.startIndex = 1;
+    this.playMode = 0;
+    this.genre = 0;
+    this.sortColumn = 0;
+    this.sortOrder = false;
+    this.xml = null;
+
+    this.render = function () {
+        var editorialHtml = "";
+        var gameListHtml = "";
+
+        if (this.xml != null) {
+            //var editorialNode = this.xml.selectSingleNode("Editorial");
+            var editorialNode = this.xml.querySelector("Editorial");
+            //debugger;
+            if (editorialNode != null)
+                editorialHtml = this.buildEditorialHtml("EditorialContent", editorialNode);
+
+            //var gameListNode = this.xml.selectSingleNode("Games");
+            var gameListNode = this.xml.querySelector("Games");
+            if (gameListNode != null)
+                gameListHtml = this.buildGameListHtml("GameBrowser1Table", gameListNode, this.startIndex);
+        }
+
+        this.outputDiv.innerHTML = editorialHtml + gameListHtml;
+    }
+
+    this.refresh = function () {
+        this.fetchGameBrowserList();
+    }
+
+    this.fetchGameBrowserList = function () {
+        if (typeof (ZoneWeb.Services.Web.GameBrowserService.GetGameBrowserSortedList) == "function") {
+            this.outputDiv.style.visibility = "hidden";
+            document.body.style.cursor = "progress";
+
+            //Call script proxy passing the input element data
+            var context = this;
+            var requestSimpleService = ZoneWeb.Services.Web.GameBrowserService.GetGameBrowserSortedList(
+				this.playMode,		// Params
+				this.genre,
+				g_Customizer,
+				this.startIndex,
+				this.pageSize,
+				this.sortColumn,
+				this.sortOrder,
+				onComplete,			// Complete event
+				onError,			// Error event
+				context				// Context
+				);
+        }
+    }
+
+    this.onComplete = function (result, context) {
+        document.body.style.cursor = "";
+        this.outputDiv.style.visibility = "visible";
+        if (result) {
+            var gameListDOM = new Sys.Net.XMLDOM(result);
+            this.xml = gameListDOM.documentElement;
+            this.render();
+        }
+        else {
+            this.renderError();
+        }
+    }
+
+    this.onError = function (err, context) {
+        document.body.style.cursor = "";
+        this.outputDiv.style.visibility = "visible";
+        this.renderError();
+        //if (err.get_message())
+        //	alert(err.get_message());
+    }
+
+    this.renderError = function () {
+        var errorHtml = new Sys.StringBuilder();
+        errorHtml.appendLine("Sorry, the game browser is currently unavailable. This may be a temporary condition.");
+        errorHtml.appendLine("<P/>");
+        errorHtml.appendLine("You may return to the previous page by clicking the back button on your browser. Alternatively, click on one of the links listed below.");
+        errorHtml.appendLine("<P/>");
+        errorHtml.appendLine("<a href='http://" + g_ZoneServer + "'>Home page</a>");
+        errorHtml.appendLine("<P/>");
+        errorHtml.appendLine("<a href='http://" + g_ZoneServer + "/en/root/gamebrowser.htm'>Game Browser Page</a>");
+
+        this.outputDiv.innerHTML = errorHtml.toString()
+    }
+
+    this.buildGameListHtml = function (id, gamesNode, startIndex) {
+        var html = new Sys.StringBuilder();
+        var nodeList = gamesNode.childNodes;
+        var totalGames = parseInt(gamesNode.attributes.getNamedItem("totalCount").value);
+
+        var nodeListLength = 0;
+        for (var i = 0; i < nodeList.length; i++) {
+            if (nodeList[i].nodeType == 1) nodeListLength++;
+        }
+
+        if (totalGames == 0) {
+            this.GameFilter1Div = document.getElementById("GameFilter1");
+            this.GameFilter1Div.style.position = "absolute";
+            this.GameFilter1Div.style.visibility = "hidden";
+
+            html.appendLine("No games found for this 'Ways to Play' and 'Genre'!");
+            html.appendLine("<P/>");
+            html.appendLine("You may return to the previous page by clicking the back button on your browser. Alternatively, click on one of the links listed below.");
+            html.appendLine("<P/>");
+            html.appendLine("<a href='http://" + g_ZoneServer + "'>Home page</a>");
+            html.appendLine("<P/>");
+            html.appendLine("<a href='http://" + g_ZoneServer + "/en/root/gamebrowser.htm'>Game Browser Page</a>");
+            document.title = "MSN Games";
+        }
+        else {
+            var categoryText = "";
+            if (this.playMode > 0)
+                categoryText += " <span id=\"PlayMode\">" + playModes[this.playMode] + "</span>";
+            if (this.genre > 0)
+                categoryText += " <span id=\"Genre\">" + genres[this.genre] + "</span>";
+
+            var navHtml = new Sys.StringBuilder();
+            navHtml.append("<div class=\"container-fluid pagination-controls\"><div class=\"row\">");
+            navHtml.append("<div class=\"col-sm-6 col-xs-12\">");
+            navHtml.append("<div class=\"TxtContr pagination-text\">");
+            navHtml.append("<b>");
+            navHtml.append("<span id=\"StartIndex\">" + startIndex + "</span>");
+            navHtml.append(" - ");
+            navHtml.append("<span id=\"EndIndex\">" + (startIndex + nodeListLength - 1) + "</span>");
+            navHtml.append("</b>");
+            navHtml.append(" of ");
+            navHtml.append("<span id=\"TotalGames\">" + totalGames + "</span>");
+            navHtml.append("<b>" + categoryText + "</b> games");
+            navHtml.appendLine("</div>");
+            navHtml.append("</div>");
+
+            navHtml.append("<div class=\"col-sm-6 col-xs-12 pagination-block\" id=\"PageControls\" class=\"GBPagingCtls\">");
+            navHtml.append("<ul class=\"pagination pagination-sm\">");
+            var numPages = 1;
+            // if we are in View All mode and then change the genre or playmode we
+            // want to still keep the 1 page, so if we are not in ViewAll Mode lets 
+            // go ahead and to the page math
+            if (IsViewAllMode == 0)
+                numPages = Math.ceil(totalGames / this.pageSize);
+
+            var numSections = (numPages > sectionSize + 2) ? Math.ceil(numPages / sectionSize) : 1;
+            if (numPages > 1) {
+                var currentPage = Math.floor(this.startIndex / this.pageSize) + 1;
+                var currentSection = Math.floor((this.startIndex / this.pageSize) / sectionSize);
+
+
+                if (numPages <= sectionSize + 2)
+                    currentSection = 0;
+                if (currentPage > 1) {
+                    //navHtml.append("<li><a href=\"#\" onclick=\"return changePage(" + (currentPage - 1) + ",null,'Nav','||True||',0)\" ><img border=\"0\" src=\"http://zone.msn.com/images/v9/en-us/site/gamebrowser/previousarrow.gif\" /></a></li>")
+                    navHtml.append("<li><a href=\"#\" onclick=\"return changePage(" + (currentPage - 1) + ",null,'Nav','||True||',0)\" ><i class=\"glyphicon glyphicon-triangle-left\" ></i></a></li>")
+                } else {
+                    //navHtml.append("<li><a href=\"#\"><img border=\"0\" src=\"http://zone.msn.com/images/v9/en-us/site/gamebrowser/prevarrowgrey.gif\" /></a></li>");
+                    navHtml.append("<li><a href=\"#\"><i class=\"glyphicon glyphicon-triangle-left\" ></i></a></li>");
+                }
+                for (var sectionNum = 0; sectionNum < numSections; sectionNum++) {
+                    var sectionStartPage = (sectionNum * sectionSize) + 1;
+                    var sectionEndPage = (sectionNum * sectionSize) + sectionSize;
+                    if (sectionEndPage > numPages)
+                        sectionEndPage = numPages;
+                    if (numPages <= sectionSize + 2) {
+                        sectionStartPage = 1;
+                        sectionEndPage = numPages;
+                    }
+
+                    if (sectionNum == currentSection) {
+                        for (var pageNum = sectionStartPage; pageNum <= sectionEndPage; pageNum++) {
+                            navHtml.append(" ");
+                            if (pageNum == currentPage)
+                                navHtml.append("<li class=\"active\"><a href=\"#\"><b >" + pageNum + "</b></a></li>");
+                            else
+                                navHtml.append("<li><a href=\"#\"  onclick=\"return changePage(" + pageNum + ",null,'Num','||True||',0)\">" + pageNum + "</a></li>");
+                        }
+                    }
+                    else {
+                        navHtml.append(" ");
+                        if (sectionStartPage == sectionEndPage)
+                            navHtml.append("<li><a href=\"#\"  onclick=\"return changePage(" + sectionStartPage + ",null,'Num','||True||',0)\">" + sectionStartPage + "</a></li>");
+                        else
+                            navHtml.append("<li><a href=\"#\"  onclick=\"return changePage(" + sectionStartPage + ",null,'Num','||True||',0)\"><nobr>[" + sectionStartPage + "-" + sectionEndPage + "]</nobr></a></li>");
+                    }
+                }
+
+                if (currentPage < numPages) {
+                    //navHtml.append("<li><a href=\"#\"  onclick=\"return changePage(" + (currentPage + 1) + ",null,'Nav','||True||',0)\"><img border=\"0\" src=\"http://zone.msn.com/images/v9/en-us/site/gamebrowser/nextarrowgrey.gif\" /></a></li>")
+                    navHtml.append("<li><a href=\"#\"  onclick=\"return changePage(" + (currentPage + 1) + ",null,'Nav','||True||',0)\"><i class=\"glyphicon glyphicon-triangle-right\" ></i></a></li>")
+                }
+                else {
+                    //navHtml.append("<li><img  border=\"0\" src=\"http://zone.msn.com/images/v9/en-us/site/gamebrowser/nextarrowgrey.gif\" /></li>");
+                    navHtml.append("<li><i class=\"glyphicon glyphicon-triangle-right\" ></i></li>");
+                }
+                // add the View All link
+                if (IsViewAllMode == 0) {
+                    navHtml.append("<li><a href=\"#\"  onclick=\"return changePage(1,-1,'All','||True||',1)\" >View All</a></li>");
+                }
+
+            }
+            // this has to go outside the big pagination conditional
+            // we are going to only render the link to go back to pagination if
+            // there are more games than the default (25 )
+            if (IsViewAllMode == 1 && totalGames > defaultPageSize) {
+                navHtml.append("<li><a href=\"#\" onclick=\"return changePage(1," + defaultPageSize + ",'Num','||True||',0)\" >View Paged Results</a></li>");
+            }
+            navHtml.append("</ul>");
+            navHtml.append("</div>");
+            navHtml.append("</div></div>");
+
+            html.append("<div>");
+
+            // Top Paging
+            // lets replace the ||True|| with True
+            var replaceVar = navHtml.toString();
+            //html.append(replaceVar.replace(/\|\|True\|\|/g, "true"));
+            html.append("</div>");
+
+
+            html.appendLine("<div id=\"" + id + "\" class=\"container-fluid game-list-container\">");
+            html.appendLine("<div class=\"row GBTableRow hidden-xs game-list-header\">");
+            html.appendLine("<div class=\"col-sm-1  hidden-xs\">&nbsp;</div>");
+
+            //var sortOrderImg = g_CDNImageServer + "/images/v9/en-us/site/v12icons/sortbtnup.gif";
+            //if (this.sortOrder)
+            //     sortOrderImg = g_CDNImageServer + "/images/v9/en-us/site/v12icons/sortbtndown.gif";
+            var sortOrderCls = "glyphicon-menu-up";
+            if (this.sortOrder)
+                sortOrderCls = "glyphicon-menu-down";
+
+            // Render Game Name column header
+            var gameNameSortImg = "";
+            if (this.sortColumn == 0) {
+                //gameNameSortImg = "<img id=\"SortImgGameName" + (this.sortOrder ? "Des" : "Asc") + "\"  valign=\"middle\" src=\"" + sortOrderImg + "\"/>";
+                gameNameSortImg = "&nbsp;<i id=\"SortImgGameName" + (this.sortOrder ? "Des" : "Asc") + "\" class=\"glyphicon sort-icon " + sortOrderCls + "\" valign=\"middle\" ></i>";
+            }
+
+            html.appendLine("<div class=\"col-sm-6 col-xs-12\" style=\" cursor:hand;\" onmouseover=\"columnHover(this, true)\" onmouseout=\"columnHover(this, false)\" onclick=\"return sortColumn(0,false)\">");
+            //html.appendLine("<table width=\"100%\"><tr>");
+            //html.appendLine("<td width=\"90%\">");
+            html.appendLine("<a id=\"GameNameColHdr\" class=\"GBTableHdr\" href=\"#\">Game" + gameNameSortImg + "</a>");
+            //html.appendLine("</td>");
+            //html.appendLine("<td width=\"10%\" align=\"right\">" + gameNameSortImg + "</td>");
+            // html.appendLine("</tr></table>");
+            html.appendLine("</div>");
+
+            // Render Population column header
+            //if (this.playMode == 1 || this.playMode == 5) {
+
+
+            var populationSortImg = "";
+            if (this.sortColumn == 1) {
+
+                //populationSortImg = "&nbsp;<img id=\"SortImgPop" + (this.sortOrder ? "Des" : "Asc") + "\" valign=\"middle\" hspace=\"0\" vspace=\"0\" src=\"" + sortOrderImg + "\"/>";
+                populationSortImg = "&nbsp;<i id=\"SortImgPop" + (this.sortOrder ? "Des" : "Asc") + "\" valign=\"middle\"  class=\"glyphicon sort-icon " + sortOrderCls + "\"></i>";
+            }
+
+            //html.appendLine("<div class=\"col-sm-2 hidden-xs\" style=\"cursor:hand;\" onmouseover=\"columnHover(this, true)\" onmouseout=\"columnHover(this, false)\" onclick=\"return sortColumn(1,false)\" ><a id=\"PopColHdr\" class=\"GBTableHdr\" href=\"#\">Type</a>" + populationSortImg + "</div>");
+            html.appendLine("<div class=\"col-sm-2 hidden-xs\">TYPE</div>");
+            //}
+            //else {
+            //    html.appendLine("<div class=\"col-sm-2 hidden-xs\"  ><span class=\"GBTableHdr\">Type</span></div>");
+            // }
+
+            // Render Genre column header
+            html.appendLine("<div class=\"col-sm-2 hidden-xs\" ><span class=\"GBTableHdr\">Category</span></div></div>");
+
+
+            var numGames = nodeList.length;
+            for (var i = 0; i < numGames; i++) {
+                var node = nodeList[i];
+                if (node.nodeName != "#text") {
+
+                    //var gameNameNode = node.selectSingleNode("Name");
+                    // var gameName = node.selectSingleNode("Name").firstChild.nodeValue;
+                    var gameNameNode = node.querySelector("Name");
+                    var gameName = node.querySelector("Name").firstChild.nodeValue;
+                    var playModeID = node.attributes.getNamedItem("playModeID").value;
+
+                    var description = null;
+                    //var descNode = node.selectSingleNode("Desc");
+                    var descNode = node.querySelector("Desc");
+
+                    if (descNode.firstChild != null)
+                        description = descNode.firstChild.nodeValue;
+
+                    if (!description)
+                        description = playModes[playModeID];
+                    var population = null;
+                    //var popNode = node.selectSingleNode("Pop");
+                    var popNode = node.querySelector("Pop");
+
+                    if (popNode.firstChild != null)
+                        population = popNode.firstChild.nodeValue;
+
+                    if (population)
+                        population += " players";
+                    else
+                        population = playModes[playModeID];
+
+                    //var genreList = node.selectSingleNode("Genres").childNodes;
+                    var genreList = node.querySelector("Genres").childNodes;
+                    var genreText = "";
+                    for (var j = 0; j < genreList.length; j++) {
+                        var genreNode = genreList[j];
+                        if (genreNode.nodeName != "#text") {
+                            var genreID = genreNode.attributes.getNamedItem("idNum").value;
+                            if (j > 0 && genreText.length > 0)
+                                genreText += ", ";
+                            genreText += "<nobr>" + genres[genreID] + "</nobr>";
+                        }
+                    }
+                }
+
+                var pageUrl = null;
+                switch (playModeID) {
+                    // Free Online (single-player and ZPA)
+                    case "1":
+                        if (node != null && node.nodeType == 1) {
+                            var instanceCode = node.attributes.getNamedItem("instance").value;
+                            var channelName = node.attributes.getNamedItem("channel").value;
+                            if (instanceCode != "default")
+                                pageUrl = "/en/" + channelName + "/" + instanceCode + "_default.htm";
+                            else
+                                pageUrl = "/en/" + channelName + "/default.htm"
+                        }
+                        break;
+
+                        // PC Download
+                    case "2":
+                        if (node != null && node.nodeType == 1) {
+                            var altID = "";
+                            try {
+                                //altID = node.selectSingleNode("AltID").firstChild.nodeValue;
+                                altID = node.querySelector("AltID").firstChild.nodeValue;
+                            } catch (e) { altID = ""; }
+                            pageUrl = "/en/root/deluxe.htm?code=" + altID + "&RefID=25"; //RefID=25 is for tracking by Oberon
+                        }
+                        break;
+
+                        // GameSpring
+                    case "3":
+                        if (node != null && node.nodeType == 1) {
+                            var channelName = node.attributes.getNamedItem("channel").value;
+                            pageUrl = "/en/" + channelName + "/gamespring.htm"
+                        }
+                        break;
+
+                        // Play For Cash
+                    case "4":
+                        if (node != null && node.nodeType == 1) {
+                            var altID = "";
+                            try {
+                                //altID = node.selectSingleNode("AltID").firstChild.nodeValue;
+                                altID = node.querySelector("AltID").firstChild.nodeValue;
+                            } catch (e) { altID = ""; }
+
+                            pageUrl = "http://msn.worldwinner.com/cgi/welcome/21smq?portal=msn&game_id=" + altID;
+                        }
+                        break;
+
+                        // Messenger
+                    case "5":
+                        if (node != null && node.nodeType == 1) {
+                            var gameCode = node.attributes.getNamedItem("gameCode").value;
+                            pageUrl = "/en/general/article/" + gameCode + "messengerlaunch.htm";
+                        }
+                        break;
+                        // Zone online casino
+                    case "6":
+                        if (node != null && node.nodeType == 1) {
+                            var instanceCode = node.attributes.getNamedItem("instance").value;
+                            var channelName = node.attributes.getNamedItem("channel").value;
+                            if (instanceCode != "default")
+                                pageUrl = "/en/" + channelName + "/" + instanceCode + "_default.htm";
+                            else
+                                pageUrl = "/en/" + channelName + "/default.htm"
+                        }
+                        break;
+
+                        // Unknown play mode
+                    default:
+                        pageUrl = null;
+                        break;
+                }
+
+                if (pageUrl) {
+                    //Skip the play mode 'Play For Cash' to append intgid as those links lead off the site. 
+                    if (playModeID != 4) {
+                        var gameCode = node.attributes.getNamedItem("gameCode").value;
+                        var joiner = pageUrl.indexOf("?") != -1 ? joiner = "&" : joiner = "?";
+
+                        var intgid = "intgid=" + pageCode + "_" + NoSpecialChar(playModes[this.playMode]) + NoSpecialChar(genres[this.genre]) + "+" + "List_" + (i + 1) + "_" + NoSpecialChar(gameCode);
+
+                        //intgid limit is 100. Here 100 + 7 (intgid=) = 107
+                        pageUrl = pageUrl + joiner + intgid.substring(0, 107);
+                    }
+
+
+                    html.appendLine("<div class=\"row GBTableRow game-list game-list-row\" link=\"" + pageUrl + "\">");
+                    //html.append("<div class=\"col-sm-2 col-xs-3\">");
+                    html.append("<div class=\"col-sm-1 col-xs-1\">");
+                    var iconUrl = "http://zone.msn.com/images/v9/en-us/site/v12icons/icon16_mode_" + playModeID + ".gif";
+                    if (playModeID == 6) {
+                        iconUrl = "http://zone.msn.com/images/v9/en-us/site/v12icons/icon16_mode_5.gif";
+                    }
+
+                    //var tumb = 'http://lorempixel.com/320/320/sports/8/';
+                    html.append("<a class=\"LnkType1\" href=\"" + pageUrl + "\">");
+                    html.append("<img border=\"0\"  class=\"img-responsive game-image\" src=\"" + iconUrl + "\" title=\"" + playModes[playModeID] + "\" />");
+                    html.appendLine("</a></div>");
+                    html.append("<div class=\"col-sm-6 col-xs-11 game-item\">");
+                    html.append("<a class=\"LnkType1 game-list-title\" href=\"" + pageUrl + "\">" + gameName + "</a><br/>");
+                    html.append("<span class=\"game-description\">" + description + "</span>");
+                    html.appendLine("</div>");
+                    html.append("<div class=\"col-sm-2 hidden-xs\">");
+                    //html.append(population);
+                    html.append(playModes[playModeID]);
+                    html.appendLine("</div>");
+                    html.append("<div class=\"col-sm-2 hidden-xs\">");
+                    html.append(genreText);
+                    html.appendLine("</div>");
+                    html.appendLine("</div>");
+                }
+            }
+            html.appendLine("</div>");
+
+            //equal to condition used to fix bug #213449
+            if (numGames >= 2) {
+                html.append("<div>");
+
+                // Bottom Paging
+                // lets replace the ||True|| with False
+                html.append(navHtml.toString().replace(/\|\|True\|\|/g, "false"));
+                html.append("</div>");
+                if (g_GBFeedback) {
+                    html.append("<div class=\"LnkType5GBFeedback\"><A class=\"LnkType1\" href=\"javascript:OpenWindow('http://ccc01.opinionlab.com/o.asp?id=mJLvToYU', 'customsize', '', 535, 425 );\">Did you find the game you were looking for?</A></div>");
+                }
+            }
+        }
+
+        return html.toString();
+    }
+
+    this.buildEditorialHtml = function (id, editorialNode) {
+        try {
+            //var html = new Sys.StringBuilder();
+            //var bgImgUrl = editorialNode.selectSingleNode("BkgImage/Src").firstChild.nodeValue;
+
+            //html.appendLine("<div id=\"" + id + "\" class=\"container-fluid\"><div class=\"row\">");
+            //var nodeList = editorialNode.selectNodes("Item");
+            //for (var i = 0; i < nodeList.length; i++) {
+            //    var node = nodeList[i];
+            //    var href = node.selectSingleNode("Link/HREF").firstChild.nodeValue;
+            //    var text = node.selectSingleNode("Link/Text").firstChild.nodeValue;
+            //    var imgUrl = node.selectSingleNode("Image/Src").firstChild.nodeValue;
+            //    var altText = node.selectSingleNode("Image/AltText").firstChild.nodeValue;
+            //    html.appendLine("<div class=\"col-sm-3 col-xs-6\">");
+
+            //    var joiner = href.indexOf("?") != -1 ? joiner = "&" : joiner = "?";
+            //    //intgid limit is 100. Here 100 + 8 (?intgid=) = 108
+            //    var intgid = "intgid=" + pageCode + "_" + NoSpecialChar(playModes[this.playMode]) + NoSpecialChar(genres[this.genre]) + "+" + "Pick_" + (i + 1) + "_" + NoSpecialChar(altText);
+            //    html.appendLine("<a class=\"TxtContr LnkType1\" href=\"" + href + joiner + intgid.substring(0, 108) + "\">");
+
+            //    html.appendLine("<img border=\"0\" width=\"60\" height=\"60\" style=\"margin-bottom:8px\" src=\"" + imgUrl + "\" title=\"" + altText + "\" /><br />");
+            //    html.appendLine("<span>" + text + "</span>");
+            //    html.appendLine("</a>");
+            //    html.appendLine("</div>");
+            //}
+            //html.appendLine("</div></div>");
+
+            return html.toString();
+        }
+        catch (e) {
+            return "";
+        }
+    }
+}
+
+function updateFilterSelection(playModeID, genreID, blnRememberSelection) {
+    for (var i = 0; i < 20; i++) {
+        var playModeRow = document.getElementById("P" + i);
+        if (playModeRow != null) {
+            var rowPlayModeID = playModeRow.getAttribute("playModeID");
+            if (rowPlayModeID == playModeID)
+                playModeRow.style.backgroundColor = "#000000";
+            else
+                playModeRow.style.backgroundColor = "#006EC8";
+        }
+    }
+
+    for (var i = 0; i < 20; i++) {
+        var genreRow = document.getElementById("G" + i);
+        if (genreRow != null) {
+            var rowGenreID = genreRow.getAttribute("genreID");
+            if (rowGenreID == genreID)
+                genreRow.style.backgroundColor = "#000000";
+            else
+                genreRow.style.backgroundColor = "#8c8c8c";
+        }
+    }
+
+    /*	
+	if (blnRememberSelection)
+	{
+		saveCurrentSelection(playModeID, genreID, null);
+	}
+	*/
+}
+
+
+function updateGenreGameCounts(gameCounts) {
+    if (gameCounts != null) {
+        for (var i = 0; i < 20; i++) {
+            var gameCount = document.getElementById("GC" + i);
+            var gameLink = document.getElementById("GL" + i);
+            if (gameCount != null) {
+                gameCount.innerHTML = "&nbsp;(" + gameCounts[i] + ")";
+                if (gameCounts[i] == 0) {
+                    if (gameCount.parentNode != null) {
+                        gameCount.parentNode.disabled = true;
+                        gameCount.parentNode.style.display = "none";
+                        gameCount.parentNode.style.cursor = "text";
+                    }
+                    gameLink.disabled = true;
+                    gameLink.style.cursor = "text";
+                }
+                else {
+                    if (gameCount.parentNode != null) {
+                        gameCount.parentNode.disabled = false;
+                        gameCount.parentNode.style.display = "block";
+                        gameCount.parentNode.style.cursor = "pointer";
+                    }
+                    gameLink.disabled = false;
+                    gameLink.style.cursor = "pointer";
+                }
+            }
+        }
+    }
+}
+
+
+function updatePageTrackingCount(pageType, isTop) {
+
+    if (isTop == "true") {
+        switch (pageType) {
+
+            case "Nav":
+                _TopNavCount++;
+                appendClickPath("A");
+                break;
+
+            case "Num":
+                _TopNumCount++;
+                appendClickPath("N");
+                break;
+            case "All":
+                appendClickPath("Y");
+                break;
+        }
+    }
+    else {
+        switch (pageType) {
+
+            case "Nav":
+                _BotNavCount++;
+                appendClickPath("B");
+                break;
+
+            case "Num":
+                _BotNumCount++;
+                appendClickPath("M");
+                break;
+            case "All":
+                appendClickPath("Z");
+                break;
+        }
+    }
+
+}
+
+// appends a symbol relating to what was clicked on the page.
+function appendClickPath(clickItem) {
+    if ((_ClickPath.length + clickItem.length) <= 255) {
+        _ClickPath += clickItem;
+        // add to cookie
+        SetNoEscapeSubkey("ZMisc", "GBClickPath", _ClickPath, null, null, g_CookieDomain, false)
+    }
+}
+
+function playModeFilterClick(target) {
+    var playModeID = target.getAttribute("playModeID");
+    var genreCount = gameCounts[playModeID][GameBrowser1Obj.genre];
+
+    //commented below code to fix bug #213398
+    /*if (genreCount == 0)
+        GameBrowser1Obj.genre = 0;*/
+
+    GameBrowser1Obj.playMode = playModeID;
+    GameBrowser1Obj.startIndex = 1;
+    GameBrowser1Obj.sortColumn = 0;
+    GameBrowser1Obj.sortOrder = false;
+
+    updateFilterSelection(playModeID, GameBrowser1Obj.genre, true);
+    updateGenreGameCounts(gameCounts[playModeID]);
+
+    // once again we need to check for IsViewAll
+    if (IsViewAllMode == 1)
+        GameBrowser1Obj.pageSize = -1;
+
+    updateUrl();
+
+    // increment the playmode counter
+    _PlayModeCount++;
+    appendClickPath("P" + playModeID);
+
+    TrackUserClick();    
+
+    //below if conditional code introduced to fix bug #213418
+    if (genreCount == 0) {
+        $(".pagination-controls").remove();
+        $(".game-list-row").remove();
+        $("#GameBrowser1Table").append('<div class="row GBTableRow game-list game-list-row no-games"> <div class="col-xs-12">No Games found</div></div>');
+        return false;
+    }
+
+    GameBrowser1Obj.refresh();
+    return false;
+}
+
+function genreFilterClick(target) {
+    var genreID = target.getAttribute("genreID");
+    var genreCount = gameCounts[GameBrowser1Obj.playMode][genreID];
+
+
+
+    GameBrowser1Obj.genre = genreID;
+    GameBrowser1Obj.startIndex = 1;
+    // once again we need to check for IsViewAll
+    if (IsViewAllMode == 1)
+        GameBrowser1Obj.pageSize = -1;
+    updateFilterSelection(GameBrowser1Obj.playMode, genreID, true);
+
+    updateUrl();
+
+    // increment the genre counter
+    _GenreCount++;
+    appendClickPath("G" + genreID);
+
+    TrackUserClick();
+    if (genreCount == 0) {
+        $(".pagination-controls").remove();//this line of code written to fix bug #213418
+        $(".game-list-row").remove();
+        $("#GameBrowser1Table").append('<div class="row GBTableRow game-list game-list-row no-games"> <div class="col-xs-12">No Games found</div></div>');
+        return false;
+    }
+    GameBrowser1Obj.refresh();
+    return false;
+}
+
+function updateUrl() {
+    window.location.hash = "#" + GameBrowser1Obj.playMode + "_" + GameBrowser1Obj.genre + "_" + GameBrowser1Obj.startIndex + "_" + GameBrowser1Obj.sortColumn + "_" + (GameBrowser1Obj.sortOrder ? 1 : 0) + "_" + IsViewAllMode + "_" + GameBrowser1Obj.pageSize;
+    setTimeout("updatePageTitle()", 2000);
+}
+
+function updatePageTitle() {
+    var categoryText = "";
+    if (playModes[GameBrowser1Obj.playMode] != null && genres[GameBrowser1Obj.genre] != null) {
+        if (GameBrowser1Obj.playMode > 0)
+            categoryText += playModes[GameBrowser1Obj.playMode];
+        if (GameBrowser1Obj.genre > 0)
+            categoryText += " " + genres[GameBrowser1Obj.genre];
+    }
+
+    if (categoryText.length > 0)
+        document.title = "MSN Games - " + HtmlDecode(categoryText) + " Games";
+    else
+        document.title = "MSN Games";
+}
+
+function filterHover(target) {
+    try {
+        if (!target.disabled) {
+            var hoverStyle = target.attributes.getNamedItem("HoverClass").value;
+            //target.className = hoverStyle;
+        }
+    }
+    catch (e)
+    { }
+}
+
+function filterUnhover(target) {
+    try {
+        //if (!target.disabled)
+        {
+            var unhoverStyle = target.attributes.getNamedItem("UnhoverClass").value;
+            //target.className = unhoverStyle;
+        }
+    }
+    catch (e)
+    { }
+}
+
+function columnHover(target, hover) {
+    if (hover) {
+        target.style.backgroundImage = "url(http://zone.msn.com/images/v9/en-us/site/v12icons/titlebgrdselect.gif)";
+    }
+    else {
+        target.style.backgroundImage = "url(http://zone.msn.com/images/v9/en-us/site/gamebrowser/titlebgrd.gif)";
+    }
+}
+
+// Change page is for the pagination control for prev, next, page num and view all
+// pageNum: This is the current selected page.  For View All pass in 1 ( the start index is
+// normalized to 1, if 1).
+// pageSize: This is the ammount of records to show per page.  Default is 25 if null is passed.
+// for View All, -1 is passed to return all records
+// pageType: this is for tracking; Nav, Num, All
+// isTop: For tracking, a bool to track if Top pagination or bottom.
+function changePage(pageNum, pageSize, pageType, isTop, IsViewAll) {
+    GameBrowser1Obj.startIndex = ((pageNum - 1) * GameBrowser1Obj.pageSize) + 1;
+    if (pageSize != null)
+        GameBrowser1Obj.pageSize = pageSize;
+    IsViewAllMode = IsViewAll;
+    updateUrl();
+    updatePageTrackingCount(pageType, isTop);
+    TrackUserClick();
+    GameBrowser1Obj.refresh();
+    return false;
+}
+
+function sortColumn(sortColumn, sortOrder) {
+    if (GameBrowser1Obj.sortColumn == sortColumn) {
+        GameBrowser1Obj.sortOrder = !GameBrowser1Obj.sortOrder;
+    }
+    else {
+        GameBrowser1Obj.sortColumn = sortColumn;
+        GameBrowser1Obj.sortOrder = sortOrder
+    }
+
+    // Increment the sort column counter and click path
+    _SortColumnCounts[sortColumn]++;
+    var sortOrderIndex = GameBrowser1Obj.sortOrder ? 0 : 1;
+    appendClickPath(_SortingClickPaths[sortColumn][sortOrderIndex]);
+
+    updateUrl();
+    TrackUserClick();
+
+    GameBrowser1Obj.startIndex = 1;
+    GameBrowser1Obj.refresh();
+    return false;
+}
+
+function onComplete(result, context) {
+    context.onComplete(result, context);
+}
+
+function onError(err, context) {
+    context.onError(err, context);
+}
+
+//function called when onbeforeunload is called
+function gameBrowserPreUnload() {
+    // track all of our counters
+    uploadTrackingData();
+
+    // append an "X" to the clickstream to denote we left
+    appendClickPath("X");
+}
+
+
+function uploadTrackingData() {
+    if (IsTrackingOn) {
+        // invoke an Omniture tracking call
+        var s = s_gi(TrackingID);
+
+        // reset the s.prop vars that have already been set at the page level
+        // this is so we do not skew the data as PageViews.
+        // We are emulating a "link click"
+        s.channel = '';
+        s.server = '';
+        s.prop1 = '';
+        s.prop2 = '';
+        s.prop3 = '';
+        s.prop4 = '';
+        s.prop6 = '';
+        s.prop17 = '';
+        s.prop22 = '';
+        s.prop33 = 'GBSortGameName:' + _SortColumnCounts[0];
+        s.prop34 = 'GBSortPop:' + _SortColumnCounts[1];
+        s.prop35 = 'GBPlayMode:' + _PlayModeCount;
+        s.prop36 = 'GBGenre:' + _GenreCount;
+        s.prop37 = 'GBTopNav:' + _TopNavCount;
+        s.prop38 = 'GBTopNum:' + _TopNumCount;
+        s.prop39 = 'GBBotNav:' + _BotNavCount;
+        s.prop40 = 'GBBotNum:' + _BotNumCount;
+        s.pageName = 'link: GameBrowser';
+        s.t();
+    }
+}
+
+function ChangeAds() {
+    if (typeof (dapMgr) != "undefined") {
+        /* TODO: Remove or fix the following code
+            //initialize the vertical banner
+            var elm=document.getElementById("VerticalBanner1");
+            elm.innerHTML="";
+            // refresh both the Ads -- EnableACB with false removes the "Advertisement" text
+            dapMgr.enableACB("SuperBanner1", false);
+            dapMgr.renderAd("SuperBanner1", strSuperBannerTv1_Parm,728,90);
+            dapMgr.enableACB("VerticalBanner1", false);
+            dapMgr.renderAd("VerticalBanner1", strVerticalBannerTv1_Parm,160,600);
+    
+            // Add "Advertisement" text to the vertical banner   
+            var addiv=document.createElement("DIV");
+            addiv.align="right";
+            addiv.style.width="160";
+            addiv.className="VerticalBannerTV_tag";
+            addiv.innerHTML="advertisement";
+            elm.insertBefore(addiv,elm.firstChild);
+        */
+        setTimeout("updatePageTitle()", 2000);
+    }
+}
+
+function TrackUserClick() {
+    if (timeoutHandlerFlag) {
+        ChangeAds();
+        timeoutHandlerFlag = false;
+        InitializeTimer();
+    }
+}
+
+function ClickTimer_Expired() {
+    timeoutHandlerFlag = true;
+}
+
+function InitializeTimer() {
+    if (g_GBTimer != -1) {
+        setTimeout("ClickTimer_Expired()", g_GBTimer);
+    }
+}
+
+$(function () {
+    $("#GameBrowser1").on('click', '#GameBrowser1GameListDiv #GameBrowser1Table .game-list-row', function () {
+        if ($(this).hasClass('no-games')) {
+            return;
+        } else {
+            var link = $.trim($(this).attr('link'));
+            window.location.href = link;
+        }
+    });
+
+});

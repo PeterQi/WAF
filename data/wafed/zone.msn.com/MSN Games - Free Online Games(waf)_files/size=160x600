@@ -1,0 +1,51 @@
+document.write("<!--*\n");
+document.write("var aolAdId=\"7637809|24808455\";\n");
+document.write("var aolSize=\"160|600\";\n");
+document.write("var aolFormat=\"HTML\";\n");
+document.write("var aolGUID=\"1481962514|6202345229707715\";\n");
+document.write("*-->\n");
+(function () {
+var anProt = 'https://secure.adnxs.com';
+if (window.location.protocol != "https:") {
+anProt = 'http://m.adnxs.com';
+}
+var anPG = "GAMSK1".toUpperCase();
+var anMKT = "us".toUpperCase();
+var escValue=escape('pg:' + anPG + ';p:;r:');
+document.write('<scr' + 'ipt src="' + anProt + '/ttj?member=280&inv_code=' + anPG + '&imp_id=1481962514|6202345229707715&cb=1481962514&size=160x600&providerid=&ext_inv_code=' + anMKT + '&rid=&external_uid=3050aadf816d608c23dba33b856d62f8&traffic_source_code='+escValue+'"></scr' + 'ipt>');
+}) ();
+
+
+
+
+document.write("<!--*\n");
+document.write("var moatClientLevel1=5113\n");
+document.write("var moatClientLevel2=274541\n");
+document.write("var moatClientLevel3=0\n");
+document.write("var moatClientLevel4=3855417\n");
+document.write("var zMoatMaster=7637808\n");
+document.write("var zMoatFlight=7637809\n");
+document.write("var zMoatBanner=24808455\n");
+document.write("var zURL=http\n");
+document.write("var zMoatPlacementId=3855417\n");
+document.write("var zMoatPlacementExtId=93502296\n");
+document.write("var zMoatAdId=7637809\n");
+document.write("var zMoatCreative=0\n");
+document.write("var zMoatBannerID=4\n");
+document.write("var zMoatCustomVisp=50\n");
+document.write("var zMoatCustomVist=1000\n");
+document.write("var zMoatIsAdvisGoal=0\n");
+document.write("var zMoatEventUrl=\n");
+document.write("var zMoatSize=154\n");
+document.write("var zMoatSubNetID=1\n");
+document.write("var zMoatisSelected=0\n");
+document.write("var zMoatadServer=at.atwola.com\n");
+document.write("var zMoatadVisServer=\n");
+document.write("var zMoatSamplingRate=23\n");
+document.write("var zMoatliveTestCookie=\n");
+document.write("var zMoatRefSeqId=DnOMIAQCWAA\n");
+document.write("var zMoatImpRefTs=1481962514\n");
+document.write("var zMoatAlias=gamsk1\n");
+document.write("var zMoatWebsiteID=274541\n");
+document.write("var zMoatVert=\n");
+document.write("*-->\n");

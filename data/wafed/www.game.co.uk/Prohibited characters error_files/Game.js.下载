@@ -1,0 +1,68 @@
+// Game JS
+$(document).ready(function() {
+	   
+	if ($('body').attr('id') == 'pgPayment' && $('#useDifferentForBilling').length > 0 && $('#useDifferentForBilling').attr('disabled') == 'disabled') $('#useDifferentForBilling').removeAttr('disabled');
+   /* Download open in footer */
+	$(".openerFT").click(function() {
+		$(".subFT").toggle();
+	});	
+	/* Newsletter Sign Up */
+	$("#logonEmailId").click(function() {
+		$(this).removeAttr('placeholder');
+	});
+	
+	// Preownd button Hacks
+	$("body#pgProductDetails #aside #variants .priceItem.topsellers ul.product-descriptions li.product-description .preowned-guarantee-tip").each(function() {
+        $(this).parent().addClass("gameproduct");
+    });
+	$("body#pgProductDetails #aside #variants li.priceItem ul.preowned li.available").each(function() {
+		$(this).parent().parent().hide();
+	});
+	
+	$('body#pgArticle.article.art #secondary #relatedProducts #productLister ul.products div.imageHolder div.photo > a > img').each(function() {
+        var imgAtt = $(this).attr('data-src');
+		$(this).attr('src', imgAtt);
+    });
+	
+	/*if ($('body').attr('id') == 'pgHome' && $('#HomeCarousel1').length > 0 && $('#HomeCarousel1').find('.slide').length > 0) {
+		var $firstSlide = $('#HomeCarousel1').find('.slide').eq(0),
+		    $secondSlide = $('#HomeCarousel1').find('.slide').eq(1);
+		$firstSlide.parent().prepend($secondSlide);
+	}*/
+
+});
+
+$(window).ready(function() {
+	setTimeout(function(){
+		// if not preowned game stock hide preowned button
+		var itemsToBuy = $("body#pgProductDetails #aside #variants li.priceItem.topsellers ul.product-descriptions > li").length;		
+		if(itemsToBuy <= 1 && $("body#pgProductDetails #aside #variants li.priceItem.topsellers ul.product-descriptions > li").hasClass("gameproduct")) {
+			$("body#pgProductDetails #aside #variants li.priceItem.topsellers").hide();
+		}
+		/*
+		var hasGAME = $("#pgProductDetails #marketplaceContent li.item.game").length;		
+		if (hasGAME < 1) {
+			$("#pgProductDetails #aside .clickAndCollectAvailable").hide();
+		}
+		*/
+	}, 2000);
+});
+
+$(window).ready(function() {
+if ($('body').attr('id') == 'pgProductDetails') {
+    setTimeout(function(){
+        $('.IORecsSliderNew a.addToBasket').each(function(){
+            $(this).attr('href', $(this).attr('href') + 'cm_vc=Prod_2');  
+        });
+    }, 1500)
+}
+});
+
+$(document).ready(function(){
+    if ($('.boughtTogether .perfectPartnerProducts > div').length > 0 && $('body').hasClass('bundle')) { 
+        var mainImage = $('.mainItem img').attr('src');
+        $('.boughtTogether .perfectPartnerProducts > div').eq(0).find('img').attr('src', mainImage);
+    }
+    
+})
+// Darren Test

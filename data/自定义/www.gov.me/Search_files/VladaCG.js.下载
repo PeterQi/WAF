@@ -1,0 +1,61 @@
+function ShowAudio(path) {
+    ShowMedia(path, { lightbox: true, autoPlay: false, isVideoType: false });
+}
+
+function ShowVideo(path) {
+    ShowMedia(path, { lightbox: true, autoPlay: false });
+}
+
+function ShowMedia(path, options) {
+    
+    options = jQuery.extend({
+        autoPlay: true,
+        thumbnailId: '',
+        formatId: 0,
+        lightbox: false,
+        isVideoType: true,		
+		width: '327',
+		height: '215'
+    }, options);
+
+    if (!AdobeFlashPlayerCheck(options.lightbox)) {
+        return;
+    }
+        
+    var heightAudio = '24';
+
+    var so = new SWFObject('/WebResources/mediaplayerviral/player-viral.swf', 'ply', options.width, (options.isVideoType ? options.height : heightAudio), '9', '#ffffff');
+    so.addParam('allowfullscreen', 'true');
+    so.addParam('allowscriptaccess', 'always');
+    so.addParam('wmode', 'opaque');
+
+    if (window.firstLoad == undefined) {
+        so.addVariable('image', escape('/ResourceManager/GetImage.aspx?imgId=' + options.thumbnailId + '&fmtId=' + options.formatId + 'file=rtsdf.jpg'));
+        window.firstLoad = false;
+    }
+    else {
+        so.addVariable('autostart', options.autoPlay);
+    }
+    
+    if(!options.autoPlay)
+    {
+        so.addVariable('image', escape('/ResourceManager/GetImage.aspx?imgId=' + options.thumbnailId + '&fmtId=' + options.formatId + 'file=rtsdf.jpg'));
+    }
+
+    if (path != '') {
+        path = escape(path)
+        so.addVariable('file', path);
+    }
+    else {
+        so.addVariable('file', 'http://www.longtailvideo.com/jw/upload/behang.jpg');
+    }
+
+    if (options.lightbox) {
+        so.write('mediaspaceLightBox');
+        $.jwbox.toggle($("#jwbox"));
+        $.jwbox.center();
+    }
+    else {
+        so.write('mediaspace');
+    }
+}

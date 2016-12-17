@@ -1,0 +1,44 @@
+Type.registerNamespace('SnT.Cms2.Modules.Core');
+SnT.Cms2.Modules.Core.GalleryService=function() {
+SnT.Cms2.Modules.Core.GalleryService.initializeBase(this);
+this._timeout = 0;
+this._userContext = null;
+this._succeeded = null;
+this._failed = null;
+}
+SnT.Cms2.Modules.Core.GalleryService.prototype={
+_get_path:function() {
+ var p = this.get_path();
+ if (p) return p;
+ else return SnT.Cms2.Modules.Core.GalleryService._staticInstance.get_path();},
+GetList:function(galleryId,languageId,succeededCallback, failedCallback, userContext) {
+return this._invoke(this._get_path(), 'GetList',false,{galleryId:galleryId,languageId:languageId},succeededCallback,failedCallback,userContext); },
+GetListByKeywords:function(keywords,rowCount,languageId,succeededCallback, failedCallback, userContext) {
+return this._invoke(this._get_path(), 'GetListByKeywords',false,{keywords:keywords,rowCount:rowCount,languageId:languageId},succeededCallback,failedCallback,userContext); },
+VoteForImage:function(imageId,grade,fileIndex,succeededCallback, failedCallback, userContext) {
+return this._invoke(this._get_path(), 'VoteForImage',false,{imageId:imageId,grade:grade,fileIndex:fileIndex},succeededCallback,failedCallback,userContext); }}
+SnT.Cms2.Modules.Core.GalleryService.registerClass('SnT.Cms2.Modules.Core.GalleryService',Sys.Net.WebServiceProxy);
+SnT.Cms2.Modules.Core.GalleryService._staticInstance = new SnT.Cms2.Modules.Core.GalleryService();
+SnT.Cms2.Modules.Core.GalleryService.set_path = function(value) { SnT.Cms2.Modules.Core.GalleryService._staticInstance.set_path(value); }
+SnT.Cms2.Modules.Core.GalleryService.get_path = function() { return SnT.Cms2.Modules.Core.GalleryService._staticInstance.get_path(); }
+SnT.Cms2.Modules.Core.GalleryService.set_timeout = function(value) { SnT.Cms2.Modules.Core.GalleryService._staticInstance.set_timeout(value); }
+SnT.Cms2.Modules.Core.GalleryService.get_timeout = function() { return SnT.Cms2.Modules.Core.GalleryService._staticInstance.get_timeout(); }
+SnT.Cms2.Modules.Core.GalleryService.set_defaultUserContext = function(value) { SnT.Cms2.Modules.Core.GalleryService._staticInstance.set_defaultUserContext(value); }
+SnT.Cms2.Modules.Core.GalleryService.get_defaultUserContext = function() { return SnT.Cms2.Modules.Core.GalleryService._staticInstance.get_defaultUserContext(); }
+SnT.Cms2.Modules.Core.GalleryService.set_defaultSucceededCallback = function(value) { SnT.Cms2.Modules.Core.GalleryService._staticInstance.set_defaultSucceededCallback(value); }
+SnT.Cms2.Modules.Core.GalleryService.get_defaultSucceededCallback = function() { return SnT.Cms2.Modules.Core.GalleryService._staticInstance.get_defaultSucceededCallback(); }
+SnT.Cms2.Modules.Core.GalleryService.set_defaultFailedCallback = function(value) { SnT.Cms2.Modules.Core.GalleryService._staticInstance.set_defaultFailedCallback(value); }
+SnT.Cms2.Modules.Core.GalleryService.get_defaultFailedCallback = function() { return SnT.Cms2.Modules.Core.GalleryService._staticInstance.get_defaultFailedCallback(); }
+SnT.Cms2.Modules.Core.GalleryService.set_path("/App_Modules__SnT.Cms2.Modules.Core.Pck__SnT.Cms2.Modules.Core.Gallery.GalleryService.asmx");
+SnT.Cms2.Modules.Core.GalleryService.GetList= function(galleryId,languageId,onSuccess,onFailed,userContext) {SnT.Cms2.Modules.Core.GalleryService._staticInstance.GetList(galleryId,languageId,onSuccess,onFailed,userContext); }
+SnT.Cms2.Modules.Core.GalleryService.GetListByKeywords= function(keywords,rowCount,languageId,onSuccess,onFailed,userContext) {SnT.Cms2.Modules.Core.GalleryService._staticInstance.GetListByKeywords(keywords,rowCount,languageId,onSuccess,onFailed,userContext); }
+SnT.Cms2.Modules.Core.GalleryService.VoteForImage= function(imageId,grade,fileIndex,onSuccess,onFailed,userContext) {SnT.Cms2.Modules.Core.GalleryService._staticInstance.VoteForImage(imageId,grade,fileIndex,onSuccess,onFailed,userContext); }
+var gtc = Sys.Net.WebServiceProxy._generateTypedConstructor;
+if (typeof(SnT.Cms2.Modules.Core.GalleryResponse) === 'undefined') {
+SnT.Cms2.Modules.Core.GalleryResponse=gtc("SnT.Cms2.Modules.Core.GalleryResponse");
+SnT.Cms2.Modules.Core.GalleryResponse.registerClass('SnT.Cms2.Modules.Core.GalleryResponse');
+}
+if (typeof(SnT.Cms2.Modules.Core.GalleryFileVoteResponse) === 'undefined') {
+SnT.Cms2.Modules.Core.GalleryFileVoteResponse=gtc("SnT.Cms2.Modules.Core.GalleryFileVoteResponse");
+SnT.Cms2.Modules.Core.GalleryFileVoteResponse.registerClass('SnT.Cms2.Modules.Core.GalleryFileVoteResponse');
+}

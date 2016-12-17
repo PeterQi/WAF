@@ -1,0 +1,305 @@
+#gallerylightbox-jquery-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 101;
+	width: 100%;
+	height: 500px;
+}
+#gallerylightbox-jquery-lightbox {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	z-index: 102;
+	text-align: center;
+	line-height: 0;
+}
+#gallerylightbox-jquery-lightbox a img 
+{
+    border: none;
+    display: block;
+    margin: 0 auto;
+    visibility: visible;
+    padding: 0 3px;
+}
+#gallerylightbox-gallerylightbox-lightbox-container-image-box {
+	position: relative;
+	background-color: #dddddd;
+	z-index: 10;
+	width: 250px;
+	height: 250px;
+	margin: 0 auto;
+}
+#gallerylightbox-lightbox-container-image 
+{
+    background-color: #fff;
+    position: relative;
+    z-index: 10;
+    padding: 0;
+}
+#gallerylightbox-lightbox-loading {
+	position: absolute;
+	top: 40%;
+	width: 100%;
+	line-height: 0;
+	z-index: 11;
+	left: 0px;
+}
+#gallerylightbox-lightbox-nav 
+{
+    z-index: 200;
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;	
+	display: block;
+	background-image: url(/ModuleResources/GalleryLightbox/Images/lightbox-blank.gif);
+}
+#gallerylightbox-lightbox-nav-btnPrev 
+{
+    position: relative;
+	width: 62px;
+	height: 62px;
+	left: 0;
+	top: 43%;
+	display: block;
+	z-index: 250;
+	float: left;
+}
+#gallerylightbox-lightbox-nav-btnNext {
+    position: relative;
+	width: 62px;
+	height: 62px;
+	left: 0;
+	top: 43%;
+	display: block;
+	z-index: 250;
+	float: right;
+}
+#gallerylightbox-lightbox-container-image-data-box 
+{
+	font: 10px Verdana, Helvetica, sans-serif;
+	color: #333;
+	background-color: #bbbbbb;
+	opacity: 0.9;
+	margin: 0 auto;
+	line-height: 1.4em;
+	overflow: auto;
+	width: 100%;
+	height: auto;
+	position: absolute;
+	z-index: 210;
+	left: 0;
+	bottom: 0;
+	padding: 0;
+}
+#gallerylightbox-lightbox-container-image-data 
+{
+    padding: 0;
+}
+#gallerylightbox-lightbox-image
+{
+    /*position: absolute;*/
+    visibility: visible;
+    z-index: 3;    
+}
+.gallerylightbox-lightbox-image-details
+{
+    text-align: left;
+    z-index: 215;
+    padding: 5px 0 0 11px;
+    color: #333333;
+}	
+#gallerylightbox-lightbox-image-details-title 
+{
+    color: #333333;
+    font-weight: bold;
+    font-size: 14px;
+}
+#gallerylightbox-lightbox-image-details-description
+{
+    color: #333333;
+}
+#gallerylightbox-lightbox-image-details-author
+{
+    color: #333333;
+    float: left;
+}
+.gallerylightbox-lightbox-image-details-author-label
+{    
+    font-weight: bold;
+    color: #333333;
+}
+#gallerylightbox-lightbox-image-details-toolbox
+{	
+    color: #333333;    
+    float: right;
+    padding: 0;
+    clear: none;
+	margin-bottom:5px;
+}
+#gallerylightbox-lightbox-image-details-currentNumber 
+{
+    color: #333333;    
+    float: right;
+    padding: 0px 11px 5px 0;
+    clear: none;
+}			
+#gallerylightbox-lightbox-image-details-voting
+{
+    float: left;
+    color: #333333;
+}
+#gallerylightbox-lightbox-container-box {
+	position: relative;
+	background-color: #dddddd;
+	margin: 0 auto;	
+}
+#gallerylightbox-jquery-lightbox-galleryinfo-box
+{
+	font-family: Arial, Helvetica, sans-serif;
+	font-size:9pt;
+	color: #000;
+	background-color: #fff;
+	margin: 0 auto;
+	line-height: 1.4em;
+}
+
+#gallerylightbox-jquery-lightbox-galleryinfo
+{
+	width:650px;
+    color: #000;
+    text-align: left;
+	padding: 5px 5px 5px 5px;
+	float: left;
+}
+.gallerylightbox-jquery-lightbox-galleryinfo-title
+{
+    color:#830E16;
+	font: 12pt "Lucida Sans Unicode", "Lucida Grande", sans-serif; font-weight:normal;
+	font-weight: bold;
+}
+#gallerylightbox-jquery-lightbox-galleryinfo-close
+{
+    cursor: pointer;
+    float: right;
+    margin-top: 5px;
+    margin-right: 5px;
+    color: #777777;
+}
+.gallerylightbox-jquery-lightbox-galleryinfo-description
+{
+    color: #000;
+	font: 10px Verdana, Helvetica, sans-serif;
+}
+#gallerylightbox-jquery-lightbox-toolbox-box
+{
+overflow:hidden;	
+    font: 10px Verdana, Helvetica, sans-serif;
+	color: #000;
+	background-color: #fff;
+	margin: 0 auto;
+	line-height: 1.4em;
+	overflow: auto;
+	/*padding: 0 10px;*/
+	text-align: left;
+}
+#gallerylightbox-jquery-lightbox-toolbox
+{   
+    color: #000; 
+    height: 18px;
+	padding: 5px 6px 2px 11px;
+	background-color: #fff;
+}
+#gallerylightbox-jquery-lightbox-toolbox-rightbox
+{   
+    color: #000;
+    clear: both;
+    padding: 0 px; 
+    float: right;
+    width: 100px;
+}
+.gallerylightbox-jquery-lightbox-toolbox-anchors
+{
+    cursor: pointer;
+}
+#gallerylightbox-jquery-lightbox-thumbnails
+{
+    color: #000;
+    z-index: 10;
+}
+#gallerylightbox-jquery-lightbox-thumbnails-box
+{
+	padding: 5px 0px;
+    font: 10px Verdana, Helvetica, sans-serif;
+	color: #000;
+	background-color: #fff;
+	margin: 0 auto;
+	line-height: 1.4em;
+	overflow: auto;
+	height: auto;
+	/*padding: 0 10px;*/
+	text-align: left; 
+	z-index: 0;
+}
+.gallerylightbox-jquery-lightbox-thumbnails-image
+{    
+    cursor: pointer;
+}
+#gallerylightbox-lightbox-nav-over
+{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: Transparent;
+    background-image: url(/ModuleResources/GalleryLightbox/Images/lightbox-blank.gif);
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 201;    
+    display: block;
+}
+
+.galleryButton li {
+     display:inline;
+     list-style:none;     
+}
+
+.galleryButton li a {
+     background:transparent url(/ModuleResources/GalleryLightbox/Images/button-bg-left.gif) no-repeat left;
+     display:block;
+     float:left;
+     height:16px;
+     margin-right: 4px;
+     padding:0px 0 0px 5px;
+	 color:#fff;
+	 font-weight:bold;
+	 text-decoration:none;
+	 font-size:10px;
+}
+
+.galleryButton li a span {
+     background:transparent url(/ModuleResources/GalleryLightbox/Images/button-bg-right.gif) no-repeat right;
+     cursor:pointer;
+     display:inline;
+     float:left;
+     height:16px;
+     padding:0px 5px 0px 0;
+	 color:#fff;
+	 font-weight:bold;
+	 text-decoration:none;
+	 font-size:10px;
+}
+
+.galleryButton li a:hover {
+    background:transparent url(/ModuleResources/GalleryLightbox/Images/button-bg-left-on.gif) no-repeat left;
+    color:#000;
+    padding:0px 0 0px 5px;
+}
+
+.galleryButton li a:hover span {
+    background:transparent url(/ModuleResources/GalleryLightbox/Images/button-bg-right-on.gif) no-repeat right;
+    color:#000;
+    padding:0px 5px 0px 0;
+}
