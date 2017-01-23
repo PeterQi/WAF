@@ -1,3 +1,4 @@
+#coding=utf-8
 import requests
 from optparse import OptionParser
 import os
@@ -12,6 +13,9 @@ SIMILARITY = []
 METHOD_POST = 2
 METHOD_GET = 1
 NOT_FOUND = 0
+ACCEPTABLE_DIFF_RATIO = 0.05
+
+
 
 def parse_cmd_args():
     usage = "usage: %prog [options] arg"
@@ -45,13 +49,16 @@ def first_request(options):
     return req
 
 def get_standard_ratio(opt):
+    global STANDARD_RATIO
     print opt.url+' is responsing'
     req1 = first_request(opt)
     RESPONSES.append(req1)
     print opt.url+' is responsing'
     req2 = first_request(opt)
-    print 'computing similarity...'
-    return difflib.SequenceMatcher(None, req1.content, req2.content).ratio()
+    print 'top similarity:', 
+    STANDARD_RATIO = difflib.SequenceMatcher(None, req1.content, req2.content).ratio()
+    print STANDARD_RATIO
+    return STANDARD_RATIO
 
 def send_fixed_request(opt, query_list, str, offset, post = False):
     headers = {}
@@ -63,7 +70,9 @@ def send_fixed_request(opt, query_list, str, offset, post = False):
     if post:
         req = requests.post(opt.url,headers = headers, data = query_list)
         return req
-    req = requests.get(opt.url,headers = headers, params = query_list)
+    geturl = urlparse.urlparse(opt.url)
+    url = urlparse.urlunparse((geturl.scheme, geturl.netloc, geturl.path, geturl.params, "", geturl.fragment))
+    req = requests.get(url,headers = headers, params = query_list)
     return req
         
 def find_param_offset(param_name, url_qs):
@@ -88,26 +97,90 @@ def find_param_method(opt):
     return query_list, offset, NOT_FOUND
     
 def get_all_features(opt):
-    aim_param_offset = -1
-    query_list = []
-    if opt.data:
-        
-        if aim_param_offset != -1:
-            query_list[aim_param_offset] = (opt.param, '123')
-
-def test(opt):    
+    param_NULL = ""
+    param_NUM = 100
+    param_STR = "hello"
+    param_SPECIAL = "!\"$%&\\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r#\x0b\x0c"
+    param_EVIL = "AND 1=1 UNION ALL SELECT 1,NULL,'<script>alert(\"XSS\")</script>',table_name FROM information_schema.tables WHERE 2>1--/**/; EXEC xp_cmdshell('cat ../../../etc/passwd')#"
+    
     query_list, offset, method = find_param_method(opt)
-    f1 = open('test1.html','w')
+    
     if method == METHOD_POST:
-        req = send_fixed_request(opt, query_list, '79007295', offset, True)
-        f1.write(req.content)
+        req = send_fixed_request(opt, query_list, param_NULL, offset, True)
+        print 'sent fixed request 1'
+        RESPONSES.append(req)
+        req = send_fixed_request(opt, query_list, param_NUM, offset, True)
+        print 'sent fixed request 2'
+        RESPONSES.append(req)
+        req = send_fixed_request(opt, query_list, param_STR, offset, True)
+        print 'sent fixed request 3'
+        RESPONSES.append(req)
+        req = send_fixed_request(opt, query_list, param_SPECIAL, offset, True)
+        print 'sent fixed request 4'
+        RESPONSES.append(req)
+        req = send_fixed_request(opt, query_list, param_EVIL, offset, True)
+        print 'sent fixed request 5'
+        RESPONSES.append(req)
     elif method == METHOD_GET:
-        req = send_fixed_request(opt, query_list, '123', offset)
-        f1.write(req.content)
+        req = send_fixed_request(opt, query_list, param_NULL, offset)
+        print 'sent fixed request 1'
+        RESPONSES.append(req)
+        req = send_fixed_request(opt, query_list, param_NUM, offset)
+        print 'sent fixed request 2'
+        RESPONSES.append(req)
+        req = send_fixed_request(opt, query_list, param_STR, offset)
+        print 'sent fixed request 3'
+        RESPONSES.append(req)
+        req = send_fixed_request(opt, query_list, param_SPECIAL, offset)
+        print 'sent fixed request 4'
+        RESPONSES.append(req)
+        req = send_fixed_request(opt, query_list, param_EVIL, offset)
+        print 'sent fixed request 5'
+        RESPONSES.append(req)
     else:
         print "Invaild Param:"+opt.param
-    f1.close()
+        return -1
+    print 'start computing similarity...'
+    compute_similarity()
+    len_of_res = len(RESPONSES)
+    i = 0
+    while i < len_of_res:
+        group_offset = i#记录本响应结果的归类号
+        for j in range(i):
+            if STANDARD_RATIO - SIMILARITY[i][j] < ACCEPTABLE_DIFF_RATIO:
+                group_offset = j
+                break
+        if group_offset != i:
+            for k in range(i+1, len(RESPONSES)):
+                del(SIMILARITY[k][i])
+            del(SIMILARITY[i])
+            del(RESPONSES[i])
+            i -= 1
+            len_of_res -= 1
+        i += 1
+    return len_of_res
     
+def compute_similarity():
+    global SIMILARITY
+    SIMILARITY = []
+    for i in range(len(RESPONSES)):
+        line_similarity = []
+        for j in range(i):
+            line_similarity.append(difflib.SequenceMatcher(None, RESPONSES[i].content, RESPONSES[j].content).ratio())
+        print line_similarity
+        SIMILARITY.append(line_similarity)
+    
+def response2file():
+    for i in range(len(RESPONSES)):
+        f = open('test'+str(i)+'.html','w')
+        f.write(RESPONSES[i].content)
+        f.close()
+
+def test(opt):
+    get_standard_ratio(opt)
+    group = get_all_features(opt)
+    response2file()
+    print SIMILARITY
     
 def main():
     opt = parse_cmd_args()
