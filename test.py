@@ -22,8 +22,16 @@ def compute_similarity():
         print line_similarity
         SIMILARITY.append(line_similarity)
 def test():
-    re = requests.get("http://www.python-requests.org/en/master/user/quickstart/#binary-response-content")
-    print re.headers
+    re2 = None
+
+    try:
+        re2 = requests.get("http://www.japan.go.jp/initiatives/talks/", timeout = 0.622)
+        print re2.elapsed.microseconds/1000000.0 + re2.elapsed.seconds
+        print re2.elapsed.microseconds
+    except Exception, e:
+        re2 = None
+    if re2 == None:
+        print "re2 timeout"
 if __name__ == "__main__":
     test()
     

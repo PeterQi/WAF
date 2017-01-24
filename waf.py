@@ -5,6 +5,7 @@ import os
 import difflib
 import urlparse
 import urllib
+import sys
 
 MAIN_PATH = os.path.abspath('.')
 STANDARD_RATIO = 0
@@ -14,6 +15,7 @@ METHOD_POST = 2
 METHOD_GET = 1
 NOT_FOUND = 0
 ACCEPTABLE_DIFF_RATIO = 0.05
+BASE_RESPONSE_TIME = 60.0
 
 
 
@@ -42,19 +44,26 @@ def first_request(options):
         headers["Cookie"] = options.cookie
     if options.header:
         headers[options.header.split("=")[0]] = options.header.split("=", 1)[1]
-    if options.data:
-        req = requests.post(options.url,headers=headers,data=options.data)
-    else:
-        req = requests.get(options.url,headers=headers)
-    return req
-
+    try:
+        if options.data:
+            req = requests.post(options.url,headers=headers,data=options.data, allow_redirects = False)
+        else:
+            req = requests.get(options.url,headers=headers, allow_redirects = False)
+        return req
+    except Exception, e:
+        print Exception, ':', e
+        sys.exit()
+    
 def get_standard_ratio(opt):
     global STANDARD_RATIO
+    global BASE_RESPONSE_TIME
     print opt.url+' is responsing'
     req1 = first_request(opt)
     RESPONSES.append(req1)
     print opt.url+' is responsing'
     req2 = first_request(opt)
+    BASE_RESPONSE_TIME = (req1.elapsed.microseconds/1000000.0 + req1.elapsed.seconds + req2.elapsed.microseconds/1000000.0 + req2.elapsed.seconds)/2.0
+    print 'Base response time:' + str(BASE_RESPONSE_TIME) + 's'
     print 'top similarity:', 
     STANDARD_RATIO = difflib.SequenceMatcher(None, req1.content, req2.content).ratio()
     print STANDARD_RATIO
@@ -67,12 +76,15 @@ def send_fixed_request(opt, query_list, str, offset, post = False):
         headers["Cookie"] = opt.cookie
     if opt.header:
         headers[opt.header.split("=")[0]] = options.header.split("=", 1)[1]
-    if post:
-        req = requests.post(opt.url,headers = headers, data = query_list)
-        return req
-    geturl = urlparse.urlparse(opt.url)
-    url = urlparse.urlunparse((geturl.scheme, geturl.netloc, geturl.path, geturl.params, "", geturl.fragment))
-    req = requests.get(url,headers = headers, params = query_list)
+    try:
+        if post:
+            req = requests.post(opt.url,headers = headers, data = query_list, allow_redirects = False, timeout = BASE_RESPONSE_TIME*3)
+            return req
+        geturl = urlparse.urlparse(opt.url)
+        url = urlparse.urlunparse((geturl.scheme, geturl.netloc, geturl.path, geturl.params, "", geturl.fragment))
+        req = requests.get(url,headers = headers, params = query_list, allow_redirects = False, timeout = BASE_RESPONSE_TIME*3)
+    except Exception, e:
+        req = None
     return req
         
 def find_param_offset(param_name, url_qs):
@@ -165,16 +177,36 @@ def compute_similarity():
     SIMILARITY = []
     for i in range(len(RESPONSES)):
         line_similarity = []
-        for j in range(i):
-            line_similarity.append(difflib.SequenceMatcher(None, RESPONSES[i].content, RESPONSES[j].content).ratio())
+        if RESPONSES[i] != None:
+            for j in range(i):
+                if RESPONSES[j] != None:#双方均有响应的时候才继续计算相似度，否则直接判异同
+                    if RESPONSES[i].status_code != 200:
+                        if RESPONSES[j].status_code == RESPONSES[i].status_code:
+                            line_similarity.append(1.0)
+                        else:
+                            line_similarity.append(0.0)
+                    else:
+                        if RESPONSES[j].status_code == 200:#响应码均为200才计算内容相似度，其余时候看响应码的异同
+                            line_similarity.append(difflib.SequenceMatcher(None, RESPONSES[i].content, RESPONSES[j].content).ratio())
+                        else:
+                            line_similarity.append(0.0)
+                else:
+                    line_similarity.append(0.0)
+        else:
+            for j in range(i):
+                if RESPONSES[j] == None:
+                    line_similarity.append(1.0)
+                else:
+                    line_similarity.append(0.0)
         print line_similarity
         SIMILARITY.append(line_similarity)
     
 def response2file():
     for i in range(len(RESPONSES)):
-        f = open('test'+str(i)+'.html','w')
-        f.write(RESPONSES[i].content)
-        f.close()
+        if RESPONSES[i] != None:
+            f = open('test'+str(i)+'.html','w')
+            f.write(RESPONSES[i].content)
+            f.close()
 
 def test(opt):
     get_standard_ratio(opt)
