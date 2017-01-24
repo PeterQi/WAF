@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<cases>
+    <type value="SQL">
+    </type>
+    <type value="XSS">
+    </type>
+    <type value="LFI">
+    </type>
+    <type value="INJECTION">
+    </type>
+    <type value="SPECIAL">
+    </type>
+    <type value="FILE UPLOAD">
+    </type>
+    <type value="">
+    </type>
+</cases>
