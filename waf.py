@@ -1,6 +1,7 @@
 #coding=utf-8
 import requests
 from optparse import OptionParser
+import xml.etree.ElementTree as ET
 import os
 import difflib
 import urlparse
@@ -208,6 +209,18 @@ def response2file():
             f.write(RESPONSES[i].content)
             f.close()
 
+def send_test_requests(opt):
+    query_list, offset, method = find_param_method(opt)
+    tree = ET.parse("test.xml")
+    root = tree.getroot()
+    for type in root:
+        for level in type:
+            bound = int(level.attrib['bound'])
+            sentence = level.find("sentences").text
+            keywords = level.findall("keywords")
+            for keyword in keywords:
+                print keyword.text
+    
 def test(opt):
     get_standard_ratio(opt)
     group = get_all_features(opt)

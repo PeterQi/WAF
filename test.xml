@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 
 <cases>
     <type value="COMMON">
-        <level value="1">
+        <!--<level value="1" bound = "1">
             <sentences>!&quot;#$%&amp;\&apos;()*+,-./:;&lt;=&gt;?@[]^_`{|}~&#32;&#00;</sentences>
             <keywords>!</keywords>
             <keywords>&quot;</keywords>
@@ -38,15 +38,15 @@
             <keywords>~</keywords>
             <keywords>&#32;</keywords>
             <keywords>&#00;</keywords>
-        </level>
-        <level value="2">
+        </level>-->
+        <level value="2" bound = "2">
             <sentences>hello100</sentences>
             <keywords>hello</keywords>
             <keywords>100</keywords>
         </level>
     </type>
     <type value="SQL">
-        <level value="1">
+        <!--<level value="1" bound = "1">
             <sentences>&#32;&#09;&#10;&#11;&#12;&#13;&#160;/**//*!50000*/</sentences>
             <keywords>&#32;</keywords>
             <keywords>&#09;</keywords>
@@ -57,8 +57,8 @@
             <keywords>&#160;</keywords>
             <keywords>/**/</keywords>
             <keywords>/*!50000*/</keywords>
-        </level>
-        <level value="2">
+        </level>-->
+        <level value="2" bound = "5">
             <sentences>-- or union select as xor like in not and binary between isnull from all where group by having limit into outfile procedure</sentences>
             <keywords>--</keywords>
             <keywords>or</keywords>
@@ -84,7 +84,7 @@
             <keywords>outfile</keywords>
             <keywords>procedure</keywords>
         </level>
-        <level value="3">
+        <level value="3" bound = "1">
             <sentences>round() pi() version() ascii() load_file() hex() ord() concat() conv() char() unhex() aes_encrypt() des_encrypt() floor() ceil() pow() substr() substring() mid() lpad() rpad() left() reverse() right() trim() insert() locate() position() instr() substring_index() strcmp() length() password() md5() sha() group_concat() analyse()</sentences>
             <keywords>round()</keywords>
             <keywords>pi()</keywords>
@@ -124,7 +124,7 @@
             <keywords>group_concat()</keywords>
             <keywords>analyse()</keywords>
         </level>
-        <level value="4">
+        <level value="4" bound = "2">
             <sentences>information_schema tables columns sysobjects syscolumns admin password sysuser system table_name column_name</sentences>
             <keywords>information_schema</keywords>
             <keywords>tables</keywords>
