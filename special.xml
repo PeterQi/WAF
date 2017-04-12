@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+
+<cases>
+    <type value="COMMON">
+        <level value="1" bound = "1">
+            <sentences>%21%22%23%24%25%26%5C%27%28%29*%2B%2C-./%3A%3B%3C%3D%3E%3F@%5B%5C%5D%5E_%60%7B%7C%7D%7E%20%00</sentences>
+            <keywords>%21</keywords>
+            <keywords>%22</keywords>
+            <keywords>%23</keywords>
+            <keywords>%24</keywords>
+            <keywords>%25</keywords>
+            <keywords>%26</keywords>
+            <keywords>%5C</keywords>
+            <keywords>%27</keywords>
+            <keywords>%28</keywords>
+            <keywords>%29</keywords>
+            <keywords>*</keywords>
+            <keywords>%2B</keywords>
+            <keywords>%2C</keywords>
+            <keywords>-</keywords>
+            <keywords>.</keywords>
+            <keywords>/</keywords>
+            <keywords>%3A</keywords>
+            <keywords>%3B</keywords>
+            <keywords>%3C</keywords>
+            <keywords>%3D</keywords>
+            <keywords>%3E</keywords>
+            <keywords>%3F</keywords>
+            <keywords>@</keywords>
+            <keywords>%5B</keywords>
+            <keywords>%5C</keywords>
+            <keywords>%5D</keywords>
+            <keywords>%5E</keywords>
+            <keywords>_</keywords>
+            <keywords>%60</keywords>
+            <keywords>%7B</keywords>
+            <keywords>%7C</keywords>
+            <keywords>%7D</keywords>
+            <keywords>%7E</keywords>
+            <keywords>%20</keywords>
+            <keywords>%00</keywords>
+        </level>
+        <level value="2" bound = "1">
+            <sentences>%09%0A%0B%0C%0D%A0</sentences>
+            <keywords>%09</keywords>
+            <keywords>%0A</keywords>
+            <keywords>%0B</keywords>
+            <keywords>%0C</keywords>
+            <keywords>%0D</keywords>
+            <keywords>%A0</keywords>
+        </level>
+    </type>
+</cases>

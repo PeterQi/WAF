@@ -2,62 +2,18 @@
 
 <cases>
     <type value="COMMON">
-        <!--<level value="1" bound = "1">
-            <sentences>!&quot;#$%&amp;\&apos;()*+,-./:;&lt;=&gt;?@[]^_`{|}~&#32;&#00;</sentences>
-            <keywords>!</keywords>
-            <keywords>&quot;</keywords>
-            <keywords>#</keywords>
-            <keywords>$</keywords>
-            <keywords>%</keywords>
-            <keywords>&amp;</keywords>
-            <keywords>\</keywords>
-            <keywords>&apos;</keywords>
-            <keywords>(</keywords>
-            <keywords>)</keywords>
-            <keywords>*</keywords>
-            <keywords>+</keywords>
-            <keywords>,</keywords>
-            <keywords>-</keywords>
-            <keywords>.</keywords>
-            <keywords>/</keywords>
-            <keywords>:</keywords>
-            <keywords>;</keywords>
-            <keywords>&lt;</keywords>
-            <keywords>=</keywords>
-            <keywords>&gt;</keywords>
-            <keywords>?</keywords>
-            <keywords>@</keywords>
-            <keywords>[</keywords>
-            <keywords>]</keywords>
-            <keywords>^</keywords>
-            <keywords>_</keywords>
-            <keywords>`</keywords>
-            <keywords>{</keywords>
-            <keywords>|</keywords>
-            <keywords>}</keywords>
-            <keywords>~</keywords>
-            <keywords>&#32;</keywords>
-            <keywords>&#00;</keywords>
-        </level>-->
-        <level value="2" bound = "2">
+        <level value="1" bound = "2">
             <sentences>hello100</sentences>
             <keywords>hello</keywords>
             <keywords>100</keywords>
         </level>
     </type>
     <type value="SQL">
-        <!--<level value="1" bound = "1">
-            <sentences>&#32;&#09;&#10;&#11;&#12;&#13;&#160;/**//*!50000*/</sentences>
-            <keywords>&#32;</keywords>
-            <keywords>&#09;</keywords>
-            <keywords>&#10;</keywords>
-            <keywords>&#11;</keywords>
-            <keywords>&#12;</keywords>
-            <keywords>&#13;</keywords>
-            <keywords>&#160;</keywords>
+        <level value="1" bound = "1">
+            <sentences>/**//*!50000*/</sentences>
             <keywords>/**/</keywords>
             <keywords>/*!50000*/</keywords>
-        </level>-->
+        </level>
         <level value="2" bound = "5">
             <sentences>-- or union select as xor like in not and binary between isnull from all where group by having limit into outfile procedure</sentences>
             <keywords>--</keywords>
