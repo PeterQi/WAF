@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 #coding:utf-8
+#E:\Users\Peter\workspace\WAF>python waf.py -u "http://www.esri.com/search?q=and" -p q --test
 import xml.etree.ElementTree as ET
 import random
+import os
 def combination(keywords, n):
     com = []
     m = len(keywords)
@@ -39,9 +41,17 @@ def xml_read():
                 for k in c:
                     print count, k
                     count += 1
-def teststr(s):
-    a = random.randint(0,100)
-    if a < 10:
+def teststr(s, eff):
+    i = 0
+    j = 0
+    len1 = len(eff)
+    len2 = len(s)
+    flag = False
+    while i < len1 and j < len2:
+        if eff[i] == s[j]:
+            i += 1
+        j += 1
+    if i >= len1:
         return True
     else:
         return False
@@ -50,8 +60,10 @@ class node:
     parent = None
     left_son = None
     right_son = None
-    sibling = -1
-    root = 0
+    sibling = -1#0是左儿子，1是右儿子
+    root = 0#层级，0为根
+    need_extra = True#需要加上其他的
+    eff_flag = False#测试成功
     def node_value_ex(self):
         if self.root == 0:
             return self.value
@@ -79,7 +91,57 @@ class node:
                 if tmp_node.left_son != None:
                     qu.append(tmp_node.left_son)
                     qu.append(tmp_node.right_son)
-                
+    def find_effect(self):
+        qu = []
+        eff = ''
+        if teststr(self.value):
+            self.eff_flag = True
+            if self.left_son != None:
+                self.left_son.need_extra = False
+                self.right_son.need_extra = False
+                qu.append(self.left_son)
+                qu.append(self.right_son)
+            else:
+                return self.value
+        else:
+            return eff
+        while len(qu) != 0:
+            tmp_node = qu[0]
+            del qu[0]
+            if not tmp_node.need_extra:
+                if teststr(tmp_node.value):
+                    qu = []
+                    tmp_node.eff_flag = True
+                    if tmp_node.left_son != None:
+                        tmp_node.left_son.need_extra = False
+                        tmp_node.right_son.need_extra = False
+                        qu.append(tmp_node.left_son)
+                        qu.append(tmp_node.right_son)
+                    else:
+                        eff += tmp_node.value
+                else:
+                    tmp_node.eff_flag = False
+                    if tmp_node.parent.eff_flag and not tmp_node.parent.need_extra and not tmp_node.parent.left_son.eff_flag:
+                        eff += tmp_node.parent.value
+                    elif tmp_node.left_son != None:
+                        qu.append(tmp_node.left_son)
+                        qu.append(tmp_node.right_son)
+                    else:
+                        pass
+            else:
+                if teststr(tmp_node.node_value_ex()):
+                    tmp_node.eff_flag = True
+                    if tmp_node.left_son != None:
+                        qu.append(tmp_node.left_son)
+                        qu.append(tmp_node.right_son)
+                    else:
+                        eff += tmp_node.value
+                else:
+                    tmp_node.eff_flag = False
+                    if tmp_node.left_son != None:
+                        qu.append(tmp_node.left_son)
+                        qu.append(tmp_node.right_son)
+        return eff
     def construct_tree(self):
         length = len(self.value)
         if length <= 1:
@@ -91,15 +153,46 @@ class node:
         self.left_son.parent = self
         self.left_son.sibling = 0
         self.left_son.root = self.root + 1
+        self.left_son.eff_flag = False
         self.right_son.value = self.value[mid:]
         self.right_son.parent = self
         self.right_son.sibling = 1
         self.right_son.root = self.root + 1
+        self.right_son.eff_flag = False
         self.left_son.construct_tree()
         self.right_son.construct_tree()
+
+def check_eff(s, test_eff):
+    bound = len(s)
+    eff = ""
+    while bound > 0:
+        start = 0
+        end = bound
+        left = start
+        right = end
+        if teststr(eff, test_eff):
+            break
+        while left < right - 1:
+            mid = (left + right)/2
+            if teststr(s[start:mid]+eff, test_eff):
+                right = mid
+            else:
+                left = mid
+        if not teststr(s[start:left]+eff, test_eff):
+            left = right
+        eff = s[left - 1] + eff
+        bound = left - 1
+    return eff
+        
 if __name__ == "__main__":
-    a = node()
-    a.value = "abcdefg"
-    a.construct_tree()
-    a.tree_values()
+    #a = node()
+    #a.need_extra = False
+    #a.eff_flag = True
+    #a.value = "abcdefg"
+    #a.construct_tree()
+    #print a.find_effect()
+    a = raw_input()
+    while a != '0':
+        print check_eff("abcdefg", a)
+        a = raw_input()
     

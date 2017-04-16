@@ -80,7 +80,7 @@ def send_fixed_request(opt, query_list, str, offset, post = False):
         headers[opt.header.split("=")[0]] = options.header.split("=", 1)[1]
     try:
         if post:
-            req = requests.post(opt.url,headers = headers, data = query_list, allow_redirects = False, timeout = BASE_RESPONSE_TIME*3)
+            req = requests.post(opt.url,headers = headers, data = query_list, allow_redirects = False, timeout = BASE_RESPONSE_TIME*30)
             return req
         geturl = urlparse.urlparse(opt.url)
         url = urlparse.urlunparse((geturl.scheme, geturl.netloc, geturl.path, geturl.params, "", geturl.fragment))
@@ -231,9 +231,7 @@ def response2file():
             f.write(TEST_RESPONSES[i].content)
             f.close()
 
-def send_test_requests(opt):
-    query_list, offset, method = find_param_method(opt)
-    
+def send_test_requests(opt):    
     tree = ET.parse("special.xml")
     root = tree.getroot()
     for type in root:
@@ -241,40 +239,24 @@ def send_test_requests(opt):
             bound = int(level.attrib['bound'])
             sentence = level.find("sentences").text
             keywords = level.findall("keywords")
-            if method == METHOD_POST:
-                req = send_fixed_request(opt, query_list, urllib.unquote(sentence), offset, True)
-                print 'sent test request'
-                TEST_RESPONSES.append(req)
-            elif method == METHOD_GET:
-                req = send_fixed_request(opt, query_list, urllib.unquote(sentence), offset)
-                print 'sent test request'
-                TEST_RESPONSES.append(req)
-            else:
-                print "Invaild Param:"+opt.param
-                return -1
-            compute_the_similarity(req)
-            if STANDARD_RATIO - TEST_SIMILARITY[-1][0] < ACCEPTABLE_DIFF_RATIO:
+            test_sen = teststr(urllib.unquote(sentence), opt)
+            if test_sen == 0:
                 print 'normal'
+            elif test_sen == -1:
+                return -1
             else:
+                print 'banned', sentence
                 keywords_text = []
                 for keyword in keywords:
                     keywords_text.append(keyword.text)
                 for i in range(1,bound + 1):
                     c = combination(keywords_text, i)
                     for k in c:
-                        print k
-                    #if method == METHOD_POST:
-                    #    req = send_fixed_request(opt, query_list, urllib.unquote(keyword.text), offset, True)
-                    #    TEST_RESPONSES.append(req)
-                    #elif method == METHOD_GET:
-                    #    req = send_fixed_request(opt, query_list, urllib.unquote(keyword.text), offset)
-                    #    TEST_RESPONSES.append(req)
-                    #else:
-                    #    print "Invaild Param:"+opt.param
-                    #    return -1
-                    #compute_the_similarity(req)
-                    #if STANDARD_RATIO - TEST_SIMILARITY[-1][0] >= ACCEPTABLE_DIFF_RATIO:
-                    #    print 'banned' + keyword.text
+                        test_keyword = teststr(urllib.unquote(k), opt)
+                        if test_keyword == 1:
+                            print 'banned' + k
+                        else:
+                            print TEST_SIMILARITY[-1][0], k
                         
 def combination(keywords, n):
     com = []
@@ -294,6 +276,47 @@ def combination(keywords, n):
     B = combination(keywords[:-1], n)
     com = A + B
     return com
+
+def teststr(s, opt):
+    query_list, offset, method = find_param_method(opt)
+    if method == METHOD_POST:
+        req = send_fixed_request(opt, query_list, s, offset, True)
+        #print 'sent test request'
+        TEST_RESPONSES.append(req)
+    elif method == METHOD_GET:
+        req = send_fixed_request(opt, query_list, s, offset)
+        #print 'sent test request'
+        TEST_RESPONSES.append(req)
+    else:
+        print "Invaild Param:"+opt.param
+        return -1
+    compute_the_similarity(req)
+    if STANDARD_RATIO - TEST_SIMILARITY[-1][0] < ACCEPTABLE_DIFF_RATIO:
+        return 0
+    else:
+        return 1
+        
+def check_eff(s, opt):
+    bound = len(s)
+    eff = ""
+    while bound > 0:
+        start = 0
+        end = bound
+        left = start
+        right = end
+        if teststr(eff, opt) == 1:
+            break
+        while left < right - 1:
+            mid = (left + right)/2
+            if teststr(s[start:mid]+eff, opt) == 1:
+                right = mid
+            else:
+                left = mid
+        if not teststr(s[start:left]+eff, opt) == 1:
+            left = right
+        eff = s[left - 1] + eff
+        bound = left - 1
+    return eff
     
 def test(opt):
     get_standard_ratio(opt)
