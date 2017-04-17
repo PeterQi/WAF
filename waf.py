@@ -249,15 +249,18 @@ def send_test_requests(opt):
                 keywords_text = []
                 for keyword in keywords:
                     keywords_text.append(keyword.text)
+                flag = False
                 for i in range(1,bound + 1):
                     c = combination(keywords_text, i)
                     for k in c:
                         test_keyword = teststr(urllib.unquote(k), opt)
                         if test_keyword == 1:
                             print 'banned' + k
+                            flag = True
                         else:
                             print TEST_SIMILARITY[-1][0], k
-                        
+                if not flag:
+                    print check_eff(urllib.unquote(sentence), opt)
 def combination(keywords, n):
     com = []
     m = len(keywords)
@@ -308,6 +311,7 @@ def check_eff(s, opt):
             break
         while left < right - 1:
             mid = (left + right)/2
+            print s[start:mid]+eff,
             if teststr(s[start:mid]+eff, opt) == 1:
                 right = mid
             else:
@@ -322,7 +326,6 @@ def test(opt):
     get_standard_ratio(opt)
     group = get_all_features(opt)
     send_test_requests(opt)
-    response2file()
     
 def main():
     opt = parse_cmd_args()
