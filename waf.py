@@ -216,7 +216,7 @@ def compute_the_similarity(req):
                 line_similarity.append(1.0)
             else:
                 line_similarity.append(0.0)
-    print line_similarity
+    #print line_similarity
     TEST_SIMILARITY.append(line_similarity)
 
 def response2file():
@@ -239,28 +239,125 @@ def send_test_requests(opt):
             bound = int(level.attrib['bound'])
             sentence = level.find("sentences").text
             keywords = level.findall("keywords")
-            test_sen = teststr(urllib.unquote(sentence), opt)
-            if test_sen == 0:
-                print 'normal'
-            elif test_sen == -1:
-                return -1
-            else:
-                print 'banned', sentence
-                keywords_text = []
-                for keyword in keywords:
-                    keywords_text.append(keyword.text)
-                flag = False
-                for i in range(1,bound + 1):
-                    c = combination(keywords_text, i)
-                    for k in c:
-                        test_keyword = teststr(urllib.unquote(k), opt)
-                        if test_keyword == 1:
-                            print 'banned' + k
-                            flag = True
-                        else:
-                            print TEST_SIMILARITY[-1][0], k
-                if not flag:
-                    print check_eff(urllib.unquote(sentence), opt)
+            while True:
+                test_sen = teststr(urllib.unquote(sentence), opt)
+                if test_sen == 0:
+                    print 'normal', sentence
+                elif test_sen == -1:
+                    return -1
+                elif test_sen < 0:
+                    continue
+                else:
+                    print 'banned', sentence
+                    keywords_text = []
+                    for keyword in keywords:
+                        keywords_text.append(keyword.text)
+                    banned_eff = []
+                    for i in range(1,bound + 1):
+                        c = combination(keywords_text, i)
+                        for k in c:
+                            count = 0
+                            while True:
+                                test_keyword = teststr(urllib.unquote(k), opt)
+                                if test_keyword == test_sen:
+                                    print 'banned', k
+                                    banned_eff.append(urllib.unquote(k))
+                                elif test_keyword < 0:
+                                    if count >= 5:
+                                        print 'error', k
+                                        break
+                                    count += 1
+                                    continue
+                                else:
+                                    pass
+                                count = 0
+                                break
+                    if len(banned_eff) == 0:
+                        print check_eff(urllib.unquote(sentence), opt, test_sen)
+                    else:
+                        find_exact_eff = []
+                        for b in banned_eff:
+                            if len(b) == 1:
+                                find_exact_eff.append(b)
+                            else:
+                                print 'finding', urllib.quote(b)
+                                find_exact_eff.append(check_eff(b, opt, test_sen))
+                            print urllib.quote(find_exact_eff[-1])
+                break
+                
+def teststr_l(s, eff):
+    i = 0
+    j = 0
+    len1 = len(eff)
+    len2 = len(s)
+    flag = False
+    while i < len1 and j < len2:
+        if eff[i] == s[j]:
+            i += 1
+        j += 1
+    if i >= len1:
+        return True
+    else:
+        return False
+        
+def send_payloads(opt):
+    tree = ET.parse("payload.xml")
+    root = tree.getroot()
+    for type in root:
+        for level in type:
+            bound = int(level.attrib['bound'])
+            sentence = level.find("sentences").text
+            keywords = level.findall("keywords")
+            while True:
+                test_sen = teststr(sentence, opt)
+                if test_sen == 0:
+                    print 'normal', sentence
+                elif test_sen == -2:
+                    return -1
+                elif test_sen < 0:
+                    continue
+                else:
+                    print 'banned', sentence
+                    keywords_text = []
+                    for keyword in keywords:
+                        keywords_text.append(keyword.text)
+                    banned_eff = []
+                    for i in range(1,bound + 1):
+                        c = combination(keywords_text, i)
+                        for k in c:
+                            count = 0
+                            flag = False
+                            for e in banned_eff:#如果之前存在模式则不需检测
+                                if teststr_l(k, e):
+                                    flag = True
+                                    break
+                            if flag:
+                                continue
+                            while True:
+                                test_keyword = teststr(k, opt)
+                                if test_keyword == test_sen:
+                                    print 'banned', k
+                                    banned_eff.append(k)
+                                elif test_keyword < 0:
+                                    if count >= 5:
+                                        print 'error', k
+                                        break
+                                    count += 1
+                                    continue
+                                else:
+                                    pass
+                                count = 0
+                                break
+                    if len(banned_eff) == 0:
+                        print check_eff(sentence, opt, test_sen)
+                    else:
+                        find_exact_eff = []
+                        for b in banned_eff:
+                            print 'finding', b
+                            find_exact_eff.append(check_eff(b, opt, test_sen))
+                            print find_exact_eff[-1]
+                break
+                    
 def combination(keywords, n):
     com = []
     m = len(keywords)
@@ -284,22 +381,20 @@ def teststr(s, opt):
     query_list, offset, method = find_param_method(opt)
     if method == METHOD_POST:
         req = send_fixed_request(opt, query_list, s, offset, True)
-        #print 'sent test request'
         TEST_RESPONSES.append(req)
     elif method == METHOD_GET:
         req = send_fixed_request(opt, query_list, s, offset)
-        #print 'sent test request'
         TEST_RESPONSES.append(req)
     else:
         print "Invaild Param:"+opt.param
-        return -1
+        return -2
     compute_the_similarity(req)
-    if STANDARD_RATIO - TEST_SIMILARITY[-1][0] < ACCEPTABLE_DIFF_RATIO:
-        return 0
-    else:
-        return 1
+    for i in range(len(RESPONSES)):
+        if STANDARD_RATIO - TEST_SIMILARITY[-1][i] < ACCEPTABLE_DIFF_RATIO:
+            return i
+    return -1
         
-def check_eff(s, opt):
+def check_eff(s, opt, sen_flag):
     bound = len(s)
     eff = ""
     while bound > 0:
@@ -307,17 +402,36 @@ def check_eff(s, opt):
         end = bound
         left = start
         right = end
-        if teststr(eff, opt) == 1:
+        if teststr(eff, opt) == sen_flag:
             break
+        count = 0
         while left < right - 1:
             mid = (left + right)/2
-            print s[start:mid]+eff,
-            if teststr(s[start:mid]+eff, opt) == 1:
+            #print s[start:mid]+eff,
+            res = teststr(s[start:mid]+eff, opt)
+            if  res == sen_flag:
                 right = mid
+            elif res < 0:
+                if count >= 5:
+                    print 'error'
+                    return ""
+                count += 1
+                continue
             else:
                 left = mid
-        if not teststr(s[start:left]+eff, opt) == 1:
-            left = right
+            count = 0
+        count = 0
+        while True:
+            res = teststr(s[start:left]+eff, opt)
+            if res < 0:
+                if count >= 5:
+                    print 'error'
+                    return ""
+                count += 1
+                continue
+            if res != sen_flag:
+                left = right
+            break
         eff = s[left - 1] + eff
         bound = left - 1
     return eff
@@ -325,7 +439,8 @@ def check_eff(s, opt):
 def test(opt):
     get_standard_ratio(opt)
     group = get_all_features(opt)
-    send_test_requests(opt)
+    #send_test_requests(opt)
+    send_payloads(opt)
     
 def main():
     opt = parse_cmd_args()

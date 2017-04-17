@@ -15,84 +15,84 @@
             <keywords>/*!50000*/</keywords>
         </level>
         <level value="2" bound = "5">
-            <sentences>-- or union select as xor like in not and binary between isnull from all where group by having limit into outfile procedure</sentences>
-            <keywords>--</keywords>
-            <keywords>or</keywords>
-            <keywords>union</keywords>
-            <keywords>select</keywords>
-            <keywords>as</keywords>
-            <keywords>xor</keywords>
-            <keywords>like</keywords>
-            <keywords>in</keywords>
-            <keywords>not</keywords>
-            <keywords>and</keywords>
-            <keywords>binary</keywords>
-            <keywords>between</keywords>
-            <keywords>isnull</keywords>
-            <keywords>from</keywords>
-            <keywords>all</keywords>
-            <keywords>where</keywords>
-            <keywords>group</keywords>
-            <keywords>by</keywords>
-            <keywords>having</keywords>
-            <keywords>limit</keywords>
-            <keywords>into</keywords>
-            <keywords>outfile</keywords>
-            <keywords>procedure</keywords>
+            <sentences>-- or union select as xor like in not and binary between isnull from all where group by having limit into outfile procedure </sentences>
+            <keywords>-- </keywords>
+            <keywords>or </keywords>
+            <keywords>union </keywords>
+            <keywords>select </keywords>
+            <keywords>as </keywords>
+            <keywords>xor </keywords>
+            <keywords>like </keywords>
+            <keywords>in </keywords>
+            <keywords>not </keywords>
+            <keywords>and </keywords>
+            <keywords>binary </keywords>
+            <keywords>between </keywords>
+            <keywords>isnull </keywords>
+            <keywords>from </keywords>
+            <keywords>all </keywords>
+            <keywords>where </keywords>
+            <keywords>group </keywords>
+            <keywords>by </keywords>
+            <keywords>having </keywords>
+            <keywords>limit </keywords>
+            <keywords>into </keywords>
+            <keywords>outfile </keywords>
+            <keywords>procedure </keywords>
         </level>
         <level value="3" bound = "1">
-            <sentences>round() pi() version() ascii() load_file() hex() ord() concat() conv() char() unhex() aes_encrypt() des_encrypt() floor() ceil() pow() substr() substring() mid() lpad() rpad() left() reverse() right() trim() insert() locate() position() instr() substring_index() strcmp() length() password() md5() sha() group_concat() analyse()</sentences>
-            <keywords>round()</keywords>
-            <keywords>pi()</keywords>
-            <keywords>version()</keywords>
-            <keywords>ascii()</keywords>
-            <keywords>load_file()</keywords>
-            <keywords>hex()</keywords>
-            <keywords>ord()</keywords>
-            <keywords>concat()</keywords>
-            <keywords>conv()</keywords>
-            <keywords>char()</keywords>
-            <keywords>unhex()</keywords>
-            <keywords>aes_encrypt()</keywords>
-            <keywords>des_encrypt()</keywords>
-            <keywords>floor()</keywords>
-            <keywords>ceil()</keywords>
-            <keywords>pow()</keywords>
-            <keywords>substr()</keywords>
-            <keywords>substring()</keywords>
-            <keywords>mid()</keywords>
-            <keywords>lpad()</keywords>
-            <keywords>rpad()</keywords>
-            <keywords>left()</keywords>
-            <keywords>reverse()</keywords>
-            <keywords>right()</keywords>
-            <keywords>trim()</keywords>
-            <keywords>insert()</keywords>
-            <keywords>locate()</keywords>
-            <keywords>position()</keywords>
-            <keywords>instr()</keywords>
-            <keywords>substring_index()</keywords>
-            <keywords>strcmp()</keywords>
-            <keywords>length()</keywords>
-            <keywords>password()</keywords>
-            <keywords>md5()</keywords>
-            <keywords>sha()</keywords>
-            <keywords>group_concat()</keywords>
-            <keywords>analyse()</keywords>
+            <sentences>round() pi() version() ascii() load_file() hex() ord() concat() conv() char() unhex() aes_encrypt() des_encrypt() floor() ceil() pow() substr() substring() mid() lpad() rpad() left() reverse() right() trim() insert() locate() position() instr() substring_index() strcmp() length() password() md5() sha() group_concat() analyse() </sentences>
+            <keywords>round() </keywords>
+            <keywords>pi() </keywords>
+            <keywords>version() </keywords>
+            <keywords>ascii() </keywords>
+            <keywords>load_file() </keywords>
+            <keywords>hex() </keywords>
+            <keywords>ord() </keywords>
+            <keywords>concat() </keywords>
+            <keywords>conv() </keywords>
+            <keywords>char() </keywords>
+            <keywords>unhex() </keywords>
+            <keywords>aes_encrypt() </keywords>
+            <keywords>des_encrypt() </keywords>
+            <keywords>floor() </keywords>
+            <keywords>ceil() </keywords>
+            <keywords>pow() </keywords>
+            <keywords>substr() </keywords>
+            <keywords>substring() </keywords>
+            <keywords>mid() </keywords>
+            <keywords>lpad() </keywords>
+            <keywords>rpad() </keywords>
+            <keywords>left() </keywords>
+            <keywords>reverse() </keywords>
+            <keywords>right() </keywords>
+            <keywords>trim() </keywords>
+            <keywords>insert() </keywords>
+            <keywords>locate() </keywords>
+            <keywords>position() </keywords>
+            <keywords>instr() </keywords>
+            <keywords>substring_index() </keywords>
+            <keywords>strcmp() </keywords>
+            <keywords>length() </keywords>
+            <keywords>password() </keywords>
+            <keywords>md5() </keywords>
+            <keywords>sha() </keywords>
+            <keywords>group_concat() </keywords>
+            <keywords>analyse() </keywords>
         </level>
         <level value="4" bound = "2">
             <sentences>information_schema tables columns sysobjects syscolumns admin password sysuser system table_name column_name</sentences>
-            <keywords>information_schema</keywords>
-            <keywords>tables</keywords>
-            <keywords>columns</keywords>
-            <keywords>sysobjects</keywords>
-            <keywords>syscolumns</keywords>
-            <keywords>admin</keywords>
-            <keywords>password</keywords>
-            <keywords>sysuser</keywords>
-            <keywords>system</keywords>
-            <keywords>table_name</keywords>
-            <keywords>column_name</keywords>
+            <keywords>information_schema </keywords>
+            <keywords>tables </keywords>
+            <keywords>columns </keywords>
+            <keywords>sysobjects </keywords>
+            <keywords>syscolumns </keywords>
+            <keywords>admin </keywords>
+            <keywords>password </keywords>
+            <keywords>sysuser </keywords>
+            <keywords>system </keywords>
+            <keywords>table_name </keywords>
+            <keywords>column_name </keywords>
         </level>
     </type>
     <type value="XSS">
