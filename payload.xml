@@ -2,35 +2,28 @@
 
 <cases>
     <type value="COMMON">
-        <level value="1" bound = "2">
+        <level value="1" bound="2">
             <sentences>hello100</sentences>
             <keywords>hello</keywords>
             <keywords>100</keywords>
         </level>
     </type>
     <type value="SQL">
-        <level value="1" bound = "1">
+        <level value="1" bound="1">
             <sentences>/**//*!50000*/</sentences>
             <keywords>/**/</keywords>
             <keywords>/*!50000*/</keywords>
         </level>
-        <level value="2" bound = "5">
-            <sentences>-- or union select as xor like in not and binary between isnull from all where group by having limit into outfile procedure </sentences>
+        <level value="2" bound="3">
+            <sentences>-- or union select if as between from where group by having limit into outfile procedure </sentences>
             <keywords>-- </keywords>
             <keywords>or </keywords>
             <keywords>union </keywords>
             <keywords>select </keywords>
+            <keywords>if </keywords>
             <keywords>as </keywords>
-            <keywords>xor </keywords>
-            <keywords>like </keywords>
-            <keywords>in </keywords>
-            <keywords>not </keywords>
-            <keywords>and </keywords>
-            <keywords>binary </keywords>
             <keywords>between </keywords>
-            <keywords>isnull </keywords>
             <keywords>from </keywords>
-            <keywords>all </keywords>
             <keywords>where </keywords>
             <keywords>group </keywords>
             <keywords>by </keywords>
@@ -40,8 +33,8 @@
             <keywords>outfile </keywords>
             <keywords>procedure </keywords>
         </level>
-        <level value="3" bound = "1">
-            <sentences>round() pi() version() ascii() load_file() hex() ord() concat() conv() char() unhex() aes_encrypt() des_encrypt() floor() ceil() pow() substr() substring() mid() lpad() rpad() left() reverse() right() trim() insert() locate() position() instr() substring_index() strcmp() length() password() md5() sha() group_concat() analyse() </sentences>
+        <level value="3" bound="1">
+            <sentences>round() pi() version() ascii() load_file() hex() ord() concat() conv() char() chr() unhex() aes_encrypt() des_encrypt() floor() ceil() pow() substr() substring() mid() lpad() rpad() left() reverse() right() trim() insert() locate() position() instr() substring_index() strcmp() length() password() md5() sha() group_concat() analyse() sleep() benchmark(,)</sentences>
             <keywords>round() </keywords>
             <keywords>pi() </keywords>
             <keywords>version() </keywords>
@@ -52,6 +45,7 @@
             <keywords>concat() </keywords>
             <keywords>conv() </keywords>
             <keywords>char() </keywords>
+            <keywords>chr() </keywords>
             <keywords>unhex() </keywords>
             <keywords>aes_encrypt() </keywords>
             <keywords>des_encrypt() </keywords>
@@ -79,13 +73,34 @@
             <keywords>sha() </keywords>
             <keywords>group_concat() </keywords>
             <keywords>analyse() </keywords>
+            <keywords>sleep() </keywords>
+            <keywords>benchmark(,) </keywords>
         </level>
-        <level value="4" bound = "2">
-            <sentences>information_schema tables columns sysobjects syscolumns admin password sysuser system table_name column_name</sentences>
+        <level value="4" bound="2">
+            <sentences>sysaccessobjects sysaces sysobjects sysqueries sysrelationships sysaccessstorage sysaccessxml sysmodules sysmodules2 master..sysdatabases mysql.db sys.database_name sysaux schema_name sqlite_temp_master db_name information_schema pg_catalog pg_toast northwind tempdb tables columns syscolumns admin password sysuser system table_name column_name</sentences>
+            <keywords>sysaccessobjects </keywords>
+            <keywords>sysaces </keywords>
+            <keywords>sysobjects </keywords>
+            <keywords>sysqueries </keywords>
+            <keywords>sysrelationships </keywords>
+            <keywords>sysaccessstorage </keywords>
+            <keywords>sysaccessxml </keywords>
+            <keywords>sysmodules </keywords>
+            <keywords>sysmodules2 </keywords>
+            <keywords>master..sysdatabases </keywords>
+            <keywords>mysql.db </keywords>
+            <keywords>sys.database_name </keywords>
+            <keywords>sysaux </keywords>
+            <keywords>schema_name </keywords>
+            <keywords>sqlite_temp_master </keywords>
+            <keywords>db_name </keywords>
             <keywords>information_schema </keywords>
+            <keywords>pg_catalog </keywords>
+            <keywords>pg_toast </keywords>
+            <keywords>northwind </keywords>
+            <keywords>tempdb</keywords>
             <keywords>tables </keywords>
             <keywords>columns </keywords>
-            <keywords>sysobjects </keywords>
             <keywords>syscolumns </keywords>
             <keywords>admin </keywords>
             <keywords>password </keywords>
@@ -94,17 +109,330 @@
             <keywords>table_name </keywords>
             <keywords>column_name </keywords>
         </level>
+        <level value="5" bound="1">
+            <sentences>insert drop update delete exists</sentences>
+            <keywords>insert </keywords>
+            <keywords>drop </keywords>
+            <keywords>update </keywords>
+            <keywords>delete </keywords>
+            <keywords>exists</keywords>
+        </level>
+        <level value="6" bound="2">
+            <sentences>alter character xor like isnull execute xp_cmdshell in not and binary all waitfor delay</sentences>
+            <keywords>alter </keywords>
+            <keywords>character </keywords>
+            <keywords>xor </keywords>
+            <keywords>like </keywords>
+            <keywords>isnull </keywords>
+            <keywords>execute </keywords>
+            <keywords>xp_cmdshell </keywords>
+            <keywords>in </keywords>
+            <keywords>not </keywords>
+            <keywords>and </keywords>
+            <keywords>binary </keywords>
+            <keywords>all </keywords>
+            <keywords>waitfor </keywords>
+            <keywords>delay</keywords>
+        </level>
     </type>
     <type value="XSS">
+        <level value="1" bound="1">
+            <sentences>onafterprint onbeforeprint onbeforeonload onblur onerror onfocus onhaschange onload onmessage onoffline ononline onpagehide onpageshow onpopstate onredo onresize onstorage onundo onunload onblur onchange oncontextmenu onfocus onformchange onforminput oninput oninvalid onreset onselect onsubmit onkeydown onkeypress onkeyup onclick ondblclick ondrag ondragend ondragenter ondragleave ondragover ondragstart ondrop onmousedown onmousemove onmouseout onmouseover onmouseup onmousewheel onscroll onabort oncanplay oncanplaythrough ondurationchange onemptied onended onerror onloadeddata onloadedmetadata onloadstart onpause onplay onplaying onprogress onratechange onreadystatechange onseeked onseeking onstalled onsuspend ontimeupdate onvolumechange onwaiting onshow ontoggle</sentences>
+            <keywords>onafterprint </keywords>
+            <keywords>onbeforeprint </keywords>
+            <keywords>onbeforeonload </keywords>
+            <keywords>onblur </keywords>
+            <keywords>onerror </keywords>
+            <keywords>onfocus </keywords>
+            <keywords>onhaschange </keywords>
+            <keywords>onload </keywords>
+            <keywords>onmessage </keywords>
+            <keywords>onoffline </keywords>
+            <keywords>ononline </keywords>
+            <keywords>onpagehide </keywords>
+            <keywords>onpageshow </keywords>
+            <keywords>onpopstate </keywords>
+            <keywords>onredo </keywords>
+            <keywords>onresize </keywords>
+            <keywords>onstorage </keywords>
+            <keywords>onundo </keywords>
+            <keywords>onunload </keywords>
+            <keywords>onblur </keywords>
+            <keywords>onchange </keywords>
+            <keywords>oncontextmenu </keywords>
+            <keywords>onfocus </keywords>
+            <keywords>onformchange </keywords>
+            <keywords>onforminput </keywords>
+            <keywords>oninput </keywords>
+            <keywords>oninvalid </keywords>
+            <keywords>onreset </keywords>
+            <keywords>onselect </keywords>
+            <keywords>onsubmit </keywords>
+            <keywords>onkeydown </keywords>
+            <keywords>onkeypress </keywords>
+            <keywords>onkeyup </keywords>
+            <keywords>onclick </keywords>
+            <keywords>ondblclick </keywords>
+            <keywords>ondrag </keywords>
+            <keywords>ondragend </keywords>
+            <keywords>ondragenter </keywords>
+            <keywords>ondragleave </keywords>
+            <keywords>ondragover </keywords>
+            <keywords>ondragstart </keywords>
+            <keywords>ondrop </keywords>
+            <keywords>onmousedown </keywords>
+            <keywords>onmousemove </keywords>
+            <keywords>onmouseout </keywords>
+            <keywords>onmouseover </keywords>
+            <keywords>onmouseup </keywords>
+            <keywords>onmousewheel </keywords>
+            <keywords>onscroll </keywords>
+            <keywords>onabort </keywords>
+            <keywords>oncanplay </keywords>
+            <keywords>oncanplaythrough </keywords>
+            <keywords>ondurationchange </keywords>
+            <keywords>onemptied </keywords>
+            <keywords>onended </keywords>
+            <keywords>onerror </keywords>
+            <keywords>onloadeddata </keywords>
+            <keywords>onloadedmetadata </keywords>
+            <keywords>onloadstart </keywords>
+            <keywords>onpause </keywords>
+            <keywords>onplay </keywords>
+            <keywords>onplaying </keywords>
+            <keywords>onprogress </keywords>
+            <keywords>onratechange </keywords>
+            <keywords>onreadystatechange </keywords>
+            <keywords>onseeked </keywords>
+            <keywords>onseeking </keywords>
+            <keywords>onstalled </keywords>
+            <keywords>onsuspend </keywords>
+            <keywords>ontimeupdate </keywords>
+            <keywords>onvolumechange </keywords>
+            <keywords>onwaiting </keywords>
+            <keywords>onshow </keywords>
+            <keywords>ontoggle </keywords>
+        </level>
+        <level value="2" bound="2">
+            <sentences>&lt;script&gt;alert("xss")&lt;/script&gt;</sentences>
+            <keywords>&lt;script&gt;</keywords>
+            <keywords>alert("xss")</keywords>
+            <keywords>&lt;/script>&gt;</keywords>
+        </level>
+        <level value="3" bound="2">
+            <sentences>&lt;img src="javascript:alert(1)" onload=""&gt;</sentences>
+            <keywords>&lt;img </keywords>
+            <keywords>src="javascript:</keywords>
+            <keywords>alert(1)"  </keywords>
+            <keywords>onload=""&gt;</keywords>
+        </level>
+        <level value="4" bound="2">
+            <sentences>&lt;META HTTP-EQUIV="refresh" CONTENT="0;url=data:text/html base64,PHNjcmlwdD5hbGVydCgnWFNTJyk8L3NjcmlwdD4K"&gt;</sentences>
+            <keywords>&lt;META </keywords>
+            <keywords>HTTP-EQUIV="refresh" </keywords>
+            <keywords>CONTENT="0;url=data:text/html base64,PHNjcmlwdD5hbGVydCgnWFNTJyk8L3NjcmlwdD4K"&gt;</keywords>
+        </level>
+        <level value="5" bound="1">
+            <sentences>document.cookie document.write .parentnode .innerhtml window.location -moz-binding &lt;!-- --&gt; &lt;![cdata["</sentences>
+            <keywords>document.cookie </keywords>
+            <keywords>document.write </keywords>
+            <keywords>.parentnode </keywords>
+            <keywords>.innerhtml </keywords>
+            <keywords>window.location </keywords>
+            <keywords>-moz-binding </keywords>
+            <keywords>&lt;!-- --&gt; </keywords>
+            <keywords>&lt;![cdata["</keywords>
+        </level>
+        <level value="6" bound="1">
+            <sentences>&lt;embed src=&gt;&lt;meta charset="utf-8"&gt;&lt;link href=&gt;&lt;base href=&gt;&lt;applet src=&gt;&lt;object data=&gt;&lt;a href=&gt;&lt;bgsound src=&gt;&lt;body background=&gt;&lt;frameset&gt;&lt;frame src=&gt;&lt;/frameset&gt;&lt;input type=image src=&gt;&lt;layer src=&gt;&lt;table background=&gt;&lt;td background=&gt;</sentences>
+            <keywords>&lt;embed src=&gt;</keywords>
+            <keywords>&lt;meta charset="utf-8"&gt;</keywords>
+            <keywords>&lt;link href=&gt;</keywords>
+            <keywords>&lt;base href=&gt;</keywords>
+            <keywords>&lt;applet src=&gt;</keywords>
+            <keywords>&lt;object data=&gt;</keywords>
+            <keywords>&lt;a href=&gt;</keywords>
+            <keywords>&lt;bgsound src=&gt;</keywords>
+            <keywords>&lt;body background=&gt;</keywords>
+            <keywords>&lt;frameset&gt;</keywords>
+            <keywords>&lt;frame src=&gt;</keywords>
+            <keywords>&lt;/frameset&gt;</keywords>
+            <keywords>&lt;input type=image src=&gt;</keywords>
+            <keywords>&lt;layer src=&gt;</keywords>
+            <keywords>&lt;table background=&gt;</keywords>
+            <keywords>&lt;td background=&gt;</keywords>
+        </level>
+        <level value="7" bound="1">
+            <sentences>eval() write() confirm() prompt() createElement() getElementById() charAt() reload()</sentences>
+            <keywords>eval() </keywords>
+            <keywords>write() </keywords>
+            <keywords>confirm() </keywords>
+            <keywords>prompt() </keywords>
+            <keywords>createElement() </keywords>
+            <keywords>getElementById() </keywords>
+            <keywords>charAt() </keywords>
+            <keywords>reload()</keywords>
+        </level>
     </type>
     <type value="LFI">
+        <level value="1" bound="1">
+            <sentences>:// ../ ..\ </sentences>
+            <keywords>:// </keywords>
+            <keywords>../ </keywords>
+            <keywords>..\ </keywords>
+        </level>
+        <level value="2" bound="1">
+            <sentences>.aptitude/config .bash_config .bash_history .bash_logout .bashrc .cache/notify-osd.log .config/odesk/odesk team.conf .cshrc .gitconfig .hplip/hplip.conf .ksh_history .my.cnf .mysql_history .nano_history .profile .psql_history .sqlite_history .ssh/authorized_keys .ssh/config .ssh/id_dsa.pub .ssh/identity.pub .ssh/id_rsa.pub .ssh/known_hosts .subversion/servers .tconn/tconn.conf .vidalia/vidalia.conf .xauthority .zshrc etc/php.ini etc/mono/2.0/web.config var/log/mysql.log etc/passwd~ etc/ logs/access_log logs/error_log etc/nginx/nginx.conf var/logs/access.log usr/local/php5/httpd.conf etc/apache2/conf/httpd.conf etc/http/conf/httpd.conf opt/apache2/conf/httpd.conf var/www/conf/httpd.conf</sentences>
+            <keywords>.aptitude/config </keywords>
+            <keywords>.bash_config </keywords>
+            <keywords>.bash_history </keywords>
+            <keywords>.bash_logout </keywords>
+            <keywords>.bashrc </keywords>
+            <keywords>.cache/notify-osd.log </keywords>
+            <keywords>.config/odesk/odesk </keywords>
+            <keywords>team.conf </keywords>
+            <keywords>.cshrc </keywords>
+            <keywords>.gitconfig </keywords>
+            <keywords>.hplip/hplip.conf </keywords>
+            <keywords>.ksh_history </keywords>
+            <keywords>.my.cnf </keywords>
+            <keywords>.mysql_history </keywords>
+            <keywords>.nano_history </keywords>
+            <keywords>.profile </keywords>
+            <keywords>.psql_history </keywords>
+            <keywords>.sqlite_history </keywords>
+            <keywords>.ssh/authorized_keys </keywords>
+            <keywords>.ssh/config </keywords>
+            <keywords>.ssh/id_dsa.pub </keywords>
+            <keywords>.ssh/identity.pub </keywords>
+            <keywords>.ssh/id_rsa.pub </keywords>
+            <keywords>.ssh/known_hosts </keywords>
+            <keywords>.subversion/servers </keywords>
+            <keywords>.tconn/tconn.conf </keywords>
+            <keywords>.vidalia/vidalia.conf </keywords>
+            <keywords>.xauthority </keywords>
+            <keywords>.zshrc </keywords>
+            <keywords>etc/php.ini </keywords>
+            <keywords>etc/mono/2.0/web.config </keywords>
+            <keywords>var/log/mysql.log </keywords>
+            <keywords>etc/passwd~ </keywords>
+            <keywords>etc/ </keywords>
+            <keywords>logs/access_log </keywords>
+            <keywords>logs/error_log </keywords>
+            <keywords>etc/nginx/nginx.conf </keywords>
+            <keywords>var/logs/access.log </keywords>
+            <keywords>usr/local/php5/httpd.conf </keywords>
+            <keywords>etc/apache2/conf/httpd.conf </keywords>
+            <keywords>etc/http/conf/httpd.conf </keywords>
+            <keywords>opt/apache2/conf/httpd.conf </keywords>
+            <keywords>var/www/conf/httpd.conf </keywords>
+        </level>
+        <level value="3" bound="1">
+            <sentences>http:// https:// file:// php:// ftp://</sentences>
+            <keywords>http:// </keywords>
+            <keywords>https:// </keywords>
+            <keywords>file:// </keywords>
+            <keywords>php:// </keywords>
+            <keywords>ftp:// </keywords>
+        </level>
     </type>
-    <type value="INJECTION">
-    </type>
-    <type value="SPECIAL">
-    </type>
-    <type value="FILE UPLOAD">
-    </type>
-    <type value="asd">
+    <type value="PHP">
+        <level value="1" bound="1">
+            <sentences>&lt;?php ?&gt; [php] [\php]</sentences>
+            <keywords>&lt;?php ?&gt; </keywords>
+            <keywords>[php] </keywords>
+            <keywords>[\php]</keywords>
+        </level>
+        <level value="2" bound="1">
+            <sentences>$GLOBALS $HTTP_COOKIE_VARS $HTTP_ENV_VARS $HTTP_GET_VARS $HTTP_POST_FILES $HTTP_POST_VARS $HTTP_RAW_POST_DATA $HTTP_REQUEST_VARS $HTTP_SERVER_VARS $_COOKIE $_ENV $_FILES $_GET $_POST $_REQUEST $_SERVER $_SESSION $argc $argv</sentences>
+            <keywords>$GLOBALS </keywords>
+            <keywords>$HTTP_COOKIE_VARS </keywords>
+            <keywords>$HTTP_ENV_VARS </keywords>
+            <keywords>$HTTP_GET_VARS </keywords>
+            <keywords>$HTTP_POST_FILES </keywords>
+            <keywords>$HTTP_POST_VARS </keywords>
+            <keywords>$HTTP_RAW_POST_DATA </keywords>
+            <keywords>$HTTP_REQUEST_VARS </keywords>
+            <keywords>$HTTP_SERVER_VARS </keywords>
+            <keywords>$_COOKIE </keywords>
+            <keywords>$_ENV </keywords>
+            <keywords>$_FILES </keywords>
+            <keywords>$_GET </keywords>
+            <keywords>$_POST </keywords>
+            <keywords>$_REQUEST </keywords>
+            <keywords>$_SERVER </keywords>
+            <keywords>$_SESSION </keywords>
+            <keywords>$argc </keywords>
+            <keywords>$argv</keywords>
+        </level>
+        <level value="3" bound="1">
+            <sentences>php://stdin php://stdout php://stderr php://input php://output php://fd php://memory php://temp php://filter</sentences>
+            <keywords>php://stdin </keywords>
+            <keywords>php://stdout </keywords>
+            <keywords>php://stderr </keywords>
+            <keywords>php://input </keywords>
+            <keywords>php://output </keywords>
+            <keywords>php://fd </keywords>
+            <keywords>php://memory </keywords>
+            <keywords>php://temp </keywords>
+            <keywords>php://filter</keywords>
+        </level>
+        <level value="4" bound="1">
+            <sentences>__halt_compiler() apache_child_terminate() base64_decode() bzdecompress() call_user_func() call_user_func_array() call_user_method() call_user_method_array() convert_uudecode() file_get_contents() file_put_contents() fsockopen() gzdecode() gzinflate() gzuncompress() include_once() invokeargs() pcntl_exec() pcntl_fork() pfsockopen() posix_getcwd() posix_getpwuid() posix_getuid() posix_uname() ReflectionFunction() require_once() shell_exec() str_rot13() sys_get_temp_dir() wp_remote_fopen() wp_remote_get() wp_remote_head() wp_remote_post() wp_remote_request() wp_safe_remote_get() wp_safe_remote_head() wp_safe_remote_post() wp_safe_remote_request() zlib_decode() system() exec() passthru() assert() chroot() chgrp() chown() proc_open() ini_restore() dl() readlink() symlink() popen() stream_socket_server() putenv()</sentences>
+            <keywords>__halt_compiler() </keywords>
+            <keywords>apache_child_terminate() </keywords>
+            <keywords>base64_decode() </keywords>
+            <keywords>bzdecompress() </keywords>
+            <keywords>call_user_func() </keywords>
+            <keywords>call_user_func_array() </keywords>
+            <keywords>call_user_method() </keywords>
+            <keywords>call_user_method_array() </keywords>
+            <keywords>convert_uudecode() </keywords>
+            <keywords>file_get_contents() </keywords>
+            <keywords>file_put_contents() </keywords>
+            <keywords>fsockopen() </keywords>
+            <keywords>gzdecode() </keywords>
+            <keywords>gzinflate() </keywords>
+            <keywords>gzuncompress() </keywords>
+            <keywords>include_once() </keywords>
+            <keywords>invokeargs() </keywords>
+            <keywords>pcntl_exec() </keywords>
+            <keywords>pcntl_fork() </keywords>
+            <keywords>pfsockopen() </keywords>
+            <keywords>posix_getcwd() </keywords>
+            <keywords>posix_getpwuid() </keywords>
+            <keywords>posix_getuid() </keywords>
+            <keywords>posix_uname() </keywords>
+            <keywords>ReflectionFunction() </keywords>
+            <keywords>require_once() </keywords>
+            <keywords>shell_exec() </keywords>
+            <keywords>str_rot13() </keywords>
+            <keywords>sys_get_temp_dir() </keywords>
+            <keywords>wp_remote_fopen() </keywords>
+            <keywords>wp_remote_get() </keywords>
+            <keywords>wp_remote_head() </keywords>
+            <keywords>wp_remote_post() </keywords>
+            <keywords>wp_remote_request() </keywords>
+            <keywords>wp_safe_remote_get() </keywords>
+            <keywords>wp_safe_remote_head() </keywords>
+            <keywords>wp_safe_remote_post() </keywords>
+            <keywords>wp_safe_remote_request() </keywords>
+            <keywords>zlib_decode() </keywords>
+            <keywords>system() </keywords>
+            <keywords>exec() </keywords>
+            <keywords>passthru() </keywords>
+            <keywords>assert() </keywords>
+            <keywords>chroot() </keywords>
+            <keywords>chgrp() </keywords>
+            <keywords>chown() </keywords>
+            <keywords>proc_open() </keywords>
+            <keywords>ini_restore() </keywords>
+            <keywords>dl() </keywords>
+            <keywords>readlink() </keywords>
+            <keywords>symlink() </keywords>
+            <keywords>popen() </keywords>
+            <keywords>stream_socket_server() </keywords>
+            <keywords>putenv()</keywords>
+        </level>
     </type>
 </cases>

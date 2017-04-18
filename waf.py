@@ -285,6 +285,52 @@ def send_test_requests(opt):
                             print urllib.quote(find_exact_eff[-1])
                 break
                 
+def test_payloads(opt):    
+    tree = ET.parse("payload.xml")
+    root = tree.getroot()
+    for type in root:
+        for level in type:
+            bound = int(level.attrib['bound'])
+            sentence = level.find("sentences").text
+            keywords = level.findall("keywords")
+            while True:
+                test_sen = teststr(sentence, opt)
+                if test_sen == 0:
+                    print 'normal', sentence
+                elif test_sen == -1:
+                    return -1
+                elif test_sen < 0:
+                    continue
+                else:
+                    print 'banned', sentence
+                    keywords_text = []
+                    for keyword in keywords:
+                        keywords_text.append(keyword.text)
+                    banned_eff = []
+                    c = keywords_text
+                    for k in c:
+                        count = 0
+                        while True:
+                            test_keyword = teststr(k, opt)
+                            if test_keyword == test_sen:
+                                print 'banned', k
+                                banned_eff.append(k)
+                            elif test_keyword < 0:
+                                if count >= 5:
+                                    print 'error', k
+                                    break
+                                count += 1
+                                continue
+                            else:
+                                pass
+                            count = 0
+                            break
+                    if len(banned_eff) == 0:
+                        print check_eff(sentence, opt, test_sen)
+                    else:
+                        print banned_eff
+                break
+                
 def teststr_l(s, eff):
     i = 0
     j = 0
@@ -440,7 +486,7 @@ def test(opt):
     get_standard_ratio(opt)
     group = get_all_features(opt)
     #send_test_requests(opt)
-    send_payloads(opt)
+    test_payloads(opt)
     
 def main():
     opt = parse_cmd_args()
