@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-
+<!-- bound must equal 1! Not repeat character!-->
 <cases>
     <type value="COMMON">
         <level value="1" bound = "1">

@@ -7,6 +7,7 @@ import difflib
 import urlparse
 import urllib
 import sys
+import copy
 
 MAIN_PATH = os.path.abspath('.')
 STANDARD_RATIO = 0
@@ -14,6 +15,7 @@ RESPONSES = []
 TEST_RESPONSES = []
 SIMILARITY = []
 TEST_SIMILARITY = []
+ALL_BANNED_EFFECTIVE_VECTOR = []
 METHOD_POST = 2
 METHOD_GET = 1
 NOT_FOUND = 0
@@ -231,7 +233,8 @@ def response2file():
             f.write(TEST_RESPONSES[i].content)
             f.close()
 
-def send_test_requests(opt):    
+def send_test_requests(opt):
+    global ALL_BANNED_EFFECTIVE_VECTOR
     tree = ET.parse("special.xml")
     root = tree.getroot()
     for type in root:
@@ -239,13 +242,18 @@ def send_test_requests(opt):
             bound = int(level.attrib['bound'])
             sentence = level.find("sentences").text
             keywords = level.findall("keywords")
+            count1 = 0
             while True:
                 test_sen = teststr(urllib.unquote(sentence), opt)
                 if test_sen == 0:
                     print 'normal', sentence
-                elif test_sen == -1:
+                elif test_sen == -2:
                     return -1
                 elif test_sen < 0:
+                    if count1 >= 5:
+                        print 'error'
+                        break
+                    count1 += 1
                     continue
                 else:
                     print 'banned', sentence
@@ -273,7 +281,8 @@ def send_test_requests(opt):
                                 count = 0
                                 break
                     if len(banned_eff) == 0:
-                        print check_eff(urllib.unquote(sentence), opt, test_sen)
+                        find_exact = check_eff(urllib.unquote(sentence), opt, test_sen)
+                        ALL_BANNED_EFFECTIVE_VECTOR.append(find_exact)
                     else:
                         find_exact_eff = []
                         for b in banned_eff:
@@ -283,9 +292,11 @@ def send_test_requests(opt):
                                 print 'finding', urllib.quote(b)
                                 find_exact_eff.append(check_eff(b, opt, test_sen))
                             print urllib.quote(find_exact_eff[-1])
+                            ALL_BANNED_EFFECTIVE_VECTOR.append(find_exact_eff[-1])
                 break
                 
-def test_payloads(opt):    
+def threads_payloads(opt):
+    global ALL_BANNED_EFFECTIVE_VECTOR
     tree = ET.parse("payload.xml")
     root = tree.getroot()
     for type in root:
@@ -293,44 +304,133 @@ def test_payloads(opt):
             bound = int(level.attrib['bound'])
             sentence = level.find("sentences").text
             keywords = level.findall("keywords")
+            count1 = 0
             while True:
                 test_sen = teststr(sentence, opt)
                 if test_sen == 0:
                     print 'normal', sentence
-                elif test_sen == -1:
+                elif test_sen == -2:
                     return -1
                 elif test_sen < 0:
+                    if count1 >= 5:
+                        print 'error'
+                        break
+                    count1 += 1
                     continue
                 else:
                     print 'banned', sentence
                     keywords_text = []
                     for keyword in keywords:
                         keywords_text.append(keyword.text)
-                    banned_eff = []
-                    c = keywords_text
-                    for k in c:
-                        count = 0
-                        while True:
-                            test_keyword = teststr(k, opt)
-                            if test_keyword == test_sen:
-                                print 'banned', k
-                                banned_eff.append(k)
-                            elif test_keyword < 0:
-                                if count >= 5:
-                                    print 'error', k
-                                    break
-                                count += 1
-                                continue
-                            else:
-                                pass
+                    banned_eff = False
+                    for i in range(1,bound + 1):
+                        c = combination(keywords_text, i)
+                        for k in c:
                             count = 0
-                            break
-                    if len(banned_eff) == 0:
-                        print check_eff(sentence, opt, test_sen)
-                    else:
-                        print banned_eff
+                            for e in ALL_BANNED_EFFECTIVE_VECTOR:#如果之前存在模式则删去有效部分
+                                #left_text = teststr_del(k, e)
+                                #if left_text[0]:
+                                #    k = left_text[1]
+                                k.replace(e, "")
+                            #print ALL_BANNED_EFFECTIVE_VECTOR
+                            #print k
+                            if len(k) == 0:
+                                continue
+                            while True:
+                                test_keyword = teststr(k, opt)
+                                if test_keyword == test_sen:
+                                    print 'banned', k
+                                    find_exact = check_eff(k, opt, test_sen)
+                                    banned_eff = True
+                                    ALL_BANNED_EFFECTIVE_VECTOR.append(find_exact)
+                                    print find_exact
+                                elif test_keyword < 0:
+                                    if count >= 5:
+                                        print 'error', k
+                                        banned_eff = True
+                                        break
+                                    count += 1
+                                    continue
+                                else:
+                                    pass
+                                count = 0
+                                break
+                    if not banned_eff:
+                        find_exact = check_eff(sentence, opt, test_sen)
+                        ALL_BANNED_EFFECTIVE_VECTOR.append(find_exact)
                 break
-                
+
+def pre_test_payloads(opt):
+    global ALL_BANNED_EFFECTIVE_VECTOR
+    tree = ET.parse("payload.xml")
+    root = tree.getroot()
+    count = 0
+    al_num = 0
+    max_len = 0
+    times = 0
+    eff = []
+    pre_eff = []
+    sentence_pre = ""
+    for type in root:
+        for level in type:
+            bound = int(level.attrib['bound'])
+            sentence = level.find("sentences").text
+            keywords = level.findall("keywords")
+            keywords_text = []
+            for keyword in keywords:
+                for e in eff:
+                    if e in keyword.text:
+                        flag = False
+                        if e not in pre_eff:
+                            pre_eff.append(e)
+                            sentence_pre += e
+                keywords_text.append(keyword.text)
+            eff += keywords_text
+    count1 = 0
+    sentence = sentence_pre
+    while True:
+        test_sen = teststr(sentence, opt)
+        #test_sen = teststr_l(sentence, "or")
+        if test_sen == 0:
+            print 'normal', sentence
+        elif test_sen == -2:
+            return -1
+        elif test_sen < 0:
+            if count1 >= 5:
+                print 'error'
+                break
+            count1 += 1
+            continue
+        else:
+            print 'banned', sentence
+            banned_eff = False
+            for k in pre_eff:
+                count = 0
+                while True:
+                    test_keyword = teststr(k, opt)
+                    #test_keyword = teststr_l(k, "or")
+                    if test_keyword == test_sen:
+                        print 'banned', k, 
+                        find_exact = check_eff(k, opt, test_sen)
+                        banned_eff = True
+                        ALL_BANNED_EFFECTIVE_VECTOR.append(find_exact)
+                        print find_exact
+                    elif test_keyword < 0:
+                        if count >= 5:
+                            print 'error', k
+                            banned_eff = True
+                            break
+                        count += 1
+                        continue
+                    else:
+                        pass
+                    count = 0
+                    break
+            if not banned_eff:
+                find_exact = check_eff(sentence, opt, test_sen)
+                ALL_BANNED_EFFECTIVE_VECTOR.append(find_exact)
+        break
+
 def teststr_l(s, eff):
     i = 0
     j = 0
@@ -345,8 +445,29 @@ def teststr_l(s, eff):
         return True
     else:
         return False
+
+def teststr_del(s, eff):
+    s1 = copy.copy(s)
+    eff1 = copy.copy(eff)
+    i = 0
+    j = 0
+    len1 = len(eff)
+    len2 = len(s)
+    flag = False
+    while i < len1 and j < len2:
+        if eff1[i] == s1[j]:
+            i += 1
+            s1 = s1[:j]+s1[j+1:]
+            len2 -= 1
+            continue
+        j += 1
+    if i >= len1:
+        return True, s1
+    else:
+        return False, s1
         
 def send_payloads(opt):
+    global ALL_BANNED_EFFECTIVE_VECTOR
     tree = ET.parse("payload.xml")
     root = tree.getroot()
     for type in root:
@@ -354,6 +475,7 @@ def send_payloads(opt):
             bound = int(level.attrib['bound'])
             sentence = level.find("sentences").text
             keywords = level.findall("keywords")
+            count1 = 0
             while True:
                 test_sen = teststr(sentence, opt)
                 if test_sen == 0:
@@ -361,32 +483,42 @@ def send_payloads(opt):
                 elif test_sen == -2:
                     return -1
                 elif test_sen < 0:
+                    if count1 >= 5:
+                        print 'error'
+                        break
+                    count1 += 1
                     continue
                 else:
                     print 'banned', sentence
                     keywords_text = []
                     for keyword in keywords:
                         keywords_text.append(keyword.text)
-                    banned_eff = []
+                    banned_eff = False
                     for i in range(1,bound + 1):
                         c = combination(keywords_text, i)
                         for k in c:
                             count = 0
-                            flag = False
-                            for e in banned_eff:#如果之前存在模式则不需检测
-                                if teststr_l(k, e):
-                                    flag = True
-                                    break
-                            if flag:
+                            for e in ALL_BANNED_EFFECTIVE_VECTOR:#如果之前存在模式则删去有效部分
+                                #left_text = teststr_del(k, e)
+                                #if left_text[0]:
+                                #    k = left_text[1]
+                                k.replace(e, "")
+                            #print ALL_BANNED_EFFECTIVE_VECTOR
+                            #print k
+                            if len(k) == 0:
                                 continue
                             while True:
                                 test_keyword = teststr(k, opt)
                                 if test_keyword == test_sen:
                                     print 'banned', k
-                                    banned_eff.append(k)
+                                    find_exact = check_eff(k, opt, test_sen)
+                                    banned_eff = True
+                                    ALL_BANNED_EFFECTIVE_VECTOR.append(find_exact)
+                                    print find_exact
                                 elif test_keyword < 0:
                                     if count >= 5:
                                         print 'error', k
+                                        banned_eff = True
                                         break
                                     count += 1
                                     continue
@@ -394,14 +526,9 @@ def send_payloads(opt):
                                     pass
                                 count = 0
                                 break
-                    if len(banned_eff) == 0:
-                        print check_eff(sentence, opt, test_sen)
-                    else:
-                        find_exact_eff = []
-                        for b in banned_eff:
-                            print 'finding', b
-                            find_exact_eff.append(check_eff(b, opt, test_sen))
-                            print find_exact_eff[-1]
+                    if not banned_eff:
+                        find_exact = check_eff(sentence, opt, test_sen)
+                        ALL_BANNED_EFFECTIVE_VECTOR.append(find_exact)
                 break
                     
 def combination(keywords, n):
@@ -485,8 +612,10 @@ def check_eff(s, opt, sen_flag):
 def test(opt):
     get_standard_ratio(opt)
     group = get_all_features(opt)
+    pre_test_payloads(opt)
     #send_test_requests(opt)
-    test_payloads(opt)
+    #test_payloads(opt)
+    #send_payloads(opt)
     
 def main():
     opt = parse_cmd_args()
