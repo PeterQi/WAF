@@ -8,6 +8,9 @@ import urlparse
 import urllib
 import sys
 import copy
+import thread
+import threading
+import threadpool
 
 MAIN_PATH = os.path.abspath('.')
 STANDARD_RATIO = 0
@@ -21,8 +24,12 @@ METHOD_GET = 1
 NOT_FOUND = 0
 ACCEPTABLE_DIFF_RATIO = 0.05
 BASE_RESPONSE_TIME = 60.0
-
-
+CACHE_EFF = []
+NORMAL = []
+cjlock = threading.Lock()
+NORMALLOCK = threading.Lock()
+request_num = 0
+numlock = threading.Lock()
 
 def parse_cmd_args():
     usage = "usage: %prog [options] arg"
@@ -38,6 +45,7 @@ def parse_cmd_args():
                       help="set a custom HTTP header (e.g. \"Max-Forwards=10\")")
     parser.add_option("--test", dest="test", action = "store_true",
                       help="make a test")
+    parser.add_option("-t", "--thread", dest="thread", help="set multiple thread num, default 5")
     (options, args) = parser.parse_args()
     if not options.url or not options.param:
         parser.error("Missing argument for target url or target param. Use '-h' for help.")
@@ -55,6 +63,9 @@ def first_request(options):
         else:
             req = requests.get(options.url,headers=headers, allow_redirects = False)
         return req
+    except KeyboardInterrupt:
+        print 'You Stop.'
+        sys.exit()
     except Exception, e:
         print Exception, ':', e
         sys.exit()
@@ -74,12 +85,16 @@ def get_standard_ratio(opt):
     return STANDARD_RATIO
 
 def send_fixed_request(opt, query_list, str, offset, post = False):
+    global request_num
     headers = {}
     query_list[offset] = (opt.param, str)
     if opt.cookie:
         headers["Cookie"] = opt.cookie
     if opt.header:
         headers[opt.header.split("=")[0]] = options.header.split("=", 1)[1]
+    numlock.acquire()
+    request_num += 1
+    numlock.release()
     try:
         if post:
             req = requests.post(opt.url,headers = headers, data = query_list, allow_redirects = False, timeout = BASE_RESPONSE_TIME*30)
@@ -87,6 +102,9 @@ def send_fixed_request(opt, query_list, str, offset, post = False):
         geturl = urlparse.urlparse(opt.url)
         url = urlparse.urlunparse((geturl.scheme, geturl.netloc, geturl.path, geturl.params, "", geturl.fragment))
         req = requests.get(url,headers = headers, params = query_list, allow_redirects = False, timeout = BASE_RESPONSE_TIME*3)
+    except KeyboardInterrupt:
+        print 'You Stop.'
+        sys.exit()
     except Exception, e:
         req = None
     return req
@@ -235,6 +253,7 @@ def response2file():
 
 def send_test_requests(opt):
     global ALL_BANNED_EFFECTIVE_VECTOR
+    global CACHE_EFF
     tree = ET.parse("special.xml")
     root = tree.getroot()
     for type in root:
@@ -251,7 +270,7 @@ def send_test_requests(opt):
                     return -1
                 elif test_sen < 0:
                     if count1 >= 5:
-                        print 'error'
+                        print 'error', sentence
                         break
                     count1 += 1
                     continue
@@ -263,102 +282,100 @@ def send_test_requests(opt):
                     banned_eff = []
                     for i in range(1,bound + 1):
                         c = combination(keywords_text, i)
-                        for k in c:
-                            count = 0
-                            while True:
-                                test_keyword = teststr(urllib.unquote(k), opt)
-                                if test_keyword == test_sen:
-                                    print 'banned', k
-                                    banned_eff.append(urllib.unquote(k))
-                                elif test_keyword < 0:
-                                    if count >= 5:
-                                        print 'error', k
-                                        break
-                                    count += 1
-                                    continue
-                                else:
-                                    pass
-                                count = 0
-                                break
-                    if len(banned_eff) == 0:
-                        find_exact = check_eff(urllib.unquote(sentence), opt, test_sen)
-                        ALL_BANNED_EFFECTIVE_VECTOR.append(find_exact)
-                    else:
-                        find_exact_eff = []
-                        for b in banned_eff:
-                            if len(b) == 1:
-                                find_exact_eff.append(b)
-                            else:
-                                print 'finding', urllib.quote(b)
-                                find_exact_eff.append(check_eff(b, opt, test_sen))
-                            print urllib.quote(find_exact_eff[-1])
-                            ALL_BANNED_EFFECTIVE_VECTOR.append(find_exact_eff[-1])
+                        num = len(c)
+                        try:
+                            pool = threadpool.ThreadPool(opt.thread)
+                            reqs = threadpool.makeRequests(threads_payloads1,[((),{'opt':opt, 'keywords': c, 'offset':j, 'test_sen': test_sen})for j in range(opt.thread)], handle_results)
+                            [pool.putRequest(req) for req in reqs]
+                            pool.wait()
+                        except KeyboardInterrupt:
+                            print 'You Stop.'
+                            sys.exit()
+                        
+                        if len(CACHE_EFF) == 0:
+                            find_exact = check_eff(urllib.unquote(sentence), opt, test_sen)
+                            ALL_BANNED_EFFECTIVE_VECTOR.append(find_exact)
+                        else:
+                            ALL_BANNED_EFFECTIVE_VECTOR += CACHE_EFF
+                        CACHE_EFF = []
+                        print ALL_BANNED_EFFECTIVE_VECTOR
                 break
                 
-def threads_payloads(opt):
-    global ALL_BANNED_EFFECTIVE_VECTOR
-    tree = ET.parse("payload.xml")
-    root = tree.getroot()
-    for type in root:
-        for level in type:
-            bound = int(level.attrib['bound'])
-            sentence = level.find("sentences").text
-            keywords = level.findall("keywords")
-            count1 = 0
-            while True:
-                test_sen = teststr(sentence, opt)
-                if test_sen == 0:
-                    print 'normal', sentence
-                elif test_sen == -2:
-                    return -1
-                elif test_sen < 0:
-                    if count1 >= 5:
-                        print 'error'
-                        break
-                    count1 += 1
-                    continue
-                else:
-                    print 'banned', sentence
-                    keywords_text = []
-                    for keyword in keywords:
-                        keywords_text.append(keyword.text)
-                    banned_eff = False
-                    for i in range(1,bound + 1):
-                        c = combination(keywords_text, i)
-                        for k in c:
-                            count = 0
-                            for e in ALL_BANNED_EFFECTIVE_VECTOR:#如果之前存在模式则删去有效部分
-                                #left_text = teststr_del(k, e)
-                                #if left_text[0]:
-                                #    k = left_text[1]
-                                k.replace(e, "")
-                            #print ALL_BANNED_EFFECTIVE_VECTOR
-                            #print k
-                            if len(k) == 0:
-                                continue
-                            while True:
-                                test_keyword = teststr(k, opt)
-                                if test_keyword == test_sen:
-                                    print 'banned', k
-                                    find_exact = check_eff(k, opt, test_sen)
-                                    banned_eff = True
-                                    ALL_BANNED_EFFECTIVE_VECTOR.append(find_exact)
-                                    print find_exact
-                                elif test_keyword < 0:
-                                    if count >= 5:
-                                        print 'error', k
-                                        banned_eff = True
-                                        break
-                                    count += 1
-                                    continue
-                                else:
-                                    pass
-                                count = 0
-                                break
-                    if not banned_eff:
-                        find_exact = check_eff(sentence, opt, test_sen)
-                        ALL_BANNED_EFFECTIVE_VECTOR.append(find_exact)
-                break
+def threads_payloads1(opt, keywords, offset, test_sen):#for special.xml
+    banned_eff = []
+    l = len(keywords)
+    for k in range(offset, l, opt.thread):
+        count = 0
+        if urllib.unquote(keywords[k]) in NORMAL:
+            continue
+        while True:
+            test_keyword = teststr(urllib.unquote(keywords[k]), opt)
+            if test_keyword == test_sen:
+                print 'banned', keywords[k]
+                banned_eff.append(urllib.unquote(keywords[k]))
+            elif test_keyword < 0:
+                if count >= 5:
+                    print 'error', keywords[k]
+                    break
+                count += 1
+                continue
+            else:
+                NORMALLOCK.acquire()
+                NORMAL.append(urllib.unquote(keywords[k]))
+                NORMALLOCK.release()
+                #print 'normal', keywords[k]
+                
+            count = 0
+            break
+    if len(banned_eff) == 0:
+        return offset, banned_eff
+    else:
+        find_exact_eff = []
+        for b in banned_eff:
+            if len(b) == 1:
+                find_exact_eff.append(b)
+            else:
+                print 'finding', urllib.quote(b)
+                find_exact_eff.append(check_eff(b, opt, test_sen))
+        return offset, find_exact_eff
+
+def threads_payloads2(opt, keywords, offset, test_sen):#for payload.xml
+    banned_eff = []
+    l = len(keywords)
+    for k in range(offset, l, opt.thread):
+        count = 0
+        for e in ALL_BANNED_EFFECTIVE_VECTOR:
+            keywords[k] = keywords[k].replace(e, "")
+        if len(keywords[k])==0:
+            continue
+        if keywords[k] in NORMAL:
+            continue
+        while True:
+            test_keyword = teststr(keywords[k], opt)
+            if test_keyword == test_sen:
+                print 'banned', keywords[k]
+                find_exact = check_eff(keywords[k], opt, test_sen)
+                banned_eff.append(find_exact)
+            elif test_keyword < 0:
+                if count >= 5:
+                    print 'error', keywords[k]
+                    break
+                count += 1
+                continue
+            else:
+                NORMALLOCK.acquire()
+                NORMAL.append(keywords[k])
+                NORMALLOCK.release()
+                #print 'normal', keywords[k], len(NORMAL)
+            count = 0
+            break
+    return offset, banned_eff
+        
+def handle_results(request, result):
+    global CACHE_EFF
+    cjlock.acquire()
+    CACHE_EFF += result[1]
+    cjlock.release()
 
 def pre_test_payloads(opt):
     global ALL_BANNED_EFFECTIVE_VECTOR
@@ -390,7 +407,6 @@ def pre_test_payloads(opt):
     sentence = sentence_pre
     while True:
         test_sen = teststr(sentence, opt)
-        #test_sen = teststr_l(sentence, "or")
         if test_sen == 0:
             print 'normal', sentence
         elif test_sen == -2:
@@ -403,32 +419,21 @@ def pre_test_payloads(opt):
             continue
         else:
             print 'banned', sentence
-            banned_eff = False
-            for k in pre_eff:
-                count = 0
-                while True:
-                    test_keyword = teststr(k, opt)
-                    #test_keyword = teststr_l(k, "or")
-                    if test_keyword == test_sen:
-                        print 'banned', k, 
-                        find_exact = check_eff(k, opt, test_sen)
-                        banned_eff = True
-                        ALL_BANNED_EFFECTIVE_VECTOR.append(find_exact)
-                        print find_exact
-                    elif test_keyword < 0:
-                        if count >= 5:
-                            print 'error', k
-                            banned_eff = True
-                            break
-                        count += 1
-                        continue
-                    else:
-                        pass
-                    count = 0
-                    break
-            if not banned_eff:
+            try:
+                pool = threadpool.ThreadPool(opt.thread)
+                reqs = threadpool.makeRequests(threads_payloads2,[((),{'opt':opt, 'keywords': pre_eff, 'offset':j, 'test_sen': test_sen})for j in range(opt.thread)], handle_results)
+                [pool.putRequest(req) for req in reqs]
+                pool.wait()
+            except KeyboardInterrupt:
+                print 'You stop.'
+                sys.exit()
+            if len(CACHE_EFF) == 0:
                 find_exact = check_eff(sentence, opt, test_sen)
                 ALL_BANNED_EFFECTIVE_VECTOR.append(find_exact)
+            else:
+                ALL_BANNED_EFFECTIVE_VECTOR += CACHE_EFF
+            CACHE_EFF = []
+            print ALL_BANNED_EFFECTIVE_VECTOR
         break
 
 def teststr_l(s, eff):
@@ -468,6 +473,7 @@ def teststr_del(s, eff):
         
 def send_payloads(opt):
     global ALL_BANNED_EFFECTIVE_VECTOR
+    global CACHE_EFF
     tree = ET.parse("payload.xml")
     root = tree.getroot()
     for type in root:
@@ -484,7 +490,7 @@ def send_payloads(opt):
                     return -1
                 elif test_sen < 0:
                     if count1 >= 5:
-                        print 'error'
+                        print 'error', sentence
                         break
                     count1 += 1
                     continue
@@ -496,40 +502,24 @@ def send_payloads(opt):
                     banned_eff = False
                     for i in range(1,bound + 1):
                         c = combination(keywords_text, i)
-                        for k in c:
-                            count = 0
-                            for e in ALL_BANNED_EFFECTIVE_VECTOR:#如果之前存在模式则删去有效部分
-                                #left_text = teststr_del(k, e)
-                                #if left_text[0]:
-                                #    k = left_text[1]
-                                k.replace(e, "")
-                            #print ALL_BANNED_EFFECTIVE_VECTOR
-                            #print k
-                            if len(k) == 0:
-                                continue
-                            while True:
-                                test_keyword = teststr(k, opt)
-                                if test_keyword == test_sen:
-                                    print 'banned', k
-                                    find_exact = check_eff(k, opt, test_sen)
-                                    banned_eff = True
-                                    ALL_BANNED_EFFECTIVE_VECTOR.append(find_exact)
-                                    print find_exact
-                                elif test_keyword < 0:
-                                    if count >= 5:
-                                        print 'error', k
-                                        banned_eff = True
-                                        break
-                                    count += 1
-                                    continue
-                                else:
-                                    pass
-                                count = 0
-                                break
+                        try:
+                            pool = threadpool.ThreadPool(opt.thread)
+                            reqs = threadpool.makeRequests(threads_payloads2,[((),{'opt':opt, 'keywords': c, 'offset':j, 'test_sen': test_sen})for j in range(opt.thread)], handle_results)
+                            [pool.putRequest(req) for req in reqs]
+                            pool.wait()
+                        except KeyboardInterrupt:
+                            print 'You stop.'
+                            sys.exit()
+                        if len(CACHE_EFF) > 0:
+                            banned_eff = True
+                            ALL_BANNED_EFFECTIVE_VECTOR += CACHE_EFF
+                        CACHE_EFF = []
+                        print ALL_BANNED_EFFECTIVE_VECTOR
                     if not banned_eff:
                         find_exact = check_eff(sentence, opt, test_sen)
                         ALL_BANNED_EFFECTIVE_VECTOR.append(find_exact)
                 break
+            print request_num
                     
 def combination(keywords, n):
     com = []
@@ -570,55 +560,77 @@ def teststr(s, opt):
 def check_eff(s, opt, sen_flag):
     bound = len(s)
     eff = ""
-    while bound > 0:
-        start = 0
-        end = bound
-        left = start
-        right = end
-        if teststr(eff, opt) == sen_flag:
-            break
-        count = 0
-        while left < right - 1:
-            mid = (left + right)/2
-            #print s[start:mid]+eff,
-            res = teststr(s[start:mid]+eff, opt)
-            if  res == sen_flag:
-                right = mid
-            elif res < 0:
-                if count >= 5:
-                    print 'error'
-                    return ""
-                count += 1
-                continue
-            else:
-                left = mid
+    print 'finding ', s
+    try:
+        while bound > 0:
+            start = 0
+            end = bound
+            left = start
+            right = end
+            if eff not in NORMAL and len(eff) > 0:
+                if teststr(eff, opt) == sen_flag:
+                    break
+                else:
+                    NORMALLOCK.acquire()
+                    NORMAL.append(eff)
+                    NORMALLOCK.release()
             count = 0
-        count = 0
-        while True:
-            res = teststr(s[start:left]+eff, opt)
-            if res < 0:
-                if count >= 5:
-                    print 'error'
-                    return ""
-                count += 1
-                continue
-            if res != sen_flag:
-                left = right
-            break
-        eff = s[left - 1] + eff
-        bound = left - 1
-    return eff
+            while left < right - 1:
+                mid = (left + right)/2
+                if s[start:mid]+eff in NORMAL:
+                    left = mid
+                    continue
+                res = teststr(s[start:mid]+eff, opt)
+                if  res == sen_flag:
+                    right = mid
+                elif res < 0:
+                    if count >= 5:
+                        print 'error'
+                        return ""
+                    count += 1
+                    continue
+                else:
+                    NORMALLOCK.acquire()
+                    NORMAL.append(s[start:mid]+eff)
+                    NORMALLOCK.release()
+                    left = mid
+                count = 0
+            count = 0
+            while True:
+                if s[start:left]+eff in NORMAL:
+                    left = right
+                    break
+                res = teststr(s[start:left]+eff, opt)
+                if res < 0:
+                    if count >= 5:
+                        print 'error'
+                        return ""
+                    count += 1
+                    continue
+                if res != sen_flag:
+                    left = right
+                break
+            eff = s[left - 1] + eff
+            bound = left - 1
+        print 'Finish finding ', s
+        return eff
+    except KeyboardInterrupt:
+        print 'You stop.'
+        sys.exit()
     
 def test(opt):
     get_standard_ratio(opt)
     group = get_all_features(opt)
     pre_test_payloads(opt)
-    #send_test_requests(opt)
-    #test_payloads(opt)
-    #send_payloads(opt)
+    send_test_requests(opt)
+    send_payloads(opt)
     
 def main():
     opt = parse_cmd_args()
+    if not opt.thread:
+        opt.thread = 5
+    else:
+        opt.thread = int(opt.thread)
     if opt.test:
         test(opt)
         return

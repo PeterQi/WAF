@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #coding:utf-8
-#E:\Users\Peter\workspace\WAF>python waf.py -u "http://www.esri.com/search?q=and" -p q --test
+#E:\Users\Peter\workspace\WAF>python waf.py -u "http://www.esri.com/search?q=and" -p q -t 20 --test
 import xml.etree.ElementTree as ET
 import random
 import os

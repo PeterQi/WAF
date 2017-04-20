@@ -87,7 +87,8 @@
             <keywords>sysaccessxml </keywords>
             <keywords>sysmodules </keywords>
             <keywords>sysmodules2 </keywords>
-            <keywords>master..sysdatabases </keywords>
+            <keywords>master..</keywords>
+            <keywords>sysdatabases </keywords>
             <keywords>mysql.db </keywords>
             <keywords>sys.database_name </keywords>
             <keywords>sysaux </keywords>
