@@ -10,28 +10,16 @@ import time
 import sys
 
 cache = []
-def test(s):
-    try:
-        cjlock.acquire()    
-        time.sleep(2)
-        print 'ok'
-    except Exception, e:
-        print Exception, e
-        return -1
-    return 1
-def print_result(request, result):
-    if result == -1:
-        sys.exit()
+def test():
+    f = open('./result/www.esri.com', 'r')
+    a = f.read()
+    b = a.split('\n')
+    ALL = []
+    l = len(b)
+    for i in range(2, l - 2):
+        if b[i] not in ALL:
+            ALL.append(b[i])
+    b = ALL
+    print b
 if __name__ == "__main__":
-    NUM = 5
-    cache = []
-    cjlock = threading.Lock()
-    pool = threadpool.ThreadPool(NUM)
-    reqs = threadpool.makeRequests(test,[((),{'s':j})for j in range(NUM)],print_result)
-    [pool.putRequest(req) for req in reqs]
-    while True:
-        try:
-            pool.wait()
-        except KeyboardInterrupt:
-            print 'sss'
-            sys.exit()
+    test()

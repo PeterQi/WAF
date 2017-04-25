@@ -218,7 +218,7 @@
             <sentences>&lt;script&gt;alert("xss")&lt;/script&gt;</sentences>
             <keywords>&lt;script&gt;</keywords>
             <keywords>alert("xss")</keywords>
-            <keywords>&lt;/script>&gt;</keywords>
+            <keywords>&lt;/script&gt;</keywords>
         </level>
         <level value="3" bound="2">
             <sentences>&lt;img src="javascript:alert(1)" onload=""&gt;</sentences>

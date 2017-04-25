@@ -11,6 +11,7 @@ import copy
 import thread
 import threading
 import threadpool
+import re
 
 MAIN_PATH = os.path.abspath('.')
 STANDARD_RATIO = 0
@@ -46,6 +47,7 @@ def parse_cmd_args():
     parser.add_option("--test", dest="test", action = "store_true",
                       help="make a test")
     parser.add_option("-t", "--thread", dest="thread", help="set multiple thread num, default 5")
+    parser.add_option("-r", dest="regular", help="set regular expression to compare")
     (options, args) = parser.parse_args()
     if not options.url or not options.param:
         parser.error("Missing argument for target url or target param. Use '-h' for help.")
@@ -73,15 +75,23 @@ def first_request(options):
 def get_standard_ratio(opt):
     global STANDARD_RATIO
     global BASE_RESPONSE_TIME
+    global request_num
     print 'Original request is responsing'
     req1 = first_request(opt)
     RESPONSES.append(req1)
     req2 = first_request(opt)
+    request_num += 2
     BASE_RESPONSE_TIME = (req1.elapsed.microseconds/1000000.0 + req1.elapsed.seconds + req2.elapsed.microseconds/1000000.0 + req2.elapsed.seconds)/2.0
     print 'Base response time:' + str(BASE_RESPONSE_TIME) + 's'
     print 'Top similarity:', 
-    STANDARD_RATIO = difflib.SequenceMatcher(None, req1.content, req2.content).ratio()
+    #STANDARD_RATIO = difflib.SequenceMatcher(None, req1.content, req2.content).ratio()
+    STANDARD_RATIO = diff_ratio(opt, req1.content, req2.content)
     print STANDARD_RATIO
+    f_name = urlparse.urlparse(opt.url).netloc
+    f = open('./result/'+f_name, 'w')
+    f.write('Base response time:' + str(BASE_RESPONSE_TIME) + 's\n')
+    f.write('Top similarity:'+str(STANDARD_RATIO)+'\n')
+    f.close()
     return STANDARD_RATIO
 
 def send_fixed_request(opt, query_list, str, offset, post = False):
@@ -131,42 +141,24 @@ def find_param_method(opt):
     return query_list, offset, NOT_FOUND
     
 def get_all_features(opt):
-    param_NULL = ""
-    param_NUM = 100
-    param_STR = "hello"
-    param_SPECIAL = "!\"$%&\\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r#\x0b\x0c"
-    param_EVIL = "AND 1=1 UNION ALL SELECT 1,NULL,'<script>alert(\"XSS\")</script>',table_name FROM information_schema.tables WHERE 2>1--/**/; EXEC xp_cmdshell('cat ../../../etc/passwd')#"
-    
     query_list, offset, method = find_param_method(opt)
     
     print 'sending mixed requests'
     if method == METHOD_POST:
-        req = send_fixed_request(opt, query_list, param_NULL, offset, True)
-        RESPONSES.append(req)
-        req = send_fixed_request(opt, query_list, param_NUM, offset, True)
-        RESPONSES.append(req)
-        req = send_fixed_request(opt, query_list, param_STR, offset, True)
-        RESPONSES.append(req)
-        req = send_fixed_request(opt, query_list, param_SPECIAL, offset, True)
-        RESPONSES.append(req)
-        req = send_fixed_request(opt, query_list, param_EVIL, offset, True)
-        RESPONSES.append(req)
+        pool = threadpool.ThreadPool(5)
+        reqs = threadpool.makeRequests(threads_feature_payloads,[((),{'opt':opt, 'query_list': query_list, 'param_i':j, 'offset': offset, 'IF_POST': True})for j in range(5)])
+        [pool.putRequest(req) for req in reqs]
+        pool.wait()
     elif method == METHOD_GET:
-        req = send_fixed_request(opt, query_list, param_NULL, offset)
-        RESPONSES.append(req)
-        req = send_fixed_request(opt, query_list, param_NUM, offset)
-        RESPONSES.append(req)
-        req = send_fixed_request(opt, query_list, param_STR, offset)
-        RESPONSES.append(req)
-        req = send_fixed_request(opt, query_list, param_SPECIAL, offset)
-        RESPONSES.append(req)
-        req = send_fixed_request(opt, query_list, param_EVIL, offset)
-        RESPONSES.append(req)
+        pool = threadpool.ThreadPool(5)
+        reqs = threadpool.makeRequests(threads_feature_payloads,[((),{'opt':opt, 'query_list': query_list, 'param_i':j, 'offset': offset, 'IF_POST': False})for j in range(5)])
+        [pool.putRequest(req) for req in reqs]
+        pool.wait()
     else:
         print "Invaild Param:"+opt.param
         return -1
     print 'start computing similarity...'
-    compute_similarity()
+    compute_similarity(opt)
     len_of_res = len(RESPONSES)
     i = 0
     while i < len_of_res:
@@ -184,8 +176,31 @@ def get_all_features(opt):
             len_of_res -= 1
         i += 1
     return len_of_res
-    
-def compute_similarity():
+
+def diff_ratio(opt, str1, str2):
+    if not opt.regular:
+        return difflib.SequenceMatcher(None, str1, str2).ratio()
+    else:
+        pattern = re.compile(opt.regular)
+        o1 = pattern.search(str1)
+        s1 = ''
+        if o1 != None:
+            p1 = o1.groups()
+            if len(p1) > 0:
+                s1 = p1[0]
+            else:
+                s1 = o1.group()
+        o2 = pattern.search(str2)
+        s2 = ''
+        if o2 != None:
+            p2 = o2.groups()
+            if len(p2) > 0:
+                s2 = p2[0]
+            else:
+                s2 = o2.group()
+        return difflib.SequenceMatcher(None, s1, s2).ratio()
+
+def compute_similarity(opt):
     global SIMILARITY
     SIMILARITY = []
     for i in range(len(RESPONSES)):
@@ -200,7 +215,8 @@ def compute_similarity():
                             line_similarity.append(0.0)
                     else:
                         if RESPONSES[j].status_code == 200:#响应码均为200才计算内容相似度，其余时候看响应码的异同
-                            line_similarity.append(difflib.SequenceMatcher(None, RESPONSES[i].content, RESPONSES[j].content).ratio())
+                            line_similarity.append(diff_ratio(opt, RESPONSES[i].content, RESPONSES[j].content))
+                            #line_similarity.append(difflib.SequenceMatcher(None, RESPONSES[i].content, RESPONSES[j].content).ratio())
                         else:
                             line_similarity.append(0.0)
                 else:
@@ -214,7 +230,7 @@ def compute_similarity():
         print line_similarity
         SIMILARITY.append(line_similarity)
 
-def compute_the_similarity(req):
+def compute_the_similarity(req, opt):
     line_similarity = []
     for i in range(len(RESPONSES)):
         if RESPONSES[i] != None:
@@ -226,7 +242,8 @@ def compute_the_similarity(req):
                         line_similarity.append(0.0)
                 else:
                     if req.status_code == 200:#响应码均为200才计算内容相似度，其余时候看响应码的异同
-                        line_similarity.append(difflib.SequenceMatcher(None, RESPONSES[i].content, req.content).ratio())
+                        line_similarity.append(diff_ratio(opt, RESPONSES[i].content, req.content))
+                        #line_similarity.append(difflib.SequenceMatcher(None, RESPONSES[i].content, req.content).ratio())
                     else:
                         line_similarity.append(0.0)
             else:
@@ -238,18 +255,6 @@ def compute_the_similarity(req):
                 line_similarity.append(0.0)
     #print line_similarity
     TEST_SIMILARITY.append(line_similarity)
-
-def response2file():
-    for i in range(len(RESPONSES)):
-        if RESPONSES[i] != None:
-            f = open('./page/test'+str(i)+'.html','w')
-            f.write(RESPONSES[i].content)
-            f.close()
-    for i in range(len(TEST_RESPONSES)):
-        if TEST_RESPONSES[i] != None:
-            f = open('./page/Ttest'+str(i)+'.html','w')
-            f.write(TEST_RESPONSES[i].content)
-            f.close()
 
 def send_test_requests(opt):
     global ALL_BANNED_EFFECTIVE_VECTOR
@@ -265,7 +270,7 @@ def send_test_requests(opt):
             while True:
                 test_sen = teststr(urllib.unquote(sentence), opt)
                 if test_sen == 0:
-                    print 'normal', sentence
+                    print 'NORMAL', sentence
                 elif test_sen == -2:
                     return -1
                 elif test_sen < 0:
@@ -275,7 +280,7 @@ def send_test_requests(opt):
                     count1 += 1
                     continue
                 else:
-                    print 'banned', sentence
+                    print 'BANNED', sentence
                     keywords_text = []
                     for keyword in keywords:
                         keywords_text.append(keyword.text)
@@ -301,82 +306,6 @@ def send_test_requests(opt):
                         print ALL_BANNED_EFFECTIVE_VECTOR
                 break
                 
-def threads_payloads1(opt, keywords, offset, test_sen):#for special.xml
-    banned_eff = []
-    l = len(keywords)
-    for k in range(offset, l, opt.thread):
-        count = 0
-        if urllib.unquote(keywords[k]) in NORMAL:
-            continue
-        while True:
-            test_keyword = teststr(urllib.unquote(keywords[k]), opt)
-            if test_keyword == test_sen:
-                print 'banned', keywords[k]
-                banned_eff.append(urllib.unquote(keywords[k]))
-            elif test_keyword < 0:
-                if count >= 5:
-                    print 'error', keywords[k]
-                    break
-                count += 1
-                continue
-            else:
-                NORMALLOCK.acquire()
-                NORMAL.append(urllib.unquote(keywords[k]))
-                NORMALLOCK.release()
-                #print 'normal', keywords[k]
-                
-            count = 0
-            break
-    if len(banned_eff) == 0:
-        return offset, banned_eff
-    else:
-        find_exact_eff = []
-        for b in banned_eff:
-            if len(b) == 1:
-                find_exact_eff.append(b)
-            else:
-                print 'finding', urllib.quote(b)
-                find_exact_eff.append(check_eff(b, opt, test_sen))
-        return offset, find_exact_eff
-
-def threads_payloads2(opt, keywords, offset, test_sen):#for payload.xml
-    banned_eff = []
-    l = len(keywords)
-    for k in range(offset, l, opt.thread):
-        count = 0
-        for e in ALL_BANNED_EFFECTIVE_VECTOR:
-            keywords[k] = keywords[k].replace(e, "")
-        if len(keywords[k])==0:
-            continue
-        if keywords[k] in NORMAL:
-            continue
-        while True:
-            test_keyword = teststr(keywords[k], opt)
-            if test_keyword == test_sen:
-                print 'banned', keywords[k]
-                find_exact = check_eff(keywords[k], opt, test_sen)
-                banned_eff.append(find_exact)
-            elif test_keyword < 0:
-                if count >= 5:
-                    print 'error', keywords[k]
-                    break
-                count += 1
-                continue
-            else:
-                NORMALLOCK.acquire()
-                NORMAL.append(keywords[k])
-                NORMALLOCK.release()
-                #print 'normal', keywords[k], len(NORMAL)
-            count = 0
-            break
-    return offset, banned_eff
-        
-def handle_results(request, result):
-    global CACHE_EFF
-    cjlock.acquire()
-    CACHE_EFF += result[1]
-    cjlock.release()
-
 def pre_test_payloads(opt):
     global ALL_BANNED_EFFECTIVE_VECTOR
     tree = ET.parse("payload.xml")
@@ -408,7 +337,7 @@ def pre_test_payloads(opt):
     while True:
         test_sen = teststr(sentence, opt)
         if test_sen == 0:
-            print 'normal', sentence
+            print 'NORMAL', sentence
         elif test_sen == -2:
             return -1
         elif test_sen < 0:
@@ -418,7 +347,7 @@ def pre_test_payloads(opt):
             count1 += 1
             continue
         else:
-            print 'banned', sentence
+            print 'BANNED', sentence
             try:
                 pool = threadpool.ThreadPool(opt.thread)
                 reqs = threadpool.makeRequests(threads_payloads2,[((),{'opt':opt, 'keywords': pre_eff, 'offset':j, 'test_sen': test_sen})for j in range(opt.thread)], handle_results)
@@ -436,6 +365,185 @@ def pre_test_payloads(opt):
             print ALL_BANNED_EFFECTIVE_VECTOR
         break
 
+def send_payloads(opt):
+    global ALL_BANNED_EFFECTIVE_VECTOR
+    global CACHE_EFF
+    tree = ET.parse("payload.xml")
+    root = tree.getroot()
+    for type in root:
+        for level in type:
+            bound = int(level.attrib['bound'])
+            sentence = level.find("sentences").text
+            keywords = level.findall("keywords")
+            count1 = 0
+            while True:
+                test_sen = teststr(sentence, opt)
+                if test_sen == 0:
+                    print 'NORMAL', sentence
+                elif test_sen == -2:
+                    return -1
+                elif test_sen < 0:
+                    if count1 >= 5:
+                        print 'error', sentence
+                        break
+                    count1 += 1
+                    continue
+                else:
+                    print 'BANNED', sentence
+                    keywords_text = []
+                    for keyword in keywords:
+                        keywords_text.append(keyword.text)
+                    banned_eff = False
+                    for i in range(1,bound + 1):
+                        c = combination(keywords_text, i)
+                        try:
+                            pool = threadpool.ThreadPool(opt.thread)
+                            reqs = threadpool.makeRequests(threads_payloads2,[((),{'opt':opt, 'keywords': c, 'offset':j, 'test_sen': test_sen})for j in range(opt.thread)], handle_results)
+                            [pool.putRequest(req) for req in reqs]
+                            pool.wait()
+                        except KeyboardInterrupt:
+                            print 'You stop.'
+                            sys.exit()
+                        if len(CACHE_EFF) > 0:
+                            banned_eff = True
+                            ALL_BANNED_EFFECTIVE_VECTOR += CACHE_EFF
+                        CACHE_EFF = []
+                        print ALL_BANNED_EFFECTIVE_VECTOR
+                    if not banned_eff:
+                        find_exact = check_eff(sentence, opt, test_sen)
+                        ALL_BANNED_EFFECTIVE_VECTOR.append(find_exact)
+                break
+            print request_num
+
+def threads_feature_payloads(opt, query_list, param_i, offset, IF_POST):
+    param = ''
+    tmp_query_list = copy.copy(query_list)
+    if param_i == 0:
+        pass
+    elif param_i == 1:
+        param = 100
+    elif param_i == 2:
+        param = "hello"
+    elif param_i == 3:
+        param = "!\"$%&\\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r#\x0b\x0c"
+    elif param_i == 4:
+        param = "AND 1=1 UNION ALL SELECT 1,NULL,'<script>alert(\"XSS\")</script>',table_name FROM information_schema.tables WHERE 2>1--/**/; EXEC xp_cmdshell('cat ../../../etc/passwd')#"
+    req = send_fixed_request(opt, tmp_query_list, param, offset, IF_POST)
+    cjlock.acquire()
+    RESPONSES.append(req)
+    cjlock.release()
+        
+def threads_payloads1(opt, keywords, offset, test_sen):#for special.xml
+    banned_eff = []
+    l = len(keywords)
+    for k in range(offset, l, opt.thread):
+        count = 0
+        if urllib.unquote(keywords[k]) in NORMAL:
+            continue
+        while True:
+            test_keyword = teststr(urllib.unquote(keywords[k]), opt)
+            if test_keyword == test_sen:
+                print 'BANNED', keywords[k]
+                banned_eff.append(urllib.unquote(keywords[k]))
+            elif test_keyword < 0:
+                if count >= 5:
+                    print 'error', keywords[k]
+                    break
+                count += 1
+                continue
+            else:
+                NORMALLOCK.acquire()
+                NORMAL.append(urllib.unquote(keywords[k]))
+                NORMALLOCK.release()
+                #print 'NORMAL', keywords[k]
+                
+            count = 0
+            break
+    if len(banned_eff) == 0:
+        return offset, banned_eff
+    else:
+        find_exact_eff = []
+        for b in banned_eff:
+            if len(b) == 1:
+                find_exact_eff.append(b)
+            else:
+                find_exact_eff.append(check_eff(b, opt, test_sen))
+        return offset, find_exact_eff
+
+def threads_payloads2(opt, keywords, offset, test_sen):#for payload.xml
+    banned_eff = []
+    l = len(keywords)
+    for k in range(offset, l, opt.thread):
+        count = 0
+        for e in ALL_BANNED_EFFECTIVE_VECTOR:
+            keywords[k] = keywords[k].replace(e, "")
+        if len(keywords[k])==0:
+            continue
+        if keywords[k] in NORMAL:
+            continue
+        while True:
+            test_keyword = teststr(keywords[k], opt)
+            if test_keyword == test_sen:
+                print 'BANNED', keywords[k]
+                find_exact = check_eff(keywords[k], opt, test_sen)
+                banned_eff.append(find_exact)
+            elif test_keyword < 0:
+                if count >= 5:
+                    print 'error', keywords[k]
+                    break
+                count += 1
+                continue
+            else:
+                NORMALLOCK.acquire()
+                NORMAL.append(keywords[k])
+                NORMALLOCK.release()
+                #print 'NORMAL', keywords[k], len(NORMAL)
+            count = 0
+            break
+    return offset, banned_eff
+        
+def handle_results(request, result):
+    global CACHE_EFF
+    cjlock.acquire()
+    CACHE_EFF += result[1]
+    cjlock.release()
+
+def combination(keywords, n):
+    com = []
+    m = len(keywords)
+    if n > m:
+        return []
+    if n == m:
+        s = ""
+        for k in keywords:
+            s += k
+        return [s]
+    if n < 0:
+        return []
+    A = combination(keywords[:-1], n-1)
+    for i in range(len(A)):
+        A[i] += keywords[-1]
+    B = combination(keywords[:-1], n)
+    com = A + B
+    return com
+
+def teststr(s, opt):
+    query_list, offset, method = find_param_method(opt)
+    if method == METHOD_POST:
+        req = send_fixed_request(opt, query_list, s, offset, True)
+        TEST_RESPONSES.append(req)
+    elif method == METHOD_GET:
+        req = send_fixed_request(opt, query_list, s, offset)
+        TEST_RESPONSES.append(req)
+    else:
+        print "Invaild Param:"+opt.param
+        return -2
+    compute_the_similarity(req, opt)
+    for i in range(len(RESPONSES)):
+        if STANDARD_RATIO - TEST_SIMILARITY[-1][i] < ACCEPTABLE_DIFF_RATIO:
+            return i
+    return -1
+        
 def teststr_l(s, eff):
     i = 0
     j = 0
@@ -470,97 +578,10 @@ def teststr_del(s, eff):
         return True, s1
     else:
         return False, s1
-        
-def send_payloads(opt):
-    global ALL_BANNED_EFFECTIVE_VECTOR
-    global CACHE_EFF
-    tree = ET.parse("payload.xml")
-    root = tree.getroot()
-    for type in root:
-        for level in type:
-            bound = int(level.attrib['bound'])
-            sentence = level.find("sentences").text
-            keywords = level.findall("keywords")
-            count1 = 0
-            while True:
-                test_sen = teststr(sentence, opt)
-                if test_sen == 0:
-                    print 'normal', sentence
-                elif test_sen == -2:
-                    return -1
-                elif test_sen < 0:
-                    if count1 >= 5:
-                        print 'error', sentence
-                        break
-                    count1 += 1
-                    continue
-                else:
-                    print 'banned', sentence
-                    keywords_text = []
-                    for keyword in keywords:
-                        keywords_text.append(keyword.text)
-                    banned_eff = False
-                    for i in range(1,bound + 1):
-                        c = combination(keywords_text, i)
-                        try:
-                            pool = threadpool.ThreadPool(opt.thread)
-                            reqs = threadpool.makeRequests(threads_payloads2,[((),{'opt':opt, 'keywords': c, 'offset':j, 'test_sen': test_sen})for j in range(opt.thread)], handle_results)
-                            [pool.putRequest(req) for req in reqs]
-                            pool.wait()
-                        except KeyboardInterrupt:
-                            print 'You stop.'
-                            sys.exit()
-                        if len(CACHE_EFF) > 0:
-                            banned_eff = True
-                            ALL_BANNED_EFFECTIVE_VECTOR += CACHE_EFF
-                        CACHE_EFF = []
-                        print ALL_BANNED_EFFECTIVE_VECTOR
-                    if not banned_eff:
-                        find_exact = check_eff(sentence, opt, test_sen)
-                        ALL_BANNED_EFFECTIVE_VECTOR.append(find_exact)
-                break
-            print request_num
-                    
-def combination(keywords, n):
-    com = []
-    m = len(keywords)
-    if n > m:
-        return []
-    if n == m:
-        s = ""
-        for k in keywords:
-            s += k
-        return [s]
-    if n < 0:
-        return []
-    A = combination(keywords[:-1], n-1)
-    for i in range(len(A)):
-        A[i] += keywords[-1]
-    B = combination(keywords[:-1], n)
-    com = A + B
-    return com
 
-def teststr(s, opt):
-    query_list, offset, method = find_param_method(opt)
-    if method == METHOD_POST:
-        req = send_fixed_request(opt, query_list, s, offset, True)
-        TEST_RESPONSES.append(req)
-    elif method == METHOD_GET:
-        req = send_fixed_request(opt, query_list, s, offset)
-        TEST_RESPONSES.append(req)
-    else:
-        print "Invaild Param:"+opt.param
-        return -2
-    compute_the_similarity(req)
-    for i in range(len(RESPONSES)):
-        if STANDARD_RATIO - TEST_SIMILARITY[-1][i] < ACCEPTABLE_DIFF_RATIO:
-            return i
-    return -1
-        
 def check_eff(s, opt, sen_flag):
     bound = len(s)
     eff = ""
-    print 'finding ', s
     try:
         while bound > 0:
             start = 0
@@ -612,11 +633,39 @@ def check_eff(s, opt, sen_flag):
                 break
             eff = s[left - 1] + eff
             bound = left - 1
-        print 'Finish finding ', s
         return eff
     except KeyboardInterrupt:
         print 'You stop.'
         sys.exit()
+    
+def response2file():
+    for i in range(len(RESPONSES)):
+        if RESPONSES[i] != None:
+            f = open('./page/test'+str(i)+'.html','w')
+            f.write(RESPONSES[i].content)
+            f.close()
+    for i in range(len(TEST_RESPONSES)):
+        if TEST_RESPONSES[i] != None:
+            f = open('./page/Ttest'+str(i)+'.html','w')
+            f.write(TEST_RESPONSES[i].content)
+            f.close()
+            
+def response2file2(opt):
+    f_name = urlparse.urlparse(opt.url).netloc
+    f = open('./result/'+f_name, 'a')
+    for i in ALL_BANNED_EFFECTIVE_VECTOR:
+        f.write(i)
+        f.write('\n')
+    f.write('Total Requests num:'+str(request_num)+'\n')
+    f.close()
+    
+def banned_effective_vector_clear():
+    global ALL_BANNED_EFFECTIVE_VECTOR
+    tmp_vectors = []
+    for i in ALL_BANNED_EFFECTIVE_VECTOR:
+        if i not in tmp_vectors:
+            tmp_vectors.append(i)
+    ALL_BANNED_EFFECTIVE_VECTOR = tmp_vectors
     
 def test(opt):
     get_standard_ratio(opt)
@@ -624,6 +673,8 @@ def test(opt):
     pre_test_payloads(opt)
     send_test_requests(opt)
     send_payloads(opt)
+    banned_effective_vector_clear()
+    response2file2(opt)
     
 def main():
     opt = parse_cmd_args()
