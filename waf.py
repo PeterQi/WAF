@@ -447,7 +447,6 @@ def send_payloads(opt):
                         except Exception , e:
                             print Exception, e
                             sys.exit()
-                        print 'start',
                         if len(CACHE_EFF) > 0:
                             banned_eff = True
                             ALL_BANNED_EFFECTIVE_VECTOR += CACHE_EFF
@@ -789,14 +788,6 @@ def test(opt):
     #banned_effective_vector_clear()
     #response2file2(opt)
     global pool
-    opt = parse_cmd_args()
-    if not opt.thread:
-        opt.thread = 5
-    else:
-        opt.thread = int(opt.thread)
-    if opt.test:
-        test(opt)
-        return
     from sys import path
     path.append(MAIN_PATH+'/sqlmap')
     from sqlmap import sqlmain
@@ -804,17 +795,20 @@ def test(opt):
     pool = threadpool.ThreadPool(opt.thread)
     group = get_all_features(opt)
     pre_test_payloads(opt)
-    #send_test_requests(opt)
+    send_test_requests(opt)
     #send_payloads(opt)
-    banned_effective_vector_clear()
-    response2file2(opt)
+    #banned_effective_vector_clear()
+    #response2file2(opt)
     sqlmap_detect = sqlmain(['sqlmap.py', '-u', opt.url, '--identify-waf'])
+    #print sqlmap_detect
     f_name = urlparse.urlparse(opt.url).netloc
     f = open('./result/'+f_name, 'a')
     f.write('WAF PRODUCT:')
     for s in sqlmap_detect:
         f.write(s+'\n')
     f.close()
+    
+    
 def main():
     global pool
     opt = parse_cmd_args()

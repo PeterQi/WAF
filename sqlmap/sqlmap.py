@@ -157,7 +157,7 @@ def sqlmain(argv):
                     raise SystemExit
                 else:
                     raise
-
+            
     except SqlmapUserQuitException:
         errMsg = "user quit"
         try:
@@ -340,7 +340,8 @@ def sqlmain(argv):
         finally:
             # Reference: http://stackoverflow.com/questions/1635080/terminate-a-multi-thread-python-program
             if threading.activeCount() > 1:
-                os._exit(0)
+                #os._exit(0)
+                pass
 
 if __name__ == "__main__":
     main()
