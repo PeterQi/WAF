@@ -1,0 +1,12 @@
+Base response time:0.5475s
+Top similarity:1.0
+if as
+into outfile
+alert(
+<script
+src=javascript:
+prompt(
+confirm(
+etc/passwd
+php://input
+Total Requests num:1207

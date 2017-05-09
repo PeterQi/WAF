@@ -1,0 +1,62 @@
+WAF PRODUCT:Varnish FireWall (OWASP) 
+Base response time:0.7395s
+Top similarity:1.0
+
+onload
+onblur
+onfocus
+onabort
+onclick
+onkeyup
+onsubmit
+onkeydown
+onmouseout
+onmouseover
+onmousedown
+<script
+<img
+javascript
+document.cookie
+<frame
+Total Requests num:756
+WAF PRODUCT:Varnish FireWall (OWASP) 
+Base response time:0.3325s
+Top similarity:1.0
+
+onblur
+onload
+onabort
+onclick
+onkeyup
+onsubmit
+onfocus
+onkeydown
+onmouseout
+onmouseover
+onmousedown
+<script
+<img
+javascript
+document.cookie
+<frame
+Total Requests num:778
+Base response time:1.0s
+Top similarity:1.0
+
+onblur
+onload
+onclick
+onkeyup
+onabort
+onfocus
+onsubmit
+onmouseout
+onkeydown
+onmouseover
+onmousedown
+<script
+<img
+javascript
+document.cookie
+<frame
+Total Requests num:723

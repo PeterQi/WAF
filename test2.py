@@ -10,16 +10,25 @@ import time
 import sys
 
 cache = []
+def print_result(num):
+    try:
+        time.sleep(5)
+    except KeyboardInterrupt:
+        print 'stop'
+    except:
+        pass
+    
+def exit_thread(request, result):
+    return 
+    
 def test():
-    f = open('./result/www.esri.com', 'r')
-    a = f.read()
-    b = a.split('\n')
-    ALL = []
-    l = len(b)
-    for i in range(2, l - 2):
-        if b[i] not in ALL:
-            ALL.append(b[i])
-    b = ALL
-    print b
+    pool = threadpool.ThreadPool(5)
+    reqs = threadpool.makeRequests(print_result,[((),{'num':j})for j in range(5)], exit_thread)
+    [pool.putRequest(req) for req in reqs]
+    try:
+        pool.wait()
+    except Exception as e:
+        print 'error'
 if __name__ == "__main__":
     test()
+    

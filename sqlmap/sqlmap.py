@@ -112,7 +112,7 @@ def sqlmain(argv):
     """
     Main function of sqlmap when running from command line.
     """
-
+    WAF_Product = []
     try:
         checkEnvironment()
 
@@ -148,7 +148,8 @@ def sqlmain(argv):
             liveTest()
         else:
             try:
-                return start()
+                WAF_Product = start()
+                return WAF_Product
             except thread.error as ex:
                 if "can't start new thread" in getSafeExString(ex):
                     errMsg = "unable to start new threads. Please check OS (u)limits"

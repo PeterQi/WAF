@@ -1,0 +1,20 @@
+Base response time:1.149s
+Top similarity:1.0
+
+onload
+onblur
+onclick
+onabort
+onkeyup
+onfocus
+onsubmit
+onkeydown
+onmouseout
+onmouseover
+onmousedown
+<script
+<img
+javascript
+document.cookie
+<frame
+Total Requests num:712

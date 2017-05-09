@@ -1,0 +1,46 @@
+Base response time:1.923s
+Top similarity:1.0
+unionselect from
+-union select 
+union select limit
+union select into
+union select where
+union select having
+ascii(load_file(concat(substr
+<script>
+alert(
+onload=
+src=javascript:
+<i src=
+<META 
+data:text/html 
+<![cdata[
+<i href=
+<b href=
+<frame src=
+<meta 
+<a href=
+<em src=
+<layer src=
+<applet src=
+<bgsound src=
+<object data=
+<td background=
+<body background
+<input type=image
+<table background=
+etc/passwd
+my.cnf
+php.ini
+<?
+$_POST
+$_GET
+$_SESSION
+php://input
+passthru(
+proc_open
+shell_exec(
+zlib_decode(
+base64_decode(
+call_user_func
+Total Requests num:3155

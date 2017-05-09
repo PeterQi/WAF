@@ -1,4 +1,4 @@
-#coding=utf-8
+#coding=utf8
 import requests
 from optparse import OptionParser
 import xml.etree.ElementTree as ET
@@ -12,6 +12,7 @@ import thread
 import threading
 import threadpool
 import re
+import time
 
 MAIN_PATH = os.path.abspath('.')
 STANDARD_RATIO = 0
@@ -27,10 +28,14 @@ ACCEPTABLE_DIFF_RATIO = 0.05
 BASE_RESPONSE_TIME = 60.0
 CACHE_EFF = []
 NORMAL = []
-cjlock = threading.Lock()
+CJLOCK = threading.Lock()
 NORMALLOCK = threading.Lock()
 request_num = 0
 numlock = threading.Lock()
+tmp_share_offset = 0
+OFFSETLOCK = threading.Lock()
+time1 = time.time()
+
 
 def parse_cmd_args():
     usage = "usage: %prog [options] arg"
@@ -88,7 +93,7 @@ def get_standard_ratio(opt):
     STANDARD_RATIO = diff_ratio(opt, req1.content, req2.content)
     print STANDARD_RATIO
     f_name = urlparse.urlparse(opt.url).netloc
-    f = open('./result/'+f_name, 'w')
+    f = open('./result/'+f_name, 'a')
     f.write('Base response time:' + str(BASE_RESPONSE_TIME) + 's\n')
     f.write('Top similarity:'+str(STANDARD_RATIO)+'\n')
     f.close()
@@ -105,16 +110,18 @@ def send_fixed_request(opt, query_list, str, offset, post = False):
     numlock.acquire()
     request_num += 1
     numlock.release()
+    timeout_period = 60
+    if timeout_period > BASE_RESPONSE_TIME * opt.thread:
+        timeout_period = BASE_RESPONSE_TIME * opt.thread
     try:
         if post:
-            req = requests.post(opt.url,headers = headers, data = query_list, allow_redirects = False, timeout = BASE_RESPONSE_TIME*30)
+            req = requests.post(opt.url,headers = headers, data = query_list, allow_redirects = False, timeout = timeout_period)
             return req
         geturl = urlparse.urlparse(opt.url)
         url = urlparse.urlunparse((geturl.scheme, geturl.netloc, geturl.path, geturl.params, "", geturl.fragment))
-        req = requests.get(url,headers = headers, params = query_list, allow_redirects = False, timeout = BASE_RESPONSE_TIME*3)
+        req = requests.get(url,headers = headers, params = query_list, allow_redirects = False, timeout = timeout_period)
     except KeyboardInterrupt:
-        print 'You Stop.'
-        sys.exit()
+        raise KeyboardInterrupt
     except Exception, e:
         req = None
     return req
@@ -145,15 +152,29 @@ def get_all_features(opt):
     
     print 'sending mixed requests'
     if method == METHOD_POST:
-        pool = threadpool.ThreadPool(5)
+        #pool = threadpool.ThreadPool(5)
         reqs = threadpool.makeRequests(threads_feature_payloads,[((),{'opt':opt, 'query_list': query_list, 'param_i':j, 'offset': offset, 'IF_POST': True})for j in range(5)])
         [pool.putRequest(req) for req in reqs]
-        pool.wait()
+        try:
+            pool.wait()
+        except KeyboardInterrupt:
+            print 'Stop'
+            sys.exit()
+        except Exception as e:
+            print e
+            sys.exit()
     elif method == METHOD_GET:
-        pool = threadpool.ThreadPool(5)
+        #pool = threadpool.ThreadPool(5)
         reqs = threadpool.makeRequests(threads_feature_payloads,[((),{'opt':opt, 'query_list': query_list, 'param_i':j, 'offset': offset, 'IF_POST': False})for j in range(5)])
         [pool.putRequest(req) for req in reqs]
-        pool.wait()
+        try:
+            pool.wait()
+        except KeyboardInterrupt:
+            print 'Stop'
+            sys.exit()
+        except Exception as e:
+            print e
+            sys.exit()
     else:
         print "Invaild Param:"+opt.param
         return -1
@@ -259,6 +280,7 @@ def compute_the_similarity(req, opt):
 def send_test_requests(opt):
     global ALL_BANNED_EFFECTIVE_VECTOR
     global CACHE_EFF
+    global tmp_share_offset
     tree = ET.parse("special.xml")
     root = tree.getroot()
     for type in root:
@@ -275,7 +297,7 @@ def send_test_requests(opt):
                     return -1
                 elif test_sen < 0:
                     if count1 >= 5:
-                        print 'error', sentence
+                        print 'ERROR', sentence
                         break
                     count1 += 1
                     continue
@@ -288,15 +310,18 @@ def send_test_requests(opt):
                     for i in range(1,bound + 1):
                         c = combination(keywords_text, i)
                         num = len(c)
+                        tmp_share_offset = 0
                         try:
-                            pool = threadpool.ThreadPool(opt.thread)
-                            reqs = threadpool.makeRequests(threads_payloads1,[((),{'opt':opt, 'keywords': c, 'offset':j, 'test_sen': test_sen})for j in range(opt.thread)], handle_results)
-                            [pool.putRequest(req) for req in reqs]
+                            #pool = threadpool.ThreadPool(opt.thread)
+                            reqs = threadpool.makeRequests(threads_payloads1,[((),{'opt':opt, 'keywords': c, 'test_sen': test_sen})for j in range(opt.thread)], handle_results)
+                            [pool.putRequest(req) for req in reqs]                            
                             pool.wait()
                         except KeyboardInterrupt:
                             print 'You Stop.'
                             sys.exit()
-                        
+                        except Exception as e:
+                            print e
+                            sys.exit()
                         if len(CACHE_EFF) == 0:
                             find_exact = check_eff(urllib.unquote(sentence), opt, test_sen)
                             ALL_BANNED_EFFECTIVE_VECTOR.append(find_exact)
@@ -308,6 +333,8 @@ def send_test_requests(opt):
                 
 def pre_test_payloads(opt):
     global ALL_BANNED_EFFECTIVE_VECTOR
+    global tmp_share_offset
+    global CACHE_EFF
     tree = ET.parse("payload.xml")
     root = tree.getroot()
     count = 0
@@ -342,19 +369,23 @@ def pre_test_payloads(opt):
             return -1
         elif test_sen < 0:
             if count1 >= 5:
-                print 'error'
+                print 'ERROR'
                 break
             count1 += 1
             continue
         else:
             print 'BANNED', sentence
+            tmp_share_offset = 0
             try:
-                pool = threadpool.ThreadPool(opt.thread)
-                reqs = threadpool.makeRequests(threads_payloads2,[((),{'opt':opt, 'keywords': pre_eff, 'offset':j, 'test_sen': test_sen})for j in range(opt.thread)], handle_results)
+                #pool = threadpool.ThreadPool(opt.thread)
+                reqs = threadpool.makeRequests(threads_payloads2,[((),{'opt':opt, 'keywords': pre_eff, 'test_sen': test_sen})for j in range(opt.thread)], handle_results)
                 [pool.putRequest(req) for req in reqs]
                 pool.wait()
             except KeyboardInterrupt:
                 print 'You stop.'
+                sys.exit()
+            except Exception, e:
+                print e
                 sys.exit()
             if len(CACHE_EFF) == 0:
                 find_exact = check_eff(sentence, opt, test_sen)
@@ -368,10 +399,19 @@ def pre_test_payloads(opt):
 def send_payloads(opt):
     global ALL_BANNED_EFFECTIVE_VECTOR
     global CACHE_EFF
+    global tmp_share_offset
     tree = ET.parse("payload.xml")
     root = tree.getroot()
+    #type_pass = 0
     for type in root:
+        #tmp_pass = 0
+        #if type_pass < 2:
+        #    type_pass += 1
+        #    continue
         for level in type:
+            #if tmp_pass < 5:
+            #    tmp_pass += 1
+            #    continue
             bound = int(level.attrib['bound'])
             sentence = level.find("sentences").text
             keywords = level.findall("keywords")
@@ -384,7 +424,7 @@ def send_payloads(opt):
                     return -1
                 elif test_sen < 0:
                     if count1 >= 5:
-                        print 'error', sentence
+                        print 'ERROR', sentence
                         break
                     count1 += 1
                     continue
@@ -396,24 +436,31 @@ def send_payloads(opt):
                     banned_eff = False
                     for i in range(1,bound + 1):
                         c = combination(keywords_text, i)
+                        tmp_share_offset = 0
                         try:
-                            pool = threadpool.ThreadPool(opt.thread)
-                            reqs = threadpool.makeRequests(threads_payloads2,[((),{'opt':opt, 'keywords': c, 'offset':j, 'test_sen': test_sen})for j in range(opt.thread)], handle_results)
+                            reqs = threadpool.makeRequests(threads_payloads2,[((),{'opt':opt, 'keywords': c, 'test_sen': test_sen})for j in range(opt.thread)], handle_results)
                             [pool.putRequest(req) for req in reqs]
                             pool.wait()
                         except KeyboardInterrupt:
                             print 'You stop.'
                             sys.exit()
+                        except Exception , e:
+                            print Exception, e
+                            sys.exit()
+                        print 'start',
                         if len(CACHE_EFF) > 0:
                             banned_eff = True
                             ALL_BANNED_EFFECTIVE_VECTOR += CACHE_EFF
                         CACHE_EFF = []
                         print ALL_BANNED_EFFECTIVE_VECTOR
                     if not banned_eff:
+                        print 'not right'
                         find_exact = check_eff(sentence, opt, test_sen)
                         ALL_BANNED_EFFECTIVE_VECTOR.append(find_exact)
                 break
-            print request_num
+            print request_num, 
+            time2 = time.time()
+            print_time(time2-time1)
 
 def threads_feature_payloads(opt, query_list, param_i, offset, IF_POST):
     param = ''
@@ -429,25 +476,40 @@ def threads_feature_payloads(opt, query_list, param_i, offset, IF_POST):
     elif param_i == 4:
         param = "AND 1=1 UNION ALL SELECT 1,NULL,'<script>alert(\"XSS\")</script>',table_name FROM information_schema.tables WHERE 2>1--/**/; EXEC xp_cmdshell('cat ../../../etc/passwd')#"
     req = send_fixed_request(opt, tmp_query_list, param, offset, IF_POST)
-    cjlock.acquire()
+    CJLOCK.acquire()
     RESPONSES.append(req)
-    cjlock.release()
+    CJLOCK.release()
         
-def threads_payloads1(opt, keywords, offset, test_sen):#for special.xml
+def threads_payloads1(opt, keywords, test_sen):#for special.xml
+    global tmp_share_offset
     banned_eff = []
     l = len(keywords)
-    for k in range(offset, l, opt.thread):
+    OFFSETLOCK.acquire()
+    k = tmp_share_offset
+    tmp_share_offset += 1
+    OFFSETLOCK.release()
+    while k < l:
         count = 0
         if urllib.unquote(keywords[k]) in NORMAL:
+            OFFSETLOCK.acquire()
+            k = tmp_share_offset
+            tmp_share_offset += 1
+            OFFSETLOCK.release()
             continue
         while True:
-            test_keyword = teststr(urllib.unquote(keywords[k]), opt)
+            try:
+                test_keyword = teststr(urllib.unquote(keywords[k]), opt)
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
+            except Exception as e:
+                print e
+                sys.exit()
             if test_keyword == test_sen:
                 print 'BANNED', keywords[k]
                 banned_eff.append(urllib.unquote(keywords[k]))
             elif test_keyword < 0:
                 if count >= 5:
-                    print 'error', keywords[k]
+                    print 'ERROR', keywords[k]
                     break
                 count += 1
                 continue
@@ -459,8 +521,12 @@ def threads_payloads1(opt, keywords, offset, test_sen):#for special.xml
                 
             count = 0
             break
+        OFFSETLOCK.acquire()
+        k = tmp_share_offset
+        tmp_share_offset += 1
+        OFFSETLOCK.release()
     if len(banned_eff) == 0:
-        return offset, banned_eff
+        return banned_eff
     else:
         find_exact_eff = []
         for b in banned_eff:
@@ -468,18 +534,31 @@ def threads_payloads1(opt, keywords, offset, test_sen):#for special.xml
                 find_exact_eff.append(b)
             else:
                 find_exact_eff.append(check_eff(b, opt, test_sen))
-        return offset, find_exact_eff
+        return find_exact_eff
 
-def threads_payloads2(opt, keywords, offset, test_sen):#for payload.xml
+def threads_payloads2(opt, keywords, test_sen):#for payload.xml
+    global tmp_share_offset
     banned_eff = []
     l = len(keywords)
-    for k in range(offset, l, opt.thread):
+    OFFSETLOCK.acquire()
+    k = tmp_share_offset
+    tmp_share_offset += 1
+    OFFSETLOCK.release()
+    while k < l:
         count = 0
         for e in ALL_BANNED_EFFECTIVE_VECTOR:
             keywords[k] = keywords[k].replace(e, "")
         if len(keywords[k])==0:
+            OFFSETLOCK.acquire()
+            k = tmp_share_offset
+            tmp_share_offset += 1
+            OFFSETLOCK.release()
             continue
         if keywords[k] in NORMAL:
+            OFFSETLOCK.acquire()
+            k = tmp_share_offset
+            tmp_share_offset += 1
+            OFFSETLOCK.release()
             continue
         while True:
             test_keyword = teststr(keywords[k], opt)
@@ -489,7 +568,7 @@ def threads_payloads2(opt, keywords, offset, test_sen):#for payload.xml
                 banned_eff.append(find_exact)
             elif test_keyword < 0:
                 if count >= 5:
-                    print 'error', keywords[k]
+                    print 'ERROR', keywords[k]
                     break
                 count += 1
                 continue
@@ -500,13 +579,19 @@ def threads_payloads2(opt, keywords, offset, test_sen):#for payload.xml
                 #print 'NORMAL', keywords[k], len(NORMAL)
             count = 0
             break
-    return offset, banned_eff
-        
+        OFFSETLOCK.acquire()
+        k = tmp_share_offset
+        tmp_share_offset += 1
+        OFFSETLOCK.release()
+
+    return banned_eff
+
 def handle_results(request, result):
     global CACHE_EFF
-    cjlock.acquire()
-    CACHE_EFF += result[1]
-    cjlock.release()
+    #print request.requestID,
+    CJLOCK.acquire()
+    CACHE_EFF += result
+    CJLOCK.release()
 
 def combination(keywords, n):
     com = []
@@ -530,10 +615,22 @@ def combination(keywords, n):
 def teststr(s, opt):
     query_list, offset, method = find_param_method(opt)
     if method == METHOD_POST:
-        req = send_fixed_request(opt, query_list, s, offset, True)
+        try:
+            req = send_fixed_request(opt, query_list, s, offset, True)
+        except KeyboardInterrupt:
+            raise KeyboardInterrupt
+        except Exception as e:
+            print e
+            raise Exception
         TEST_RESPONSES.append(req)
     elif method == METHOD_GET:
-        req = send_fixed_request(opt, query_list, s, offset)
+        try:
+            req = send_fixed_request(opt, query_list, s, offset)
+        except KeyboardInterrupt:
+            raise KeyboardInterrupt
+        except Exception as e:
+            print e
+            raise Exception
         TEST_RESPONSES.append(req)
     else:
         print "Invaild Param:"+opt.param
@@ -541,7 +638,9 @@ def teststr(s, opt):
     compute_the_similarity(req, opt)
     for i in range(len(RESPONSES)):
         if STANDARD_RATIO - TEST_SIMILARITY[-1][i] < ACCEPTABLE_DIFF_RATIO:
+            print '\x08.',
             return i
+    print '\x08.',
     return -1
         
 def teststr_l(s, eff):
@@ -595,6 +694,7 @@ def check_eff(s, opt, sen_flag):
                     NORMALLOCK.acquire()
                     NORMAL.append(eff)
                     NORMALLOCK.release()
+            
             count = 0
             while left < right - 1:
                 mid = (left + right)/2
@@ -606,14 +706,14 @@ def check_eff(s, opt, sen_flag):
                     right = mid
                 elif res < 0:
                     if count >= 5:
-                        print 'error'
+                        print 'ERROR'
                         return ""
                     count += 1
                     continue
                 else:
                     NORMALLOCK.acquire()
                     NORMAL.append(s[start:mid]+eff)
-                    NORMALLOCK.release()
+                    NORMALLOCK.release()                    
                     left = mid
                 count = 0
             count = 0
@@ -624,7 +724,7 @@ def check_eff(s, opt, sen_flag):
                 res = teststr(s[start:left]+eff, opt)
                 if res < 0:
                     if count >= 5:
-                        print 'error'
+                        print 'ERROR'
                         return ""
                     count += 1
                     continue
@@ -636,6 +736,9 @@ def check_eff(s, opt, sen_flag):
         return eff
     except KeyboardInterrupt:
         print 'You stop.'
+        sys.exit()
+    except Exception, e:
+        print e
         sys.exit()
     
 def response2file():
@@ -658,7 +761,17 @@ def response2file2(opt):
         f.write('\n')
     f.write('Total Requests num:'+str(request_num)+'\n')
     f.close()
-    
+
+def print_time(t):
+    sec = int(t) % 60
+    t = int(t) / 60
+    min = t % 60
+    t /= 60
+    hour = t % 24
+    #t /= 24
+    #day = t
+    print str(hour)+'h'+str(min)+'m'+str(sec)+'s'
+
 def banned_effective_vector_clear():
     global ALL_BANNED_EFFECTIVE_VECTOR
     tmp_vectors = []
@@ -668,15 +781,14 @@ def banned_effective_vector_clear():
     ALL_BANNED_EFFECTIVE_VECTOR = tmp_vectors
     
 def test(opt):
-    get_standard_ratio(opt)
-    group = get_all_features(opt)
-    pre_test_payloads(opt)
-    send_test_requests(opt)
-    send_payloads(opt)
-    banned_effective_vector_clear()
-    response2file2(opt)
-    
-def main():
+    #get_standard_ratio(opt)
+    #group = get_all_features(opt)
+    ##pre_test_payloads(opt)
+    ##send_test_requests(opt)
+    #send_payloads(opt)
+    #banned_effective_vector_clear()
+    #response2file2(opt)
+    global pool
     opt = parse_cmd_args()
     if not opt.thread:
         opt.thread = 5
@@ -688,10 +800,50 @@ def main():
     from sys import path
     path.append(MAIN_PATH+'/sqlmap')
     from sqlmap import sqlmain
-    print sqlmain(['sqlmap.py', '-u', opt.url, '--identify-waf'])
     get_standard_ratio(opt)
+    pool = threadpool.ThreadPool(opt.thread)
     group = get_all_features(opt)
-    response2file()
-    print SIMILARITY
+    pre_test_payloads(opt)
+    #send_test_requests(opt)
+    #send_payloads(opt)
+    banned_effective_vector_clear()
+    response2file2(opt)
+    sqlmap_detect = sqlmain(['sqlmap.py', '-u', opt.url, '--identify-waf'])
+    f_name = urlparse.urlparse(opt.url).netloc
+    f = open('./result/'+f_name, 'a')
+    f.write('WAF PRODUCT:')
+    for s in sqlmap_detect:
+        f.write(s+'\n')
+    f.close()
+def main():
+    global pool
+    opt = parse_cmd_args()
+    if not opt.thread:
+        opt.thread = 5
+    else:
+        opt.thread = int(opt.thread)
+    if opt.test:
+        test(opt)
+        return
+    from sys import path
+    path.append(MAIN_PATH+'/sqlmap')
+    from sqlmap import sqlmain
+    get_standard_ratio(opt)
+    pool = threadpool.ThreadPool(opt.thread)
+    group = get_all_features(opt)
+    pre_test_payloads(opt)
+    send_test_requests(opt)
+    send_payloads(opt)
+    banned_effective_vector_clear()
+    response2file2(opt)
+    sqlmap_detect = sqlmain(['sqlmap.py', '-u', opt.url, '--identify-waf'])
+    f_name = urlparse.urlparse(opt.url).netloc
+    f = open('./result/'+f_name, 'a')
+    f.write('WAF PRODUCT:')
+    for s in sqlmap_detect:
+        f.write(s+'\n')
+    f.close()
+    
+    
 if __name__=="__main__":
     main()
