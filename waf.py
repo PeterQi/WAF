@@ -353,7 +353,6 @@ def pre_test_payloads(opt):
             for keyword in keywords:
                 for e in eff:
                     if e in keyword.text:
-                        flag = False
                         if e not in pre_eff:
                             pre_eff.append(e)
                             sentence_pre += e
@@ -825,6 +824,9 @@ def main():
     get_standard_ratio(opt)
     pool = threadpool.ThreadPool(opt.thread)
     group = get_all_features(opt)
+    if group <= 1:
+        print "Didn't find WAF Product"
+        return 0
     pre_test_payloads(opt)
     send_test_requests(opt)
     send_payloads(opt)
