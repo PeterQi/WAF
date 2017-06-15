@@ -1,40 +1,40 @@
-Base response time:1.923s
+Base response time:0.9225s
 Top similarity:1.0
-unionselect from
 -union select 
-union select limit
+unionselect from
 union select into
-union select where
 union select having
+union select where
+union select limit
 ascii(load_file(concat(substr
-<script>
 alert(
+<script>
 onload=
 src=javascript:
 <i src=
 <META 
 data:text/html 
 <![cdata[
-<i href=
-<b href=
-<frame src=
 <meta 
 <a href=
 <em src=
+<i href=
+<b href=
 <layer src=
 <applet src=
-<bgsound src=
+<frame src=
 <object data=
+<bgsound src=
 <td background=
-<body background
 <input type=image
 <table background=
-etc/passwd
+<body background
 my.cnf
 php.ini
+etc/passwd
 <?
-$_POST
 $_GET
+$_POST
 $_SESSION
 php://input
 passthru(
@@ -43,4 +43,7 @@ shell_exec(
 zlib_decode(
 base64_decode(
 call_user_func
-Total Requests num:3155
+Total Requests num:2824
+WAF PRODUCT:Varnish FireWall (OWASP) 
+Generic (Unknown)
+Total time:0h16m12s

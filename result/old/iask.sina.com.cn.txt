@@ -1,0 +1,13 @@
+Base response time:0.088s
+Top similarity:1.0
+<
+'
+>
+"
+script
+alert
+GLOBALS
+_REQUEST
+base64_decode
+Total Requests num:505
+WAF PRODUCT:

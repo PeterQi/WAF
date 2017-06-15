@@ -9,26 +9,14 @@ import threading
 import time
 import sys
 
-cache = []
-def print_result(num):
-    try:
-        time.sleep(5)
-    except KeyboardInterrupt:
-        print 'stop'
-    except:
-        pass
-    
-def exit_thread(request, result):
-    return 
-    
-def test():
-    pool = threadpool.ThreadPool(5)
-    reqs = threadpool.makeRequests(print_result,[((),{'num':j})for j in range(5)], exit_thread)
+def test_ch(st):
+    pool = threadpool.ThreadPool(10)
+    reqs = threadpool.makeRequests(ok,[((),{'offset': i})for i in range(len(st))])
     [pool.putRequest(req) for req in reqs]
-    try:
-        pool.wait()
-    except Exception as e:
-        print 'error'
-if __name__ == "__main__":
-    test()
+    pool.wait()
     
+def ok(offset):
+    print 'ook'
+    
+if __name__ == "__main__":
+    test_ch('')

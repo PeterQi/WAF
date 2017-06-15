@@ -12,6 +12,7 @@ import thread
 import threading
 import threadpool
 import re
+import random
 import time
 
 MAIN_PATH = os.path.abspath('.')
@@ -35,6 +36,7 @@ numlock = threading.Lock()
 tmp_share_offset = 0
 OFFSETLOCK = threading.Lock()
 time1 = time.time()
+RULES = []
 
 
 def parse_cmd_args():
@@ -196,6 +198,7 @@ def get_all_features(opt):
             i -= 1
             len_of_res -= 1
         i += 1
+    print SIMILARITY
     return len_of_res
 
 def diff_ratio(opt, str1, str2):
@@ -738,6 +741,284 @@ def check_eff(s, opt, sen_flag):
     except Exception, e:
         print e
         sys.exit()
+
+def teststr_reg(s, opt):
+    if s in NORMAL:
+        return False
+    count = 0
+    while True:
+        class_num = teststr(s, opt)
+        if class_num < 0:
+            if count >= 5:
+                print 'ERROR'
+                return False
+            count += 1
+            continue
+        elif class_num == 0:
+            return False
+        else:
+            return True
+        
+def case_switch(st):
+    C_st = ""
+    flag = False
+    for c in st:
+        ascii = ord(c)
+        if ascii >= 65 and ascii <= 90:
+            flag = True
+            if random.randint(0,1):
+                C_st += c.lower()
+            else:
+                C_st += c
+        elif ascii >= 97 and ascii <= 122:
+            flag = True
+            if random.randint(0,1):
+                C_st += c.upper()
+            else:
+                C_st += c
+        else:
+            C_st += c
+    if not flag:
+        return st
+    if C_st == st:
+        C_st = case_switch(st)
+    return C_st
+        
+def rand_chr(chrs, banned = ""):
+    if len(chrs) == 1:
+        return chr(chrs[0])
+    elif len(chrs) == 0:
+        return ''
+    c = chr(chrs[random.randint(0, len(chrs)-1)])
+    if c == banned.lower() or c == banned.upper():
+        c = rand_chr(chrs, banned)
+    return c
+        
+def replace_chr(st, offset, eff):
+    w_chrs = [65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 95, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122]
+    WS_chrs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 58, 59, 60, 61, 62, 63, 64, 91, 92, 93, 94, 96, 123, 124, 125, 126, 127]
+    sN_chrs = [9, 11, 12, 13, 32]
+    dot_chrs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127]
+    d_chrs = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57]
+    D_chrs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127]
+    W_chrs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 58, 59, 60, 61, 62, 63, 64, 91, 92, 93, 94, 96, 123, 124, 125, 126, 127]
+    s_chrs = [9, 10, 11, 12, 13, 32]
+    S_chrs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,27, 28, 29, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67,68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87,88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127]
+    if offset < 0 or offset >= len(st):
+        return ''
+    test_st = copy.copy(st)
+    test_st = test_st[:offset] + chr(10) + test_st[offset+1:]
+    #print test_st
+    if st[offset] == test_st[offset] or teststr_reg(test_st, eff):
+        sec_test = rand_chr(w_chrs, st[offset])
+        test_st = test_st[:offset] + sec_test + test_st[offset+1:]
+        if teststr_reg(test_st, eff):
+            return '\D'
+        else:
+            trd_test = rand_chr(WS_chrs, st[offset])
+            test_st = test_st[:offset] + trd_test + test_st[offset+1:]
+            if teststr_reg(test_st, eff):
+                return '\W'
+            else:
+                return '\s'
+    else:
+        sec_test = rand_chr(w_chrs, st[offset])
+        test_st = test_st[:offset] + sec_test + test_st[offset+1:]
+        if teststr_reg(test_st, eff):
+            trd_test = rand_chr(WS_chrs, st[offset])
+            test_st = test_st[:offset] + trd_test + test_st[offset+1:]
+            if teststr_reg(test_st, eff):
+                fth_test = rand_chr(sN_chrs, st[offset])
+                test_st = test_st[:offset] + fth_test + test_st[offset+1:]
+                if teststr_reg(test_st, eff):
+                    return '.'
+                else:
+                    return '\S'
+            else:
+                return '\w'
+        else:
+            d_test = rand_chr(d_chrs, st[offset])
+            test_st = test_st[:offset] + d_test + test_st[offset+1:]
+            if teststr_reg(test_st, eff):
+                return '\d'
+            else:
+                return regular_special(st[offset])
+                   
+def insert_chr(st, offset, eff):
+    w_chrs = [65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 95, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122]
+    WS_chrs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 58, 59, 60, 61, 62, 63, 64, 91, 92, 93, 94, 96, 123, 124, 125, 126, 127]
+    sN_chrs = [9, 11, 12, 13, 32]
+    dot_chrs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127]
+    d_chrs = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57]
+    D_chrs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127]
+    W_chrs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 58, 59, 60, 61, 62, 63, 64, 91, 92, 93, 94, 96, 123, 124, 125, 126, 127]
+    s_chrs = [9, 10, 11, 12, 13, 32]
+    S_chrs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,27, 28, 29, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67,68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87,88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127]
+    if offset <= 0 or offset >= len(st):
+        return ''
+    pattern = ''
+    test_st = copy.copy(st)
+    test_st = st[:offset] + chr(10) + st[offset:]
+    if teststr_reg(test_st, eff):
+        sec_test = rand_chr(w_chrs)
+        test_st = st[:offset] + sec_test + st[offset:]
+        if teststr_reg(test_st, eff):
+            pattern = '\D'
+            test_st = st[:offset]
+            for i in range(10):
+                multi_test = rand_chr(D_chrs)
+                test_st += multi_test
+            test_st += st[offset:]
+            if teststr_reg(test_st, eff):
+                return pattern+'*'
+            else:
+                return pattern+'?'
+        else:
+            trd_test = rand_chr(WS_chrs)
+            test_st = st[:offset] + trd_test + st[offset:]
+            if teststr_reg(test_st, eff):
+                pattern = '\W'
+                test_st = st[:offset]
+                for i in range(10):
+                    multi_test = rand_chr(W_chrs)
+                    test_st += multi_test
+                test_st += st[offset:]
+                if teststr_reg(test_st, eff):
+                    return pattern+'*'
+                else:
+                    return pattern+'?'
+            else:
+                pattern = '\s'
+                test_st = st[:offset]
+                for i in range(10):
+                    multi_test = rand_chr(s_chrs)
+                    test_st += multi_test
+                test_st += st[offset:]
+                if teststr_reg(test_st, eff):
+                    return pattern+'*'
+                else:
+                    return pattern+'?'
+    else:
+        sec_test = rand_chr(w_chrs)
+        test_st = st[:offset] + sec_test + st[offset:]
+        if teststr_reg(test_st, eff):
+            trd_test = rand_chr(WS_chrs)
+            test_st = st[:offset] + trd_test + st[offset:]
+            if teststr_reg(test_st, eff):
+                fth_test = rand_chr(sN_chrs)
+                test_st = st[:offset] + fth_test + st[offset:]
+                if teststr_reg(test_st, eff):
+                    pattern = '.'
+                    test_st = st[:offset]
+                    for i in range(10):
+                        multi_test = rand_chr(dot_chrs)
+                        test_st += multi_test
+                    test_st += st[offset:]
+                    if teststr_reg(test_st, eff):
+                        return pattern+'*'
+                    else:
+                        return pattern+'?'
+                else:
+                    pattern = '\S'
+                    test_st = st[:offset]
+                    for i in range(10):
+                        multi_test = rand_chr(S_chrs)
+                        test_st += multi_test
+                    test_st += st[offset:]
+                    if teststr_reg(test_st, eff):
+                        return pattern+'*'
+                    else:
+                        return pattern+'?'
+                    
+            else:
+                pattern = '\w'
+                test_st = st[:offset]
+                for i in range(10):
+                    multi_test = rand_chr(w_chrs)
+                    test_st += multi_test
+                test_st += st[offset:]
+                if teststr_reg(test_st, eff):
+                    return pattern+'*'
+                else:
+                    return pattern+'?'
+        else:
+            d_test = rand_chr(d_chrs)
+            test_st = st[:offset] + d_test + st[offset:]
+            if teststr_reg(test_st, eff):
+                pattern = '\d'
+                test_st = st[:offset]
+                for i in range(10):
+                    multi_test = rand_chr(d_chrs)
+                    test_st += multi_test
+                test_st += st[offset:]
+                if teststr_reg(test_st, eff):
+                    return pattern+'*'
+                else:
+                    return pattern+'?'
+            else:
+                return ''
+    
+def case_chr(st, eff):
+    test_st = case_switch(st)
+    if teststr_reg(test_st, eff):
+        return True
+    else:
+        return False
+    
+def get_reg(st, opt):
+    global RULE_TMP
+    RULE_TMP = ['' for i in range(len(st)*2)]
+    reqs = threadpool.makeRequests(replace_chr,[((),{'st':st, 'offset': i, 'eff': opt})for i in range(len(st))], handle_results2)
+    reqs += threadpool.makeRequests(insert_chr,[((),{'st':st, 'offset': i, 'eff': opt})for i in range(len(st))], handle_results3)
+    [pool.putRequest(req) for req in reqs]
+    try:
+        pool.wait()
+    except KeyboardInterrupt:
+        print 'Stop'
+        sys.exit()
+    except Exception as e:
+        print e
+        sys.exit()
+    result = ''.join(RULE_TMP)
+    if case_chr(st, opt):
+        result = '(?i)'+result
+    print result
+    return result
+    
+def handle_results2(request, result):
+    global RULE_TMP
+    RULE_TMP[request.kwds['offset']*2+1] = result
+    
+def handle_results3(request, result):
+    global RULE_TMP
+    RULE_TMP[request.kwds['offset']*2] = result
+
+def regular_match(st, rule):
+    data = re.search(rule, st)
+    if data == None:
+        return False
+    else:
+        return True
+    
+def rules_get(opt):
+    global RULES
+    for b in ALL_BANNED_EFFECTIVE_VECTOR:
+        flag = False
+        for r in RULES:
+            if len(r) == 0:
+                continue
+            if regular_match(b, r):
+                flag = True
+                break
+        if not flag:
+            RULES.append(get_reg(b, opt))
+        print b
+            
+def regular_special(ch):
+    if ch in '$()*+.[]?\\{}|':
+        return '\\' + ch
+    else:
+        return ch
     
 def response2file():
     for i in range(len(RESPONSES)):
@@ -754,7 +1035,7 @@ def response2file():
 def response2file2(opt):
     f_name = urlparse.urlparse(opt.url).netloc
     f = open('./result/'+f_name, 'a')
-    for i in ALL_BANNED_EFFECTIVE_VECTOR:
+    for i in RULES:
         f.write(i)
         f.write('\n')
     f.write('Total Requests num:'+str(request_num)+'\n')
@@ -768,7 +1049,9 @@ def print_time(t):
     hour = t % 24
     #t /= 24
     #day = t
-    print str(hour)+'h'+str(min)+'m'+str(sec)+'s'
+    ti = str(hour)+'h'+str(min)+'m'+str(sec)+'s'
+    print ti
+    return ti
 
 def banned_effective_vector_clear():
     global ALL_BANNED_EFFECTIVE_VECTOR
@@ -779,34 +1062,27 @@ def banned_effective_vector_clear():
     ALL_BANNED_EFFECTIVE_VECTOR = tmp_vectors
     
 def test(opt):
-    #get_standard_ratio(opt)
-    #group = get_all_features(opt)
-    ##pre_test_payloads(opt)
-    ##send_test_requests(opt)
-    #send_payloads(opt)
-    #banned_effective_vector_clear()
-    #response2file2(opt)
     global pool
-    from sys import path
-    path.append(MAIN_PATH+'/sqlmap')
-    from sqlmap import sqlmain
+    global ALL_BANNED_EFFECTIVE_VECTOR
+    opt = parse_cmd_args()
+    if not opt.thread:
+        opt.thread = 5
+    else:
+        opt.thread = int(opt.thread)
     get_standard_ratio(opt)
     pool = threadpool.ThreadPool(opt.thread)
     group = get_all_features(opt)
-    pre_test_payloads(opt)
-    send_test_requests(opt)
-    #send_payloads(opt)
-    #banned_effective_vector_clear()
-    #response2file2(opt)
-    sqlmap_detect = sqlmain(['sqlmap.py', '-u', opt.url, '--identify-waf'])
-    #print sqlmap_detect
+    if group <= 1:
+        print "Didn't find WAF Product"
+        return 0
+    ALL_BANNED_EFFECTIVE_VECTOR=['', 'onload', 'onblur', 'onfocus', 'onclick', 'onabort', 'onselect', 'onsubmit', 'onkeydown', 'onmouseout', 'onmousedown', 'onmouseover', '<script', '<img', 'javascript', 'document.cookie', '<frame']
+    rules_get(opt)
+    response2file2(opt)
     f_name = urlparse.urlparse(opt.url).netloc
     f = open('./result/'+f_name, 'a')
-    f.write('WAF PRODUCT:')
-    for s in sqlmap_detect:
-        f.write(s+'\n')
+    time2 = time.time()
+    f.write("Total time:"+print_time(time2-time1)+'\n')
     f.close()
-    
     
 def main():
     global pool
@@ -831,6 +1107,7 @@ def main():
     send_test_requests(opt)
     send_payloads(opt)
     banned_effective_vector_clear()
+    rules_get(opt)
     response2file2(opt)
     sqlmap_detect = sqlmain(['sqlmap.py', '-u', opt.url, '--identify-waf'])
     f_name = urlparse.urlparse(opt.url).netloc
@@ -838,8 +1115,9 @@ def main():
     f.write('WAF PRODUCT:')
     for s in sqlmap_detect:
         f.write(s+'\n')
+    time2 = time.time()
+    f.write("Total time:"+print_time(time2-time1)+'\n')
     f.close()
-    
     
 if __name__=="__main__":
     main()

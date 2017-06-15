@@ -1,0 +1,35 @@
+Base response time:0.7665s
+Top similarity:1.0
+or select
+ 
+'
+intooutfile
+sleep(
+execuxp_
+alert(
+<script></script>
+<i=script:
+data:
+<!
+<e src=>
+eval(
+prompt(
+confirm(
+<?
+$_POST
+$_GET
+$_SESSION
+php://filter
+php://input
+system(
+assert(
+proc_open
+passthru(
+shell_exec(
+call_user_func
+file_put_contents(
+file_get_contents(
+Total Requests num:1823
+WAF PRODUCT:WebKnight Application Firewall (AQTRONIX)
+Generic (Unknown)
+Total time:0h3m4s

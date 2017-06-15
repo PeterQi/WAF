@@ -1,0 +1,18 @@
+Base response time:0.9855s
+Top similarity:1.0
+</
+<s
+<i
+<M
+<!
+<f
+<a
+<l
+<b
+<e
+<m
+<t
+<o
+<?
+Total Requests num:161
+WAF PRODUCT:Total time:0h1m39s

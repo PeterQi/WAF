@@ -1,0 +1,16 @@
+Base response time:0.5585s
+Top similarity:1.0
+select
+update
+>
+"
+'
+<
+insert
+master
+delete
+Total Requests num:1654
+WAF PRODUCT:Yunjiasu Web Application Firewall (Baidu)
+CloudFlare Web Application Firewall (CloudFlare)
+Generic (Unknown)
+Total time:0h2m43s

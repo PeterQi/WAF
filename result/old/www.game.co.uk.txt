@@ -1,20 +1,22 @@
-Base response time:1.149s
+Base response time:0.9075s
 Top similarity:1.0
 
 onload
 onblur
+onfocus
 onclick
 onabort
-onkeyup
-onfocus
+onselect
 onsubmit
 onkeydown
 onmouseout
-onmouseover
 onmousedown
+onmouseover
 <script
 <img
 javascript
 document.cookie
 <frame
-Total Requests num:712
+Total Requests num:735
+WAF PRODUCT:Varnish FireWall (OWASP) 
+Total time:0h7m12s

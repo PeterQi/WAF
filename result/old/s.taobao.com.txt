@@ -1,6 +1,5 @@
-Base response time:0.5475s
+Base response time:0.4015s
 Top similarity:1.0
-if as
 into outfile
 alert(
 <script
@@ -9,4 +8,5 @@ prompt(
 confirm(
 etc/passwd
 php://input
-Total Requests num:1207
+Total Requests num:1191
+WAF PRODUCT:Total time:0h4m13s

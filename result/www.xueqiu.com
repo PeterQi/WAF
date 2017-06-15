@@ -1,0 +1,51 @@
+Base response time:0.563s
+Top similarity:1.0
+(?i)/\*\D*\*/
+(?i)union\s*\W\W?select
+(?i)into\s*\s\s*outfile
+(?i)s\w?elect\s*\s\D*\D\D*from\s*\s
+(?i)-\W*select\s*\s\D*from\s*\s
+(?i)\w\D*\W\W*select\s*\s\D*from\W?\s
+(?i)md5\s*\(
+(?i)ord\s*\(
+(?i)mid\s*\(
+(?i)hex\s*\(
+(?i)conv\s*\(
+(?i)left\s*\(
+(?i)char\s*\(
+(?i)floor\s*\(
+(?i)ascii\s*\(
+(?i)instr\s*\(
+(?i)sleep\s*\(
+(?i)substr\W?\(
+(?i)length\s*\(
+(?i)strcmp\s*\(
+(?i)concat\s*\(
+(?i)analyse\s*\(
+(?i)version\s*\(
+(?i)load_file\s*\(
+(?i)substring_index\s*\(
+(?i)benchmark\s*\(
+(?i)alert\s*\(
+(?i)<\s?script
+(?i)onload\s*=
+(?i)<img\W*\W\W*src\s*=\s*javascript\s*:
+(?i)PHNjcmlwdD
+(?i)eval\s*\(
+(?i)prompt\s*\(
+(?i)confirm\s*\(
+(?i)\.\.\\
+(?i)etc/passwd
+(?i)httpd\.conf
+(?i)web\.config
+(?i)<\?\D*\D\D*\D\D*\D\D*\D
+(?i)php://
+(?i)exec\s*\(
+(?i)popen\s*\(
+(?i)assert\s*\(
+(?i)system\s*\(
+(?i)passthru\s*\(
+(?i)proc_open\s*\(
+(?i)base64_decode\s*\(
+Total Requests num:4888
+WAF PRODUCT:Total time:0h6m6s

@@ -1,0 +1,46 @@
+Base response time:0.6255s
+Top similarity:1.0
+(?i)\W\W*union\s?\s\s?select\s*\s
+(?i)union\s*\s\s*select\s*\s\D*from
+(?i)union\s*\s\s*select\s*\s\D*into
+(?i)union\s*\s\s*select\s*\s\D*where
+(?i)union\s*\s\s*select\s*\s\D*limit
+(?i)union\s*\s\s*select\s*\s\D*having
+(?i)ascii\(\W?load_file\s?\(\D*concat\(\W*substr
+(?i)alert\s?\(
+(?i)<script\W*\W
+(?i)onload\W*=
+(?i)src\W*\W\D*j\s*a\s*v\s*a\s*s\s*c\s*r\s*i\s*p\s*t\s*:
+(?i)<i\W*\W\W*src\W*=
+(?i)<META\W*\W
+(?i)d\s*a\s*t\W?a\s*:\D*text/html\D*\D
+(?i)<!\[cdata\[
+(?i)<em\W*\W\W*src\W*=
+(?i)<\w\W*\W\W*href\W*=
+(?i)<frame\D*\W\D*src\W*=
+(?i)<layer\W*\W\W*src\W*=
+(?i)<a\W*\Wplet\W*\W\W*src\W*=
+(?i)<b\W*\Wsound\W*\W\W*src\W*=
+(?i)<object\s*\s\D*data\s*=
+(?i)<td\W*\W\W*background\W*=
+(?i)<body\W*\W\W*background
+(?i)<table\W*\W\W*background\W*=
+(?i)<input\W*\W\W*type\W*\W\W*image
+my\.cnf
+php\.ini
+etc/passwd
+(?i)<\?
+(?i)\$_GET
+(?i)\$_POST
+(?i)\$_SESSION
+(?i)php://input
+(?i)passthru\s*\(
+(?i)proc_open
+(?i)shell_exec\s?\(
+(?i)zlib_decode\s*\(
+(?i)call_user_func
+(?i)base64_decode\s?\(
+Total Requests num:5621
+WAF PRODUCT:Varnish FireWall (OWASP) 
+Generic (Unknown)
+Total time:0h12m8s

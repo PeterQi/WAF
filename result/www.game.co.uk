@@ -1,0 +1,23 @@
+Base response time:1.284s
+Top similarity:1.0
+
+(?i)onblur
+(?i)onload
+(?i)onfocus
+(?i)onclick
+(?i)onkeyup
+(?i)onabort
+(?i)onsubmit
+(?i)onkeydown
+(?i)onmouseout
+(?i)onmousedown
+(?i)onmouseover
+(?i)<script
+(?i)<img
+(?i)javascript
+(?i)document\.cookie
+(?i)<frame
+Total Requests num:1714
+WAF PRODUCT:Varnish FireWall (OWASP) 
+Generic (Unknown)
+Total time:0h6m57s
